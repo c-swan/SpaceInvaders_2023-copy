@@ -8,5 +8,8 @@
 #ifndef Constants_h
 #define Constants_h
 
+#include <string>
+
+static const std::string ASSETS_DIR = "./Assets/";
 
 #endif /* Constants_h */
