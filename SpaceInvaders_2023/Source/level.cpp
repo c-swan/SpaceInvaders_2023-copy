@@ -1,40 +1,36 @@
 #include <iostream>
 #include <fstream>
-#include <vector> 
+#include <vector>
 #include <string>
 #include "level.h"
+#include <raylib.h>
+#include <print>
 
-void LoadLevelFromFile(const std::string& filename) 
+void LoadLevelFromFile(const std::string& filename)
 {
-	std::ifstream file(filename); 
+	std::ifstream file(filename);
 
-	if (file.is_open())
-	{
-		std::vector<Entity> entities;
-		float x, y; 
-
-		while (file >> x >> y) 
-		{
-		Entity entity;  
-		entity.x = x;
-		entity.y = y; 
-		entities.push_back(entity); 
-		}
-
-	    file.close(); 
-
-		for (int i = 0; i < entities.size(); i++)
-		{
-			const Entity& entity = entities[i]; 
-			std::cout << "Spawn entity at X:" << entity.x << ",Y:" << entity.y << std::endl; 
-		}
+	if (!file.is_open()) {
+		std::println("Unable to open file: {}", filename);
+		return;
 	}
-	else 
+
+	std::vector<Entity> entities;
+	Vector2 vec;
+	//float x, y; //looks a whole lot like a vector
+
+	while (file >> vec.x >> vec.y) //read positions,
 	{
-		std::cout << "Unable to open file:" << filename << std::endl; 
+		Entity entity { vec };
+		entities.push_back(entity);
 	}
-	
+
+	file.close();
+
+	for(auto &entity : entities)
+	{
+		std::println("Spawn entity at ({}, {})", entity.position.x, entity.position.y);
+		//std::cout << "Spawn entity at X:" << entity.position.x << ",Y:" << entity.position.y << std::endl;
+	}
+
 }
-
-
-	
