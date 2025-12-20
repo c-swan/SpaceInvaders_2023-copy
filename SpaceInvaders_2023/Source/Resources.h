@@ -2,8 +2,8 @@
 #include "raylib.h"
 #include "vector"
 
-struct Resources  //change to wrapper class, RAII
-{
+struct Resources { //change to wrapper class, RAII
+
 	void Load(); //constructor...
 	//void Unload(); //we DO need this
 

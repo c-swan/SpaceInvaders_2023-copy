@@ -5,7 +5,7 @@
 
 struct Entity //TODO: unused
 {
-	float x, y;
+	float x, y; //Vector2 position;
 
-	void LoadLevelFromAFile(const std::string& filename);
+	void LoadLevelFromAFile(const std::string& filename); //should be constructor...
 };

@@ -4,7 +4,6 @@
 
 void Resources::Load()
 {
-	std::println("Yay"); // yes
 	alienTexture = LoadTexture("./Assets/Alien.png"); //change ".Assets/" to constant...
 	barrierTexture = LoadTexture("./Assets/Barrier.png");
 	shipTextures.push_back(LoadTexture("./Assets/Ship1.png"));

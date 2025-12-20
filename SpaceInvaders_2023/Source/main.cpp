@@ -33,23 +33,22 @@ int main(void)
 {
 	// Initialization
 	//--------------------------------------------------------------------------------------
-
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SPACE INVADERS"); //TODO: RAII, move to Window
-
-	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-
+	
+	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SPACE INVADERS"); //TODO: RAII, move to Window
+	
+	SetTargetFPS(TARGET_FPS);               // Set our game to run at 60 frames-per-second
+	
 	Game game = { State::STARTSCREEN };
 	Resources resources;
-	game.resources = resources;
-	game.Launch();
-
+	game.resources = resources; //we are creating a resource, then copying it to game.resources... cool
+	game.Launch(); //constructor stuff
+	
 	//--------------------------------------------------------------------------------------
-
+	
 	InitAudioDevice();  //TODO: RAII, delegate to Audio class
-
-	auto sound = LoadSound("./hitHurt.ogg");
-
-
+	auto sound = LoadSound("./Assets/hitHurt.ogg");
+	
+	
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
@@ -57,38 +56,39 @@ int main(void)
 		//----------------------------------------------------------------------------------
 		// TODO: Update your variables here
 		//----------------------------------------------------------------------------------
-
-		//if (IsKeyPressed(KEY_SPACE))
-		//{
-		//    PlaySound(sound);
-		//}
-
+		
+		if (IsKeyPressed(KEY_SPACE))
+		{
+			//assume loaded
+			PlaySound(sound);
+		}
+		
 		//if (IsKeyPressed(KEY_BACKSPACE))
 		//{
 		//    StopSound(sound);
 		//}
-
+		
 		game.Update();
-
+		
 		// Draw
 		//----------------------------------------------------------------------------------
 		BeginDrawing();
 		ClearBackground(BLACK); //TODO: delegate to Game
-
+		
 		game.Render();
-
+		
 		EndDrawing();
 		//----------------------------------------------------------------------------------
 	}
-
+	
 	CloseAudioDevice(); //delegate to Audio class
-
+	
 	// De-Initialization
 	//--------------------------------------------------------------------------------------
 	CloseWindow();        // Close window and OpenGL context, delegate to Window wrapper
 	//--------------------------------------------------------------------------------------
-
-	std::string filename = "level.txt";		//unused...?
-
+	
+	//	std::string filename = "level.txt";		//unused...?
+	
 	return 0;
 }
