@@ -3,8 +3,7 @@
 #include <string>
 #include <fstream>
 
-
-struct Entity
+struct Entity //TODO: unused
 {
 	float x, y;
 

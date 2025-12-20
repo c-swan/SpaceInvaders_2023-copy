@@ -7,21 +7,26 @@
 
 #ifndef Math_hpp
 #define Math_hpp
-#include "raylib.h"
+#include <raylib.h>
 #include <cmath>
 
 
-// ====
+
 Vector2 operator+(const Vector2& lhs, const Vector2& rhs) noexcept; /* { return Vector2(lhs.x + rhs.x, lhs.y + rhs.y); }*/
 Vector2 operator-(const Vector2& lhs, const Vector2& rhs) noexcept; /* { return Vector2(lhs.x + rhs.x, lhs.y + rhs.y); }*/
-float magnitude(const Vector2& v) noexcept;
+
+Vector2 operator*(const Vector2& lhs, float rhs) noexcept;
+Vector2 operator/(const Vector2& lhs, float rhs) noexcept;
+
+float magnitude(const Vector2& v) const noexcept;
+float dot(const Vector2& lhs, const Vector2& rhs) constexpr noexcept;
 // ====
 
 // ====
 struct Circle {
 	Vector2 position;
 	float radius;
-	bool contains(const Vector2& point) const noexcept { Vector2 d = point - position; return magnitude(d) < radius; }
+	//bool contains(const Vector2& point) const noexcept { Vector2 d = point - position; return magnitude(d) < radius; }
 };
 // ====
 
@@ -33,7 +38,7 @@ float lineLength(Vector2 A, Vector2 B); //Uses pythagoras to calculate the lengt
 //	return length;
 //}
 
-bool pointInCircle(const Circle& circle, Vector2 point);
-bool pointInCircle(Vector2 circlePos, float radius, Vector2 point); // Uses pythagoras to calculate if a point is within a circle or not
+bool pointInCircle(const Circle& circle, const Vector2& point);
+bool pointInCircle(const Vector2& circlePos, float radius, const Vector2& point); // Uses pythagoras to calculate if a point is within a circle or not
 
 #endif /* Math_hpp */

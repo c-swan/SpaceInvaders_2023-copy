@@ -32,6 +32,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				External/raylib/lib/raylib.lib,
+				Source/Math.cpp,
 			);
 			target = 6018C4552EF56E0500C281B8 /* SpaceInvaders_2023 */;
 		};
