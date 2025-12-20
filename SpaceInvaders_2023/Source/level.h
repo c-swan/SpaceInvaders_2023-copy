@@ -2,11 +2,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <raylib.h>
+
 
 struct Entity
 {
-	Vector2 position;
+	float x, y;
 
-	void LoadLevelFromAFile(const std::string& filename); //why not free function?
+	void LoadLevelFromAFile(const std::string& filename);
 };

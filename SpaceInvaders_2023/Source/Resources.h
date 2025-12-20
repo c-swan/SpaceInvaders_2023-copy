@@ -6,7 +6,6 @@ struct Resources
 {
 	void Load();
 	//void Unload();
-	//TODO: Unload seems important
 
 	std::vector<Texture2D> shipTextures;
 	Texture2D alienTexture;
