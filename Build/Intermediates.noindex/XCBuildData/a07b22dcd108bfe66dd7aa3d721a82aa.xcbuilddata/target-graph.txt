@@ -1,0 +1,2 @@
+Target dependency graph (1 target)
+Target 'SpaceInvaders_2023' in project 'SpaceInvaders_2023' (no dependencies)

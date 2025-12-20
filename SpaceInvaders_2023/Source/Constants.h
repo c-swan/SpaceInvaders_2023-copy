@@ -9,6 +9,7 @@
 #define Constants_h
 
 #include <string>
+#include "raylib.h"
 
 static constexpr std::string ASSETS_DIR = "./Assets/";
 
@@ -71,7 +72,7 @@ static constexpr int FORMATION_X = 100;
 static constexpr int FORMATION_Y = 50;
 static constexpr int ALIEN_PADDING_X = 450;
 static constexpr int ALIEN_HEIGHT = 187;
-static constexpr float ALIEN_MOVEMENT_Y = 10 * static_cast<float>(ALIEN_PLAYER_TEXTURE_RESOLUTION - ALIEN_HEIGHT) / ALIEN_PLAYER_TEXTURE_RESOLUTION; //50
+static constexpr float ALIEN_MOVEMENT_Y = 45;
 
 static constexpr int STAR_COUNT = 600;
 

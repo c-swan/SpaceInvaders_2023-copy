@@ -5,36 +5,34 @@
 #include "level.h"
 #include "Math.hpp"
 
+void spawn(Entity &entity) {
+	std::println("Spawn entity at {}", entity.position);
+}
+
 void LoadLevelFromFile(const std::string& filename)  //TODO: unused, implement or remove
 {
 	std::ifstream file(filename);
 
-	if (file.is_open())
-	{
-		std::vector<Entity> entities;
-		float x, y;
-
-		while (file >> x >> y)
-		{
-			Entity entity;
-			entity.x = x;
-			entity.y = y;
-			entities.push_back(entity);
-		}
-
-		file.close();
-
-		for (int i = 0; i < entities.size(); i++)
-		{
-			const Entity& entity = entities[i];
-			std::println("Spawn entity at {}", Vector2(entity.x, entity.y));
-		}
-	}
-	else
-	{
+	if (!file.is_open()) {
 		std::println("Unable to open file: {}", filename);
+		return;
 	}
+
+	std::vector<Entity> entities;
+	float x, y;
+
+	while (file >> x >> y)
+	{
+		Entity entity;
+		entity.position.x = x;
+		entity.position.y = y;
+		entities.push_back(entity);
+	}
+
+	file.close();
+
+	for(auto &entity : entities) {
+		spawn(entity);
+	}
+
 }
-
-
-

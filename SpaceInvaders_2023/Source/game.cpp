@@ -8,6 +8,22 @@
 #include "Constants.h"
 #include "Math.hpp"
 
+Game::Game() {
+
+	//LOAD SOME RESOURCES HERE
+	//Game Constructor... before loading scenes, although resources.Load should be in Resource constructor
+	//	resources.Load(); //Textures constructor should construct
+	SetTargetFPS(TARGET_FPS);               // Set our game to run at 60 frames-per-second
+
+}
+
+void Game::run() {
+	while (!window.shouldClose()) {   // Detect window close button or ESC key
+		Update();
+		Render();
+	}
+
+}
 void Game::Start()
 {
 	// creating walls
@@ -66,17 +82,11 @@ void Game::End() {
 }
 
 void Game::Continue() {
-	//EndScreen -> StartScreen
+
 	SaveLeaderboard();
 	gameState = State::STARTSCREEN;
 }
 
-void Game::Launch()
-{
-	//LOAD SOME RESOURCES HERE
-	//Game Constructor... before loading scenes, although resources.Load should be in Resource constructor
-	resources.Load(); //should be in constructor for Resources
-}
 
 void Game::Update() {//separate into different functions
 	switch (gameState) {
@@ -171,6 +181,7 @@ void Game::Update() {//separate into different functions
 				{
 					if (CheckCollision(static_cast<Vector2>(player.position), player.radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
 					{
+						sounds.playHitSound();
 						std::println("dead");// << "dead!\n";
 						Projectiles[i].active = false;
 						player.lives -= 1;
@@ -187,7 +198,7 @@ void Game::Update() {//separate into different functions
 					std::println("Hit!");
 					// Set them as inactive, will be killed later
 					Projectiles[i].active = false;
-//					Walls[b].health -= 1;
+					//					Walls[b].health -= 1;
 					Walls[b].health--;
 				}
 			}
@@ -227,7 +238,7 @@ void Game::Update() {//separate into different functions
 		// REMOVE INACTIVE/DEAD ENITITIES
 		for (int i = 0; i < Projectiles.size(); i++)
 		{
-//			if (Projectiles[i].active == false)
+			//			if (Projectiles[i].active == false)
 			if (!Projectiles[i].active)
 			{
 				Projectiles.erase(Projectiles.begin() + i);
@@ -238,7 +249,7 @@ void Game::Update() {//separate into different functions
 		}
 		for (int i = 0; i < Aliens.size(); i++)
 		{
-//			if (Aliens[i].active == false)
+			//			if (Aliens[i].active == false)
 			if (!Aliens[i].active)
 			{
 				Aliens.erase(Aliens.begin() + i);
@@ -247,7 +258,7 @@ void Game::Update() {//separate into different functions
 		}
 		for (int i = 0; i < Walls.size(); i++)
 		{
-//			if (Walls[i].active == false)
+			//			if (Walls[i].active == false)
 			if (!Walls[i].active)
 			{
 				Walls.erase(Walls.begin() + i);
@@ -321,8 +332,10 @@ void Game::Update() {//separate into different functions
 }
 
 
-void Game::Render()
-{
+void Game::Render() { //do not return without EndDrawing();
+	BeginDrawing();
+	ClearBackground(BLACK); //TODO: delegate to Game
+
 	switch (gameState)
 	{
 	case State::STARTSCREEN:
@@ -335,24 +348,24 @@ void Game::Render()
 		background.Render();
 
 		//player rendering
-		player.Render(resources.shipTextures[player.activeTexture]);
+		player.Render(textures.shipTextures[player.activeTexture]);
 
 		//projectile rendering
 		for (int i = 0; i < Projectiles.size(); i++)
 		{
-			Projectiles[i].Render(resources.laserTexture);
+			Projectiles[i].Render(textures.laserTexture);
 		}
 
 		// wall rendering
 		for (int i = 0; i < Walls.size(); i++)
 		{
-			Walls[i].Render(resources.barrierTexture);
+			Walls[i].Render(textures.barrierTexture);
 		}
 
 		//alien rendering
 		for (int i = 0; i < Aliens.size(); i++)
 		{
-			Aliens[i].Render(resources.alienTexture);
+			Aliens[i].Render(textures.alienTexture);
 		}
 
 		//DrawText("GAMEPLAY", 50, 30, 40, YELLOW);
@@ -400,7 +413,7 @@ void Game::Render()
 				else
 				{
 					//Name needs to be shorter
-//					DrawText("Press BACKSPACE to delete chars...", 600, 650, HALF_FONT_SIZE, TEXT_COLOR);
+					//					DrawText("Press BACKSPACE to delete chars...", 600, 650, HALF_FONT_SIZE, TEXT_COLOR);
 					DrawTextCenteredHorizontal("Press BACKSPACE to delete chars...", 650, HALF_FONT_SIZE, TEXT_COLOR);
 				}
 
@@ -409,13 +422,13 @@ void Game::Render()
 			// Explain how to continue when name is input
 			if (letterCount > 0 && letterCount < MAX_LETTER_COUNT)
 			{
-//				DrawText("PRESS ENTER TO CONTINUE", 600, 800, DEFAULT_FONT_SIZE, TEXT_COLOR);
+				//				DrawText("PRESS ENTER TO CONTINUE", 600, 800, DEFAULT_FONT_SIZE, TEXT_COLOR);
 				DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", 700, DEFAULT_FONT_SIZE, TEXT_COLOR); //800 out of bounds
 			}
 		}
 		else {
 			// If no highscore or name is entered, show scoreboard and call it a day
-//			DrawText("PRESS ENTER TO CONTINUE", 600, 200, DEFAULT_FONT_SIZE, TEXT_COLOR);
+			//			DrawText("PRESS ENTER TO CONTINUE", 600, 200, DEFAULT_FONT_SIZE, TEXT_COLOR);
 			DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", WINDOW_HEIGHT - 200, DEFAULT_FONT_SIZE, TEXT_COLOR);//200
 
 			DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, TEXT_COLOR);
@@ -432,19 +445,16 @@ void Game::Render()
 		//SHOULD NOT HAPPEN
 		break;
 	}
+
+	EndDrawing();
+
 }
 
 void Game::SpawnAliens() {
 	for (int row = 0; row < FORMATION_HEIGHT; row++) {
 		for (int col = 0; col < FORMATION_WIDTH; col++) {
-			Alien newAlien = Alien();
-			//TODO: move to constructor
-			newAlien.active = true; //avoid active, also could these all derive from an entity class?
-			newAlien.position.x = FORMATION_X + ALIEN_PADDING_X + (col * ALIEN_SPACING);
-			newAlien.position.y = FORMATION_Y + (row * ALIEN_SPACING);
-
+			Alien newAlien = Alien(col, row);
 			Aliens.push_back(newAlien);
-			std::println("Find Alien {}", newAlien.position);
 		}
 	}
 }
@@ -465,7 +475,7 @@ void Game::InsertNewHighScore(std::string name)
 		{
 			Leaderboard.insert(Leaderboard.begin() + i, newData);
 			Leaderboard.pop_back();
-//			i = Leaderboard.size(); //exit loop
+			//			i = Leaderboard.size(); //exit loop
 			return;
 		}
 	}
@@ -492,13 +502,13 @@ void Game::SaveLeaderboard() {
 	// SAVE LEADERBOARD AS ARRAY //clarification...?
 	/*
 	 {
-	   "Leaderboard" : [
-	 	{ "name":"Player 1", "score":2000 },
-		{ "name":"Player 2", "score":1000 },
-		{ "name":"Player 3", "score":500 },
-		{ "name":"Player 4", "score":200 },
-		{ "name":"Player 5", "score":100 },
-	   ]
+	 "Leaderboard" : [
+	 { "name":"Player 1", "score":2000 },
+	 { "name":"Player 2", "score":1000 },
+	 { "name":"Player 3", "score":500 },
+	 { "name":"Player 4", "score":200 },
+	 { "name":"Player 5", "score":100 },
+	 ]
 	 }
 	 */
 
@@ -651,6 +661,9 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 
 }
 
+Game::~Game() {
+
+}
 void Player::Initialize()  {
 	//float window_width = (float)WINDOW_WIDTH;
 	position.x = WINDOW_WIDTH / 2;
@@ -777,6 +790,12 @@ void Wall::Update() {
 	}
 }
 
+Alien::Alien(int col, int row) {
+	position.x = FORMATION_X + ALIEN_PADDING_X + (col * ALIEN_SPACING);
+	position.y = FORMATION_Y + (row * ALIEN_SPACING);
+	active = true;
+	std::println("Alien Spawned, Row:{}, Column:{}, Position: {}", row, col, position);
+}
 void Alien::Update() {
 
 	float direction = moveRight ? 1 : -1;

@@ -1,10 +1,13 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
-#include "Resources.h"
+#include "Textures.hpp"
+#include "Sounds.hpp"
 #include <string>
 #include "Constants.h"
 #include "Math.hpp"
+#include "Window.hpp"
+#include "Sounds.hpp"
 
 //TODO: separate classes / structs into files
 enum struct State
@@ -79,6 +82,7 @@ struct Wall { //TODO: position it correctly
 
 struct Alien {
 	public:
+	Alien(int col, int row);
 //	Color color = WHITE; //why?
 	point position{0,0};
 	Rectangle rect {0, 0, ALIEN_SIZE, ALIEN_SIZE};
@@ -118,26 +122,27 @@ struct Background {
 	void setOffset(float offsetX);
 };
 
-struct Game {
+class Game {
+	public:
+	Game();
+	~Game();
+
+	void run();
+
 	State gameState = State::STARTSCREEN;
 
 	int score = 0;
-
-	//Aliens shooting
-	float shootTimer = 0;
-
-	//Aliens stuff? (idk cause liv wrote this) //well find out...
-	//Rectangle rec = { 0, 0 ,0 ,0 };
+	float shootTimer = 0; //Aliens shooting
 
 	bool newHighScore = false;
 
-	void Start();
-	void End();
+	void Start(); //StartScreen -> Gameplay
+	void End(); // Gameplay -> EndScreen
 
-	void Pause(); //new functionality
+	void Pause(); //new functionality (Gameplay)
 
-	void Continue();
-	void Launch(); //constructor
+	void Continue(); //EndScreen -> StartScreen
+//	void Launch(); //constructor
 
 	void Update();
 	void Render();
@@ -158,10 +163,10 @@ struct Game {
 	void LoadLeaderboard();
 	void SaveLeaderboard();
 
-	
-
 	// Entity Storage and Resources
-	Resources resources;
+	Window window;
+	Textures textures;
+	Sounds sounds;
 
 	Player player;
 	std::vector<Projectile> Projectiles; //TODO: separate into PlayerProjectiles and EnemyProjectiles and get rid of EntityType

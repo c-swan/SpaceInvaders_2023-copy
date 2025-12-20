@@ -23,72 +23,22 @@
 
 #include "raylib.h"
 #include "game.h"
-#include "Constants.h"
-
+#include <iostream>
+#include <print>
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
 
-int main(void)
-{
-	// Initialization
-	//--------------------------------------------------------------------------------------
-	
-	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SPACE INVADERS"); //TODO: RAII, move to Window
-	
-	SetTargetFPS(TARGET_FPS);               // Set our game to run at 60 frames-per-second
-	
-	Game game = { State::STARTSCREEN };
-	Resources resources;
-	game.resources = resources; //we are creating a resource, then copying it to game.resources... cool
-	game.Launch(); //constructor stuff
-	
-	//--------------------------------------------------------------------------------------
-	
-	InitAudioDevice();  //TODO: RAII, delegate to Audio class
-	auto sound = LoadSound("./Assets/hitHurt.ogg");
-	
-	
-	// Main game loop
-	while (!WindowShouldClose())    // Detect window close button or ESC key
-	{
-		// Update
-		//----------------------------------------------------------------------------------
-		// TODO: Update your variables here
-		//----------------------------------------------------------------------------------
-		
-		if (IsKeyPressed(KEY_SPACE))
-		{
-			//assume loaded
-			PlaySound(sound);
-		}
-		
-		//if (IsKeyPressed(KEY_BACKSPACE))
-		//{
-		//    StopSound(sound);
-		//}
-		
-		game.Update();
-		
-		// Draw
-		//----------------------------------------------------------------------------------
-		BeginDrawing();
-		ClearBackground(BLACK); //TODO: delegate to Game
-		
-		game.Render();
-		
-		EndDrawing();
-		//----------------------------------------------------------------------------------
+int main(void) {
+	try{
+		Game game{};
+		game.run();
+	} catch(const std::runtime_error& e){
+		std::println(std::cerr, "Exception: %s", e.what());
+	} catch(const std::exception& e){
+		std::println(std::cerr, "Exception: %s", e.what());
+	} catch(...){
+		std::println(std::cerr, "Unknown exception occurred.");
 	}
-	
-	CloseAudioDevice(); //delegate to Audio class
-	
-	// De-Initialization
-	//--------------------------------------------------------------------------------------
-	CloseWindow();        // Close window and OpenGL context, delegate to Window wrapper
-	//--------------------------------------------------------------------------------------
-	
-	//	std::string filename = "level.txt";		//unused...?
-	
 	return 0;
 }

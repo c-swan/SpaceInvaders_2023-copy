@@ -7,7 +7,18 @@
 
 #ifndef Window_hpp
 #define Window_hpp
+#include "Constants.h"
+#include <raylib.h>
 
-#include <stdio.h>
+class Window {
+public:
+	Window() { InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "SPACE INVADERS");  }
+	~Window() { CloseWindow(); }
 
+	bool shouldClose() const { return WindowShouldClose(); }
+
+private:
+	
+
+};
 #endif /* Window_hpp */
