@@ -153,7 +153,7 @@ void Game::GameplayUpdate() {
 			//std::remove_if for each alien
 			//std::remove_if for each projectile
 			//erase remove_if's
-			if (CheckCollision(static_cast<Vector2>(Aliens[a].position), ALIEN_RADIUS, PlayerProjectiles[i].lineStart, PlayerProjectiles[i].lineEnd))
+			if (CheckCollision(Aliens[a].position, ALIEN_RADIUS, PlayerProjectiles[i].lineStart, PlayerProjectiles[i].lineEnd))
 			{
 				std::println("Hit!"); // Kill!
 				// Set them as inactive, will be killed later
@@ -166,7 +166,7 @@ void Game::GameplayUpdate() {
 		//WALLS–ENEMY_PROJECTILES & WALLS–PLAYER_PROJECTILES
 		for(auto &wall : Walls)
 		{
-			if (CheckCollision(static_cast<Vector2>(wall.position), WALL_RADIUS, PlayerProjectiles[i].lineStart, PlayerProjectiles[i].lineEnd))
+			if (CheckCollision(wall.position, WALL_RADIUS, PlayerProjectiles[i].lineStart, PlayerProjectiles[i].lineEnd))
 			{
 				// Kill!
 				std::println("Hit!");
@@ -182,7 +182,7 @@ void Game::GameplayUpdate() {
 	for (int i = 0; i < EnemyProjectiles.size(); i++)
 	{
 
-		if (CheckCollision(static_cast<Vector2>(player.position), PLAYER_RADIUS, EnemyProjectiles[i].lineStart, EnemyProjectiles[i].lineEnd))
+		if (CheckCollision(player.position, PLAYER_RADIUS, EnemyProjectiles[i].lineStart, EnemyProjectiles[i].lineEnd))
 		{
 			sounds.playHitSound();
 			std::println("dead");// << "dead!\n";
@@ -194,7 +194,7 @@ void Game::GameplayUpdate() {
 		//WALLS–ENEMY_PROJECTILES & WALLS–PLAYER_PROJECTILES
 		for(auto &wall : Walls)
 		{
-			if (CheckCollision(static_cast<Vector2>(wall.position), WALL_RADIUS, EnemyProjectiles[i].lineStart, EnemyProjectiles[i].lineEnd))
+			if (CheckCollision(wall.position, WALL_RADIUS, EnemyProjectiles[i].lineStart, EnemyProjectiles[i].lineEnd))
 			{
 				// Kill!
 				std::println("Hit!");
@@ -494,29 +494,60 @@ void Game::Pause() {
 //	}
 //
 //}
-bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
+bool Game::CheckCollision(const Vector2 &circlePos, const float &circleRadius, const Vector2 &lineStart, const Vector2 &lineEnd) {
+	return CheckCollision(Circle(circlePos, circleRadius), LineSegment(lineStart, lineEnd));
+}
+
+bool Game::CheckCollision(const Circle& circle, const LineSegment& line) {
+	if (pointInCircle(circle, line.start) || pointInCircle(circle, line.end)) { return true; }
+	/*
+	 A = line.start, B = line.end, C = circle.position, P = closestPoint
+	 AP = proj_AB(AC) ,  P = proj_AB(AC) + A
+	 oproj_u(v) = v - proj_u(v)
+	 oproj_AB(AC) = AC - proj_AB(AC) = PC = -CP
+	 */
+
+	Vector2 closestPoint = projectOnto( circle.position - line.start, line.end - line.start) + line.start; //get closest point AP on line AB by projecting AC onto AB and adding A
+
+	float segmentLengths = distance(closestPoint, line.start) + distance(closestPoint, line.end);
+	float errorMargin = 0.1f;
+	if(segmentLengths > line.length() + errorMargin) { //should be equal: |AP| + |PB| = |AB|
+		return false;
+	}
+	if(segmentLengths < line.length()) {
+		throw std::logic_error("Line projection length sum should not be less than line segment length");
+	}
+	Vector2 orthogonalProj = circle.position - closestPoint;
+	/* closestPoint = proj_AB(AC) + line.start; we are already subtracting line.start to get the orthogonal projection vector, so oproj_AB(AC) = AC - proj_AB(AC) = orthogonalProj = (circle.position - line.start) - proj_AB(AC) = circle.position - closestPoint; */
+	return magnitude(orthogonalProj) < circle.radius;
+}
+
+/*
+ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
 {
 	// our objective is to calculate the distance between the closest point on the line to the centre of the circle,
 	// and determine if it is shorter than the radius.
 
 	// check if either edge of line is within circle
-	if (pointInCircle(circlePos, circleRadius, lineStart) || pointInCircle(circlePos, circleRadius, lineEnd)) { return true; }
-
+	if (pointInCircle(circlePos, circleRadius, lineStart) || pointInCircle(circlePos, circleRadius, lineEnd))
+	{
+		return true;
+	}
 
 	// simplify variables
-
 	Vector2 A = lineStart;
 	Vector2 B = lineEnd;
 	Vector2 C = circlePos;
 
 	// calculate the length of the line
-	float length = lineLength(A, B);
+	float length = lineLength(A, B);		
 
-	// calculate the dot product  //what vectors...?
-	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / (length * length);
+	// calculate the dot product  AC
+	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / pow(length, 2);
+	// dot(C-A, B-A) / dot(B-A, B-A) = p, s.t. represents projection without vector (B-A)
 
-	// use dot product to find closest point
-	float closestX = A.x + (dotP * (B.x - A.x));
+	// use dot product to find closest point (on line?)
+	float closestX = A.x + (dotP * (B.x - A.x)); //closest = A + p(B-A) = A + proj_AB(AC) = OA + AP = P
 	float closestY = A.y + (dotP * (B.y - A.y));
 
 	//find out if coordinates are on the line.
@@ -557,10 +588,13 @@ bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineSta
 	}
 
 }
+*/
 
 Game::~Game() {
 
 }
+
+
 void Game::DrawTextCenteredHorizontal(const char *text, int posY, int fontSize, Color color) {
 	int halfTextWidth = MeasureText(text, fontSize) / 2;
 	DrawText(text, (WINDOW_WIDTH / 2) - halfTextWidth, posY, fontSize, color);
@@ -575,47 +609,3 @@ void Game::DrawTextCentered(const char *text, Vector2 offset, int fontSize, Colo
 	int halfTextWidth = MeasureText(text, fontSize) / 2;
 	DrawText(text, (WINDOW_WIDTH / 2) - halfTextWidth + offset.x, WINDOW_HEIGHT / 2 + offset.y, fontSize, color);
 }
-
-
-/*LEGACY CODE
- // our objective is to calculate the distance between the closest point of the line to the centre of the circle,
- // and determine if it is shorter than the radius.
-
- // we can imagine the edges of the line and circle centre to form a triangle. calculating the height of the
- // triangle will give us the distance, if the line serves as the base
-
- // simplify variables
- Vector2 A = lineStart;
- Vector2 B = lineEnd;
- Vector2 C = circlePos;
-
- // calculate area using determinant method
-
- float triangle_area = fabsf(A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y)) / 2;
-
-
- // Caculate vectors AB to calculate base length
- Vector2 AB;
- AB.x = B.x - A.x;
- AB.y = B.y - A.y;
-
- //get the base length
- float trangle_base_length = (float)sqrt(pow(AB.x, 2) + pow(AB.y, 2));
-
- // we double the area to turn in into a rectangle, and then divide the base length to get the height.
- float triangle_height = (triangle_area * 2 ) / trangle_base_length;
-
- std::cout << triangle_area << "\n";
-
- if (triangle_height < circleRadius)
- {
- return true;
- }
- else
- {
- return false;
- }
-
-
- */
-

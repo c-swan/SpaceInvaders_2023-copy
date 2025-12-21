@@ -69,7 +69,6 @@ void Leaderboard::LoadFromFile() {
 
 void Leaderboard::Render() {
 
-//	DrawText("PRESS ENTER TO CONTINUE", 600, 200, DEFAULT_FONT_SIZE, TEXT_COLOR);
 	DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, TEXT_COLOR);
 
 	int i=0;
@@ -89,7 +88,7 @@ bool Leaderboard::CheckNewHighScore(int score) {
 void Leaderboard::InsertNewHighScore(std::string name, int score) {
 	PlayerData newData{name, score};
 
-	for (int i = 0; i < playerData.size(); i++) { //TODO: for ranged loop?
+	for (int i = 0; i < playerData.size(); i++) { //
 		if (newData.score > playerData[i].score) {
 			playerData.insert(playerData.begin() + i, newData);
 			playerData.pop_back();

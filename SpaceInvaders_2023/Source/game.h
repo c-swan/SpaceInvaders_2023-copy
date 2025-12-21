@@ -62,8 +62,8 @@ class Game {
 	void cleanUpEntities();
 
 	void checkAllCollisions();
-	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
-
+	bool CheckCollision(const Vector2& circlePos, const float& circleRadius, const Vector2& lineTop, const Vector2& lineBottom);
+	bool CheckCollision(const Circle& circle, const LineSegment& line);
 
 //high-score / leaderboard
 

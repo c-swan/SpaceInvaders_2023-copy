@@ -166,7 +166,7 @@ void Alien::Render(Texture2D texture)
 			   NO_TINT);
 }
 
-Star::Star(const point& pos) : position(pos) {
+Star::Star(const Vector2& pos) : position(pos) {
 	localPosition.x = GetRandomValue(-BACKGROUND_EDGE_SIZE, WINDOW_WIDTH + BACKGROUND_EDGE_SIZE);
 	localPosition.y = GetRandomValue(0, WINDOW_HEIGHT);
 	size = GetRandomValue(1, STAR_MAX_SIZE * 2) / 2;

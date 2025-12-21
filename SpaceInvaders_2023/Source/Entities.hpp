@@ -29,20 +29,20 @@ public:
 	Sprite(Texture2D* texture) : _texture(texture) {}
 	Texture2D* _texture = nullptr;
 
-	point position{0,0};
-	scale scale{1,1};
+	Vector2 position{0,0};
+	Rectangle rect {0,0,100,100};
 	bool hidden = false;
 
-	inline Rectangle getBounds() { return Rectangle{position.x, position.y, scale.width, scale.height}; }
+	inline Rectangle getBounds() { return rect + position; }
 	inline Vector2 getOrigin() { return getCenter(getBounds()); }
 	void Render();
 };
 
 class Player {
 public:
-	explicit Player() : position(point(WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT)) {}
+	explicit Player() : position(Vector2(WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT)) {}
 
-	point position;
+	Vector2 position;
 	Rectangle rect {0, 0, PLAYER_SIZE, PLAYER_SIZE};
 //	const float radius = PLAYER_RADIUS;
 
@@ -64,9 +64,9 @@ public:
 
 class Projectile {
 public:
-	Projectile(const point& pos) : position(pos) {}
+	Projectile(const Vector2& pos) : position(pos) {}
 
-	point position = {0,0};
+	Vector2 position = {0,0};
 	Rectangle rect{0, 0, PROJECTILE_SIZE, PROJECTILE_SIZE};
 	int speed;
 	bool active = true;
@@ -83,13 +83,13 @@ public:
 
 class EnemyProjectile : public Projectile {
 public:
-	EnemyProjectile(const point &pos) : Projectile(pos) { speed = PROJECTILE_SPEED; position.y += 40; }
+	EnemyProjectile(const Vector2 &pos) : Projectile(pos) { speed = PROJECTILE_SPEED; position.y += 40; }
 	virtual bool isEnemy() { return true; }
 };
 
 class PlayerProjectile : public Projectile {
 public:
-	PlayerProjectile(const point &pos) : Projectile(pos) { speed = -PROJECTILE_SPEED; }
+	PlayerProjectile(const Vector2 &pos) : Projectile(pos) { speed = -PROJECTILE_SPEED; }
 	virtual bool isEnemy() { return false; }
 };
 
@@ -97,7 +97,7 @@ struct Wall {
 public:
 	explicit Wall(int index);
 
-	point position {0, 0};
+	Vector2 position {0, 0};
 	Rectangle rect {0, 0, WALL_SIZE, WALL_SIZE };
 	bool active = true;
 
@@ -113,7 +113,7 @@ struct Alien {
 public:
 	Alien(int col, int row); //position, scale, active, health, radius, update, render
 
-	point position{0,0};
+	Vector2 position{0,0};
 	Rectangle rect {0, 0, ALIEN_SIZE, ALIEN_SIZE};
 	bool active = true;
 
@@ -128,10 +128,10 @@ public:
 
 struct Star {
 	explicit Star();
-	explicit Star(const point &pos);
+	explicit Star(const Vector2 &pos);
 
-	point localPosition = { 0, 0 }; //local position for child,
-	point position = { 0, 0 }; //parent position + local position
+	Vector2 localPosition = { 0, 0 }; //local position for child,
+	Vector2 position = { 0, 0 }; //parent position + local position
 					   //	Color color = STAR_COLOR; //constant?
 	float size = 1;
 
@@ -143,7 +143,7 @@ class Background {
 public:
 	explicit Background();
 	std::vector<Star> Stars;
-	point position = {0,0}; //replaces offset
+	Vector2 position = {0,0}; //replaces offset
 
 	//	void Initialize(); //TODO: use constructor
 	//	void Update();
