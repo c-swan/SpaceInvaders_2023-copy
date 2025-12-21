@@ -23,9 +23,7 @@ void LoadLevelFromFile(const std::string& filename)  //TODO: unused, implement o
 
 	while (file >> x >> y)
 	{
-		Entity entity;
-		entity.position.x = x;
-		entity.position.y = y;
+		Entity entity(x,y);
 		entities.push_back(entity);
 	}
 

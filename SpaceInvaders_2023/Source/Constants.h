@@ -25,6 +25,8 @@ static constexpr int TARGET_FPS = 60;
 // for later, make a file where you can adjust the number of walls (config file)
 static constexpr int WALL_COUNT = 5;
 static constexpr int PLAYER_BASE_HEIGHT = 70;
+static constexpr int PROJECTILE_START_Y = 130;
+
 
 static constexpr int ALIEN_SPEED = 2;
 static constexpr int PLAYER_SPEED = 7;

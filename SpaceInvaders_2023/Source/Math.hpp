@@ -11,11 +11,24 @@
 #include <cmath>
 #include <format>
 
+struct scale {
+	explicit scale(const Rectangle &rect) : width(rect.width), height(rect.height) {}
+	explicit scale(Vector2 v) : width(v.x), height(v.y) {}
+	explicit scale(float w, float h) : width(w), height(h) {}
+	explicit scale(float s) : width(s), height(s) {}
+
+	float width;
+	float height;
+
+	explicit operator Vector2() const noexcept { return Vector2(width, height); }
+	explicit operator Rectangle() const noexcept { return Rectangle{ 0, 0, width, height }; }
+};
+
 struct point {
 	point(const Vector2 &v) : x(v.x), y(v.y) {}
 	point(float px, float py) : x(px), y(py) {}
-	float x = 0;
-	float y = 0;
+	float x;
+	float y;
 	//explicit operator Vector2() const noexcept { return Vector2{x, y}; }
 	explicit operator Vector2() const noexcept { return Vector2{x, y}; }
 
@@ -50,7 +63,9 @@ inline Vector2 unit(const Vector2& v) { return v / magnitude(v); }
 inline float dot(const Vector2& lhs, const Vector2& rhs) noexcept { return lhs.x * rhs.x + lhs.y * rhs.y; }
 
 inline Rectangle getBounds(const Rectangle& rect, const point &p) { return Rectangle{ p.x, p.y, rect.width, rect.height}; }
+inline Rectangle getBounds(const point& p, const scale &s) { return Rectangle{ p.x, p.y, s.width, s.height}; }
 inline Rectangle getBounds(float width, float height) { return Rectangle{ 0, 0, width, height}; }
+inline Rectangle getBounds(int width, int height) { return Rectangle{ 0, 0, static_cast<float>(width), static_cast<float>(height)}; }
 inline Rectangle getBounds(float size) { return Rectangle{ 0, 0, size, size}; }
 
 inline Rectangle operator+(const Rectangle& lhs, const Rectangle& rhs) noexcept { return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width + rhs.width, lhs.height + rhs.height}; }
@@ -60,8 +75,9 @@ inline Rectangle operator/(const Rectangle& lhs, float rhs) noexcept { return Re
 
 inline Rectangle operator+(const Rectangle& lhs, const Vector2& rhs) noexcept { return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width, lhs.height}; }
 inline Rectangle operator+(const Rectangle& lhs, const point& rhs) noexcept { return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width, lhs.height}; }
-inline Vector2 getCenter(const Rectangle& rect) { return Vector2(rect.width, rect.height) / 2; }
-inline Vector2 getSizeVector(const Rectangle& rect) { return Vector2(rect.width, rect.height); }
+inline Vector2 getSizeVector(const Rectangle& rect) { return Vector2(rect.width, rect.height ); }
+inline Vector2 getPositionVector(const Rectangle& rect) { return Vector2(rect.x, rect.y ); }
+inline Vector2 getCenter(const Rectangle& rect) { return getPositionVector(rect) + getSizeVector(rect) / 2; }
 
 struct LineSegment {
 	LineSegment(const Vector2 &vs, const Vector2 &ve) : start(point(vs)), end(point(ve)) {}
