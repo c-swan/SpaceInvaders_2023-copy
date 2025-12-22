@@ -26,7 +26,6 @@ public:
 	Gameplay();
 	~Gameplay();
 
-
 	virtual void Update();
 	virtual void Render();
 };

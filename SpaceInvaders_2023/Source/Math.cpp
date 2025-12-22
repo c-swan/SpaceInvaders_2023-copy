@@ -11,6 +11,9 @@ bool pointInRect(const Rectangle& rect, const Vector2& point) {
 	return !(point.x < rect.x || point.y < rect.y || point.x > rect.x + rect.width || point.y > rect.y + rect.height);
 }
 
+bool circleInCircle(const Circle& circle1, const Circle& circle2) {
+	return distance(circle2.position, circle2.position) < circle1.radius + circle2.radius; //right?
+}
 bool pointInCircle(const Circle& circle, const Vector2& point) {
 	return distance(circle.position, point) < circle.radius;
 }
@@ -21,13 +24,13 @@ bool pointOnLine(const LineSegment& line, const Vector2& point) {
 	return segmentLengths <= line.length();
 }
 
-Vector2 projectOnto(const Vector2& a, const Vector2& b) {
-/*	
-				    v•u    u	 v•u		v•u
-	proj_v(û) =	(v•û)û = ––––– ––––– =	––––– u =  ––––– u
-				   ||u|| ||u||	||u||²	u•u
+/**
+* 			       v•u     u	    v•u	         v•u
+* 	proj_v(û) = (v•û)û = ––––   ––   =   ––––– u =  ––––– u
+* 			       ||u||   ||u||	   ||u||²	         u•u
+*
  */
-
+Vector2 projectOnto(const Vector2& a, const Vector2& b) {
 	Vector2 proj = dot(a, b) / dot(b, b) * b;
 	return proj;
 }

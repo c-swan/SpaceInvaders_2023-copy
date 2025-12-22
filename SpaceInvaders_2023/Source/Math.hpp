@@ -75,11 +75,11 @@ struct Circle {
 	float radius;
 };
 
-
 inline bool pointOnPoint(const Vector2& p1, const Vector2& p2) { return p1 == p2; }
 bool pointOnLine(const LineSegment& line, const Vector2& point);
 bool pointInCircle(const Circle& circle, const Vector2& point);
 bool pointInRect(const Rectangle& rect, const Vector2& point);
+//bool rectInRect(const Rectangle& rect1, const Rectangle& rect2);
 /**
  *
  * \param A vector which is projected onto B
