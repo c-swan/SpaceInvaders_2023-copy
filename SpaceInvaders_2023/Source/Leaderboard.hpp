@@ -24,11 +24,11 @@ public:
 	void SaveToFile();
 	
 	void Render();
-	bool CheckNewHighScore(int score);
+	bool CheckNewHighScore(int score) { return (score > highscores.back().score); }
 	void InsertNewHighScore(std::string name, int score);
 
 private:
-	std::vector<PlayerData> playerData = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
+	std::vector<PlayerData> highscores = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
 
 
 };

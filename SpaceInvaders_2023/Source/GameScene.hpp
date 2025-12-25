@@ -85,7 +85,6 @@ private:
 	int score = 0;
 	int highscore = 0;
 
-	Leaderboard leaderboard;
 	char name[MAX_LETTER_COUNT + 1] = "\0";      //One extra space required for null terminator char '\0'
 	int letterCount = 0;
 

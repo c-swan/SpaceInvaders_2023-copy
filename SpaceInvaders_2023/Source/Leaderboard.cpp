@@ -9,6 +9,7 @@
 #include <fstream>
 #include <print>
 #include "Constants.h"
+#include "Render.h"
 
 Leaderboard::Leaderboard() {
 
@@ -62,35 +63,30 @@ void Leaderboard::LoadFromFile() {
 
 	// WRITE DATA ONTO LEADERBOARD
 
-	//CLOSE FILE
+	// CLOSE FILE
 }
 
 
 
 void Leaderboard::Render() {
-	DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, TEXT_COLOR);
+	DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
 
 	int i=0;
-	for(auto &entry : playerData) {
+	for(auto &entry : highscores) {
 		char* tempNameDisplay = entry.name.data();
-		DrawText(tempNameDisplay, 50, 140 + (i * 40), DEFAULT_FONT_SIZE, TEXT_COLOR);
-		DrawText(TextFormat("%i", entry.score), 350, 140 + (i * 40), DEFAULT_FONT_SIZE, TEXT_COLOR);
+		Render::DrawText(tempNameDisplay, 50, 140 + (i * 40));//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+		Render::DrawText(TextFormat("%i", entry.score), 350, 140 + (i * 40));//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
 		i++;
 	}
 }
 
-bool Leaderboard::CheckNewHighScore(int score) {
-	return (score > playerData[4].score); //return this
-}
-
-
 void Leaderboard::InsertNewHighScore(std::string name, int score) {
 	PlayerData newData{name, score};
 
-	for (int i = 0; i < playerData.size(); i++) { //
-		if (newData.score > playerData[i].score) {
-			playerData.insert(playerData.begin() + i, newData);
-			playerData.pop_back();
+	for (int i = 0; i < highscores.size(); i++) { //
+		if (newData.score > highscores[i].score) {
+			highscores.insert(highscores.begin() + i, newData);
+			highscores.pop_back();
 			return;
 		}
 	}

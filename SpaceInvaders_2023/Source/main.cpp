@@ -32,7 +32,7 @@
 int main(void) {
 	try{
 		Game game;
-		game.run();
+		game.Run();
 	} catch(const std::runtime_error& e){
 		std::println(std::cerr, "Exception: %s", e.what());
 	} catch(const std::exception& e){

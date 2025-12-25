@@ -25,9 +25,9 @@ class Game {
 	Game();
 	~Game() { if(_scene) delete _scene; }
 
-	void run();
+	void Run();
 
-	State gameState = State::STARTSCREEN;
+	//State gameState = State::STARTSCREEN;
 
 //	int score = 0;
 //	float shootTimer = 0; //Aliens shooting
@@ -71,6 +71,7 @@ class Game {
 	Window window;
 	Textures textures;
 	Sounds sounds;
+	Leaderboard leaderboard;
 //
 //	Player player;
 //	std::vector<EnemyProjectile> EnemyProjectiles; //TODO: separate into PlayerProjectiles and EnemyProjectiles and get rid of EntityType

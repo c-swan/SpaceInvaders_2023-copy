@@ -23,7 +23,7 @@ Game::Game() : textures() {
 	SetTargetFPS(TARGET_FPS);               // Set our game to run at 60 frames-per-second
 }
 
-void Game::run() {
+void Game::Run() {
 //	if(_scene == nullptr) _scene = new StartScreen(this);
 
 	while (!window.shouldClose()) {   // Detect window close button or ESC key
@@ -110,7 +110,7 @@ void Game::Update() {
 
 void Game::Render() {
 	BeginDrawing();
-	ClearBackground(BLACK);
+	ClearBackground(BACKGROUND_COLOR);
 	if(_scene != nullptr) {
 		_scene->Render();
 	}

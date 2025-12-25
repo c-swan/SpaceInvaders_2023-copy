@@ -55,7 +55,8 @@ static constexpr Color STAR_COLOR = SKYBLUE;
 
 static constexpr int NO_ROTATION = 0;
 static constexpr Color NO_TINT = WHITE;
-static constexpr Color TEXT_COLOR = YELLOW;
+static constexpr Color BACKGROUND_COLOR = BLACK;
+static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
 static constexpr Color TEXTBOX_COLOR = LIGHTGRAY;
 static constexpr Color INPUT_ACTIVE_COLOR = RED;
 static constexpr Color WALL_TEXT_COLOR = Color{167, 42, 33, ALPHA_OPAQUE };

@@ -37,17 +37,15 @@ void StartScreen::Render() {
 }
 
 
-Gameplay::Gameplay(Game* game) : GameScene(game) {
+Gameplay::Gameplay(Game* game) : GameScene(game), player() {
 	_game = game;
-	//if(game == nullptr) return;
+	if(_game == nullptr) return;
 	for (int i = 0; i < STAR_COUNT; i++) {
-		Star newStar;
-		Stars.push_back(newStar);
+		Stars.push_back(Star());
 	}
-	for (int i = 0; i < WALL_COUNT; i++) //wallCount should be constant
-	{
+	for (int i = 0; i < WALL_COUNT; i++)  {
 		Wall newWalls(i, &_game->textures.barrierTexture);
-		newWalls._texture = &_game->textures.barrierTexture;
+//		newWalls._texture = &_game->textures.barrierTexture;
 		Walls.push_back(newWalls);
 	}
 	score = 0;
@@ -161,10 +159,10 @@ void Gameplay::Render() {
 		Render(projectile);
 	}
 
-	DrawText(TextFormat("Score: %i", score), 50, 20, DEFAULT_FONT_SIZE, TEXT_COLOR);
-	DrawText(TextFormat("Lives: %i", player.lives), 50, 70, DEFAULT_FONT_SIZE, TEXT_COLOR);
+	Render::DrawText(TextFormat("Score: %i", score), 50, 20);//, DEFAULT_FONT_SIZE, TEXT_COLOR);
+	DrawText(TextFormat("Lives: %i", player.lives), 50, 70);//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
 
-	if(paused) { Render::DrawTextCentered("PAUSED", HEADER_FONT_SIZE, TEXT_COLOR); }
+	if(paused) { Render::DrawTextCentered("PAUSED", HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); }
 }
 
 void Gameplay::Render(const Sprite& sprite) {
@@ -242,25 +240,27 @@ void Gameplay::CheckAllCollisions() {
 
 EndScreen::EndScreen(Game* game, int s) {
 	_game = game;
-	
 	score = s;
-	newHighScore = leaderboard.CheckNewHighScore(score);
+	if(_game == nullptr) return;
+	newHighScore = _game->leaderboard.CheckNewHighScore(score);
 }
 
 EndScreen::~EndScreen() {
-	leaderboard.SaveToFile();
+	if(_game == nullptr) return;
+	_game->leaderboard.SaveToFile();
 }
 
 void EndScreen::Render() {
 	//DrawText("END", 50, 50, 40, YELLOW);
 	if (!newHighScore) { // If no highscore or name is entered, show scoreboard and call it a day
-		Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", WINDOW_HEIGHT - 200, DEFAULT_FONT_SIZE, TEXT_COLOR);//200
-		leaderboard.Render();
+		Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", WINDOW_HEIGHT - 200, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);//200
+		if(_game == nullptr) return;
+		_game->leaderboard.Render();
 		return;
 	}
 
-	Render::DrawTextCenteredHorizontal("NEW HIGHSCORE!", 300, HEADER_FONT_SIZE, TEXT_COLOR); //y-pos = 300 down from
-	Render::DrawTextCenteredHorizontal("PLACE MOUSE OVER INPUT BOX!", 400, HALF_FONT_SIZE, TEXT_COLOR);
+	Render::DrawTextCenteredHorizontal("NEW HIGHSCORE!", 300, HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); //y-pos = 300 down from
+	Render::DrawTextCenteredHorizontal("PLACE MOUSE OVER INPUT BOX!", 400, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
 
 	DrawRectangleRec(textBox, TEXTBOX_COLOR);
 
@@ -271,7 +271,7 @@ void EndScreen::Render() {
 	DrawText(name, static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
 
 	//Draw the text explaining how many characters are used
-	Render::DrawTextCenteredHorizontal(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, HALF_FONT_SIZE, TEXT_COLOR);
+	Render::DrawTextCenteredHorizontal(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
 
 	if (mouseOnText) {
 		if (letterCount < MAX_LETTER_COUNT) {
@@ -284,14 +284,14 @@ void EndScreen::Render() {
 		{
 			//Name needs to be shorter
 			//DrawText("Press BACKSPACE to delete chars...", 600, 650, HALF_FONT_SIZE, TEXT_COLOR);
-			Render::DrawTextCenteredHorizontal("Press BACKSPACE to delete chars...", 650, HALF_FONT_SIZE, TEXT_COLOR);
+			Render::DrawTextCenteredHorizontal("Press BACKSPACE to delete chars...", 650, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
 		}
 	}
 
 	// Explain how to continue when name is input
 	if (letterCount > 0 && letterCount < MAX_LETTER_COUNT) {
 		//DrawText("PRESS ENTER TO CONTINUE", 600, 800, DEFAULT_FONT_SIZE, TEXT_COLOR);
-		Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", 700, DEFAULT_FONT_SIZE, TEXT_COLOR); //800 out of bounds
+		Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", 700, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR); //800 out of bounds
 	}
 }
 
@@ -338,7 +338,7 @@ std::optional<GameScene*> EndScreen::Update() {
 		// name + score to scoreboard
 		if (letterCount > 0 && letterCount < MAX_LETTER_COUNT && IsKeyReleased(KEY_ENTER)) {
 			std::string nameEntry(name);
-			leaderboard.InsertNewHighScore(nameEntry, score);
+			if(_game) _game->leaderboard.InsertNewHighScore(nameEntry, score);
 			newHighScore = false; //new high score was entered, high score updated
 		}
 	}
@@ -370,6 +370,7 @@ void Gameplay::CleanUpEntities() {
 			i--;
 		}
 	}
+
 	for (int i = 0; i < Walls.size(); i++) {
 		if (Walls[i].isHidden()) {
 			Walls.erase(Walls.begin() + i);

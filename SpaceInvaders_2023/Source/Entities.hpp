@@ -12,6 +12,7 @@
 #include "Constants.h"
 #include <string>
 #include <vector>
+
 #include <expected>
 
 enum struct ErrorType {
@@ -43,16 +44,20 @@ public:
 };
 class Player : public Sprite {
 public:
-	Player(Texture2D* texture = nullptr) : Sprite(texture) { position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT}; setSize(PLAYER_SIZE); texture_rect = ::getBounds(ALIEN_PLAYER_TEXTURE_RESOLUTION);}
+	Player();
+	Player(std::vector<Texture2D>* textures);
 
-	int lives = MAX_LIVES; //TODO: initial value constant
+	int lives = MAX_LIVES;
 
-	int activeTexture = 0; //texture number...
-	float animationTimer = 0; //timer for what?
+	std::vector<Texture2D>* animation_textures;
+	int activeTexture = 0;
+	float animationTimer = 0;
 
 	void Update();
 	void Render();
 	void Hit();
+	void setX(float x) noexcept;
+	void moveX(float x) noexcept {setX(getX() + x); }
 	bool isDead() const noexcept { return lives < 1; }
 
 private:
@@ -64,9 +69,8 @@ public:
 	Projectile(const Vector2& pos, Texture2D *laserTexture = nullptr) : Sprite(laserTexture) { position = pos; setSize(PROJECTILE_SIZE); texture_rect = ::getBounds(PROJECTILE_TEXTURE_RESOLUTION); }
 	int speed;
 	LineSegment getLine() const noexcept { return LineSegment { position + Vector2{0, -PROJECTILE_LENGTH / 2}, position + Vector2{0, PROJECTILE_LENGTH / 2 } }; }
-
+	int direction = 0;
 	void Update();
-//	void Render(Texture2D texture);
 	void Hit() { hidden = true;}
 
 	virtual bool isEnemy() = 0;// {return false;}
@@ -75,13 +79,14 @@ public:
 
 class EnemyProjectile : public Projectile {
 public:
-	EnemyProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { speed = PROJECTILE_SPEED; position.y += 40; }
+	EnemyProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { direction = 1; position.y += 40; }
+
 	virtual bool isEnemy() { return true; }
 };
 
 class PlayerProjectile : public Projectile {
 public:
-	PlayerProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { speed = -PROJECTILE_SPEED; }
+	PlayerProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { direction = -1; }
 	virtual bool isEnemy() { return false; }
 };
 
@@ -99,6 +104,7 @@ public:
 //	void Update();
 	void Hit();
 	int getHealth() const noexcept { return health; }
+	bool isDead() const noexcept { return health < 1; }
 	private:
 	int health = WALL_MAX_HEALTH;
 

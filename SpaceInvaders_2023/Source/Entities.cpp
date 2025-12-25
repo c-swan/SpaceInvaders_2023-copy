@@ -8,8 +8,10 @@
 #include "Entities.hpp"
 #include "raylib.h"
 #include <print>
-#include <algorithm>
 #include <cstdlib>
+#include <algorithm>
+#include "Math.hpp"
+
 //void Player::Render(Texture2D texture) {
 //	//Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint
 //	DrawTexturePro(texture,
@@ -19,14 +21,40 @@
 //			   NO_ROTATION,
 //			   NO_TINT);
 //}
+Player::Player() : Sprite() {
+	position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT};
+	setSize(PLAYER_SIZE); texture_rect = ::getBounds(ALIEN_PLAYER_TEXTURE_RESOLUTION);
+}
+Player::Player(std::vector<Texture2D>* textures) : Sprite(), animation_textures(textures) {
+	Player();
+	if(animation_textures == nullptr) return;
+	if(animation_textures->empty()) return;
+
+	_texture = &animation_textures->front();
+}
 
 void Player::Hit() {
 	lives--;
 	if (lives < 1) lives = 0;
+	hidden = true;
 }
 
+void Player::setX(float x) noexcept {
+	position.x = clamp(static_cast<int>(x), PLAYER_RADIUS, WINDOW_WIDTH - PLAYER_RADIUS);
+	if (x < PLAYER_RADIUS) { //TODO: Clamp
+		position.x = PLAYER_RADIUS;
+	}
+	else if (x > WINDOW_WIDTH - PLAYER_RADIUS) {
+		position.x = WINDOW_WIDTH - PLAYER_RADIUS;
+	}
+	else {
+		position.x = x;
+	}
+}
+
+
 void Player::Update() {
-	//Movement
+
 	int direction = 0;
 	if (IsKeyDown(KEY_LEFT))  {
 		direction--;
@@ -35,10 +63,10 @@ void Player::Update() {
 		direction++;
 	}
 	
-	position.x += PLAYER_SPEED * direction;
+	moveX(PLAYER_SPEED * direction);
 
 	if (getX() < PLAYER_RADIUS) { //TODO: Clamp
-		position.x = PLAYER_RADIUS;
+		setX(PLAYER_RADIUS);
 	}
 	if (getX() > WINDOW_WIDTH - PLAYER_RADIUS) {
 		position.x = WINDOW_WIDTH - PLAYER_RADIUS;
@@ -53,13 +81,14 @@ void Player::animate() {
 
 	if(animationTimer <= SHIP_ANIMATION_TIME) return;
 
-	activeTexture++;
-	activeTexture %= 2; //wrap around
+	(++activeTexture) %= 2;	//	activeTexture++; activeTexture %= 2; //wrap around
 	animationTimer = 0;
 }
 void Projectile::Update() {
-	position.y += speed;
-	hidden = (position.y < 0 || position.y > PROJECTILE_BOUNDS ); //Out of bounds (more magical numbers :D
+	if(hidden) return;
+	position.y += PROJECTILE_SPEED * direction;
+	if(floatInRange(getY(), 0, PROJECTILE_BOUNDS )) return; //Out of bounds (more magical numbers :D
+   hidden = true;
 }
 
 //
@@ -93,7 +122,7 @@ void Projectile::Update() {
 Wall::Wall(int index, Texture2D *barrierTexture = nullptr) : Sprite(barrierTexture) {
 	position.y = WINDOW_HEIGHT - WALL_BASE_HEIGHT;
 	position.x = (index + 1) * WINDOW_WIDTH / (WALL_COUNT + 1);
-	_texture = barrierTexture;
+//	_texture = barrierTexture;
 	texture_rect = ::getBounds(WALL_TEXTURE_RESOLUTION);
 	setSize(WALL_SIZE);
 }
@@ -104,9 +133,10 @@ Wall::Wall(int index, Texture2D *barrierTexture = nullptr) : Sprite(barrierTextu
 //	}
 //}
 
+
 void Wall::Hit() {
 	health--;
-	if(health < 1) hidden = true;
+	if(isDead()) { health = 0; hidden = true; }
 }
 
 Alien::Alien(int col, int row, Texture2D *alienTexture = nullptr) : Sprite(alienTexture) {

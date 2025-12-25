@@ -76,6 +76,11 @@ struct Circle {
 };
 
 bool floatInRange(float value, float min, float max);
+
+template <typename T>
+inline T clamp(T value, T min, T max) {if(value < min) return min; if(value > max) return max; return value; }
+
+
 bool lineOnLine(const LineSegment& line1, const LineSegment& line2);
 inline bool pointOnPoint(const Vector2& p1, const Vector2& p2) { return p1 == p2; }
 bool pointOnLine(const LineSegment& line, const Vector2& point);
