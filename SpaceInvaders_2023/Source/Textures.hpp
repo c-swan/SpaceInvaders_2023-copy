@@ -22,9 +22,6 @@ class Textures { //change to wrapper class, RAII
 		}
 		UnloadTexture(laserTexture);
 	}
-
-	//void Unload(); //we DO need this
-
 	Texture2D alienTexture;
 	Texture2D barrierTexture; //TODO: inconsistent naming
 	Texture2D laserTexture;

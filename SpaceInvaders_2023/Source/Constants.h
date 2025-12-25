@@ -26,18 +26,16 @@ static constexpr int TARGET_FPS = 60;
 static constexpr int WALL_COUNT = 5;
 static constexpr int PLAYER_BASE_HEIGHT = 70;
 static constexpr int PROJECTILE_START_Y = 130;
+static constexpr int PROJECTILE_LENGTH = 30;
 
 
 static constexpr int ALIEN_SPEED = 2;
 static constexpr int PLAYER_SPEED = 7;
 static constexpr int PROJECTILE_SPEED = 15;
-static constexpr int PROJECTILE_BOUNDS = WINDOW_HEIGHT + 420 * RESOLUTION_SCALE;
+static constexpr int PROJECTILE_BOUNDS = WINDOW_HEIGHT + PROJECTILE_LENGTH;
 static constexpr float SHIP_ANIMATION_TIME = 0.4f;
 
-static constexpr int PROJECTILE_LENGTH = 30;
-
-static constexpr int MAX_LIVES = 3;
-static constexpr int PARALLAX_FACTOR = 15;
+static constexpr int PLAYER_MAX_HEALTH = 3;
 
 static constexpr int ALIEN_PLAYER_TEXTURE_RESOLUTION = 352;
 static constexpr int WALL_TEXTURE_RESOLUTION = 704;
@@ -51,17 +49,18 @@ static constexpr int MAX_LETTER_COUNT = 9;
 
 static constexpr int ALPHA_OPAQUE = 255;
 static constexpr int ALPHA_TRANSPARENT = 0;
-static constexpr Color STAR_COLOR = SKYBLUE;
 
 static constexpr int NO_ROTATION = 0;
+
 static constexpr Color NO_TINT = WHITE;
 static constexpr Color BACKGROUND_COLOR = BLACK;
 static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
+static constexpr Color STAR_COLOR = SKYBLUE;
 static constexpr Color TEXTBOX_COLOR = LIGHTGRAY;
 static constexpr Color INPUT_ACTIVE_COLOR = RED;
-static constexpr Color WALL_TEXT_COLOR = Color{167, 42, 33, ALPHA_OPAQUE };
 static constexpr Color INPUT_INACTIVE_COLOR = DARKGRAY;
 static constexpr Color TEXT_INPUT_COLOR = MAROON;
+static constexpr Color WALL_TEXT_COLOR = Color{167, 42, 33, ALPHA_OPAQUE };
 
 static constexpr int TITLE_FONT_SIZE = 120; //160
 static constexpr int DEFAULT_FONT_SIZE = 40;
@@ -70,14 +69,16 @@ static constexpr int HEADER_FONT_SIZE = 60;
 
 static constexpr int FORMATION_WIDTH = 8;
 static constexpr int FORMATION_HEIGHT = 5;
-static constexpr int ALIEN_SPACING = 80;
 static constexpr int FORMATION_X = 100;
 static constexpr int FORMATION_Y = 50;
+
+static constexpr int ALIEN_SPACING = 80;
 static constexpr int ALIEN_PADDING_X = 450;
 static constexpr int ALIEN_HEIGHT = 187;
 static constexpr float ALIEN_MOVEMENT_Y = 50; //45?
 
 static constexpr int STAR_COUNT = 600;
+static constexpr int PARALLAX_FACTOR = 15;
 
 static constexpr int WALL_RADIUS = 60; //60
 static constexpr int WALL_BASE_HEIGHT = 250; //250
@@ -90,9 +91,9 @@ static constexpr int STAR_MAX_SIZE = 2;
 static constexpr int ALIEN_RADIUS = 50;
 static constexpr int ALIEN_SIZE = 100;
 
-static constexpr int PROJECTILE_SIZE = 50;
-static constexpr int PLAYER_SIZE = 100;
-static constexpr int PLAYER_RADIUS = 50;
+static constexpr float PROJECTILE_SIZE = 50;
+static constexpr float PLAYER_SIZE = 100;
+static constexpr float PLAYER_RADIUS = 50;
 
 
 static constexpr int LEADERBOARD_SIZE = 5;

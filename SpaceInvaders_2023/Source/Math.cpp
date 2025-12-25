@@ -20,11 +20,6 @@ bool rectInRect(const Rectangle& rect1, const Rectangle& rect2) {
 	return (f1 && f2 && f3 && f4);
 }
 
-
-bool floatInRange(float value, float min, float max) {
-//	assert(min<=max);
-	return (min < value && value < max );
-}
 bool pointInRect(const Rectangle& rect, const Vector2& point) {
 	return !(point.x < rect.x || point.y < rect.y || point.x > rect.x + rect.width || point.y > rect.y + rect.height);
 }

@@ -50,24 +50,23 @@ inline Rectangle operator/(const Rectangle& lhs, float rhs) noexcept 		{ return 
 inline Rectangle operator+(const Rectangle& lhs, const Vector2& rhs) noexcept	{ return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width, lhs.height}; }
 inline Rectangle operator+(const Rectangle& lhs, const Scale& rhs) noexcept	{ return Rectangle{lhs.x, lhs.y, lhs.width + rhs.width, lhs.height + rhs.height}; }
 
+
 inline Rectangle getBounds(const Vector2& pos, const Vector2 &scale) noexcept 	{ return Rectangle{ pos.x, pos.y, scale.x, scale.y }; }
-inline Rectangle getBounds(const Vector2 &scale)  noexcept					{ return Rectangle {0, 0, scale.x, scale.y}; }
-inline Rectangle getBounds(const Scale &scale)  noexcept					{ return Rectangle {0, 0, scale.width, scale.height}; }
-inline Rectangle getBounds(float x, float y, float width, float height)  noexcept 	{ return Rectangle{ x, y, width, height}; }
-inline Rectangle getBounds(float width, float height) noexcept 				{ return Rectangle{ 0, 0, width, height}; }
+inline Rectangle getBounds(const Vector2 &scale) noexcept { return Rectangle{ 0, 0, scale.x, scale.y}; }
+inline Rectangle getBounds(const Scale &scale)  noexcept { return Rectangle{0, 0, scale.width, scale.height}; }
+inline Rectangle getBounds(float width, float height) noexcept 				{ return Rectangle{} + Scale(width, height); }
 inline Rectangle getBounds(float size) noexcept 						{ return Rectangle{ 0, 0, size, size}; }
 
-inline Vector2 getSizeVector(const Rectangle& rect) noexcept 				{ return Vector2(rect.width, rect.height ); }
-inline Vector2 getPositionVector(const Rectangle& rect) noexcept 				{ return Vector2(rect.x, rect.y ); }
-inline Vector2 getCenter(const Rectangle& rect) noexcept 					{ return getPositionVector(rect) + getSizeVector(rect) / 2; }
+inline Vector2 getSizeVector(const Rectangle& rect) noexcept 			{ return Vector2(rect.width, rect.height ); }
+inline Vector2 getPositionVector(const Rectangle& rect) noexcept 			{ return Vector2(rect.x, rect.y ); }
+inline Vector2 getCenter(const Rectangle& rect) noexcept 				{ return getPositionVector(rect) + getSizeVector(rect) / 2; }
 
-/* ==== LineSegment ==== */
+/* ==== LineSegment, Circle ==== */
 
 struct LineSegment {
-	Vector2 start;
-	Vector2 end;
+	Vector2 start, end;
 	float length() const noexcept { return magnitude(end - start); }
-	explicit operator Vector2() { return end - start; }
+	explicit operator Vector2() const noexcept { return end - start; }
 };
 
 struct Circle {
@@ -75,10 +74,11 @@ struct Circle {
 	float radius;
 };
 
-bool floatInRange(float value, float min, float max);
+inline bool intInRange(int value, int min, int max) { return min < value && value < max; }
+inline bool floatInRange(float value, float min, float max) { return min < value && value < max; }
 
 template <typename T>
-inline T clamp(T value, T min, T max) {if(value < min) return min; if(value > max) return max; return value; }
+inline T clamp(T value, T min, T max) { return (value < min) ? min : ((value > max) ? max : value); }
 
 
 bool lineOnLine(const LineSegment& line1, const LineSegment& line2);

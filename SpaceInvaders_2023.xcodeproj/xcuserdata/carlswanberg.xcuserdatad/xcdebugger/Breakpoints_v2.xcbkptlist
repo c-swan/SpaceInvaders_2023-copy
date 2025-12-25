@@ -14,8 +14,8 @@
             filePath = "SpaceInvaders_2023/Source/Constants.h"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
+            startingLineNumber = "88"
+            endingLineNumber = "88"
             landmarkName = "unknown"
             landmarkType = "0">
          </BreakpointContent>
@@ -126,8 +126,8 @@
             filePath = "SpaceInvaders_2023/Source/GameScene.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
+            startingLineNumber = "130"
+            endingLineNumber = "130"
             landmarkName = "Gameplay::Render(sprite)"
             landmarkType = "7">
          </BreakpointContent>

@@ -27,12 +27,28 @@ protected:
 	bool hidden = false;
 public:
 	bool isHidden() const noexcept { return hidden; }
-	Rectangle getBounds() const noexcept {return bounds; }
-	void setSize(float s) noexcept {bounds = {0,0, s, s}; }
+	Rectangle getBounds() const noexcept { return bounds; }
+	void setSize(float s) noexcept {bounds = ::getBounds(s); }
+
 	void setPosition(const Vector2 &pos) noexcept { position = pos; }
 	Vector2 getPosition() const noexcept { return position; }
 	float getX() const noexcept { return position.x; }
 	float getY() const noexcept { return position.y; }
+};
+
+class HealthObject {
+public:
+	HealthObject(int maxHealth = 1) : max_health(maxHealth) { setHealth(maxHealth); }
+
+	void setHealth(int h) { health = clamp(h, 0, max_health); }
+	void loseHealth(int h=1) { setHealth(getHealth() - h);}
+
+	int getHealth() const noexcept { return health; }
+	int getMaxHealth() const noexcept { return max_health; }
+	bool isDead() const noexcept { return health < 1; }
+protected:
+	int max_health;
+	int health = max_health;
 };
 class Sprite : public Entity {
 public:
@@ -42,13 +58,12 @@ public:
 	protected:
 	Rectangle texture_rect = {0, 0, 100, 100};
 };
-class Player : public Sprite {
+class Player : public Sprite, public HealthObject {
 public:
 	Player();
 	Player(std::vector<Texture2D>* textures);
 
-	int lives = MAX_LIVES;
-
+	float getRadius() const noexcept { return PLAYER_RADIUS; }
 	std::vector<Texture2D>* animation_textures;
 	int activeTexture = 0;
 	float animationTimer = 0;
@@ -56,9 +71,8 @@ public:
 	void Update();
 	void Render();
 	void Hit();
-	void setX(float x) noexcept;
-	void moveX(float x) noexcept {setX(getX() + x); }
-	bool isDead() const noexcept { return lives < 1; }
+	void setX(float x) noexcept { position.x = clamp(x, PLAYER_RADIUS, WINDOW_WIDTH - PLAYER_RADIUS); }
+	void moveX(float x) noexcept { setX(position.x + x); }
 
 private:
 	void animate();
@@ -72,7 +86,6 @@ public:
 	int direction = 0;
 	void Update();
 	void Hit() { hidden = true;}
-
 	virtual bool isEnemy() = 0;// {return false;}
 
 };
@@ -86,40 +99,22 @@ public:
 
 class PlayerProjectile : public Projectile {
 public:
-	PlayerProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { direction = -1; }
+	PlayerProjectile(Texture2D* laserTexture, float x) : Projectile(Vector2(x,WINDOW_HEIGHT - PROJECTILE_START_Y), laserTexture) { direction = -1; }
 	virtual bool isEnemy() { return false; }
 };
 
-class Wall : public Sprite {
+class Wall : public Sprite, public HealthObject {
 public:
 	Wall(int index, Texture2D *barrierTexture);
 
-//	Vector2 position {0, 0};
-//	Rectangle rect {0, 0, WALL_SIZE, WALL_SIZE };
-//	bool active = true;
-
-
-	//const int radius = WALL_RADIUS;
-
-//	void Update();
+	float getRadius() const noexcept { return WALL_RADIUS; }
 	void Hit();
-	int getHealth() const noexcept { return health; }
-	bool isDead() const noexcept { return health < 1; }
-	private:
-	int health = WALL_MAX_HEALTH;
-
 };
 
 class Alien : public Sprite {
 public:
 	Alien(int col, int row, Texture2D *alienTexture); //position, scale, active, health, radius, update, render
-
-//	Vector2 position{0,0};
-//	Rectangle rect {0, 0, ALIEN_SIZE, ALIEN_SIZE};
-//	bool active = true;
-
-//	const int radius = ALIEN_RADIUS;
-
+	float getRadius() const noexcept { return  ALIEN_RADIUS; }
 	bool moveRight = true;
 
 	void Update();
@@ -133,19 +128,22 @@ public:
 	Star();
 
 	float getSize() const noexcept { return size; }
-	void Render();
+//	void Render();
+	float offsetX = 0;
 private:
-	float size =1;
+	float size = 1;
 };
 
-class Background {
-public:
-	Background();
-	std::vector<Star> Stars;
-	float offset_x;
 
-	void Render();
-};
+//
+//class Background {
+//public:
+//	Background();
+//	std::vector<Star> Stars;
+//	float offset_x;
+//
+//	void Render();
+//};
 
 
 #endif /* Entities_hpp */

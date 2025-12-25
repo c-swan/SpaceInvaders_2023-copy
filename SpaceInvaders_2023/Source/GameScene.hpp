@@ -20,14 +20,9 @@ public:
 	GameScene(Game* game = nullptr) : _game(game) {}
 	virtual ~GameScene() {}
 
-//	virtual void OnEnter() = 0;
-//	virtual void OnExit() = 0;
 	Game* _game = nullptr;
-
 	virtual std::optional<GameScene*> Update() = 0;
 	virtual void Render() = 0;
-
-
 };
 
 class Gameplay : public GameScene {
@@ -58,14 +53,15 @@ public:
 	std::vector<Wall> Walls;
 	std::vector<Alien> Aliens;
 	std::vector<Star> Stars;
-	float star_offset_x = 0;
+	//std::vector<Sprite*> render_sprites; //things to render, needed: texture, position, rect, hidden
 
+	float star_offset_x = 0;
 };
 
 class StartScreen : public GameScene {
 public:
-	StartScreen(Game* game = nullptr);
-	~StartScreen();
+	StartScreen(Game* game = nullptr) : GameScene(game) {}
+	~StartScreen() {}
 
 	virtual std::optional<GameScene*> Update();
 	virtual void Render();
@@ -73,19 +69,23 @@ public:
 
 class EndScreen : public GameScene {
 public:
-	EndScreen();
+	EndScreen(Game* game = nullptr) : GameScene(game) {}
 	EndScreen(Game* game, int s); //new highscore
 	~EndScreen();
 
 	virtual std::optional<GameScene*> Update();
 	virtual void Render();
 
+	void ShowScoreboard();
+	void DrawInputCursor();
+	void DrawInputBox();
+
 private:
 	bool newHighScore = false;
 	int score = 0;
 	int highscore = 0;
 
-	char name[MAX_LETTER_COUNT + 1] = "\0";      //One extra space required for null terminator char '\0'
+	char name[MAX_LETTER_COUNT + 1] = "\0";
 	int letterCount = 0;
 
 	Rectangle textBox = { 600, 500, 225, 50 };

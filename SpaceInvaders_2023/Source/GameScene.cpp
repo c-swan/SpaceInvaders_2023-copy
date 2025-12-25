@@ -18,72 +18,36 @@
 
 using namespace Render;
 
-StartScreen::StartScreen(Game* game) : GameScene(game) {
-
-}
-
-StartScreen::~StartScreen() {
-
-}
-
-
 std::optional<GameScene*> StartScreen::Update() {
 	if (IsKeyReleased(KEY_SPACE)) { return new Gameplay(_game); }
 	return {};
 }
 void StartScreen::Render() {
 	Render::DrawTextCenteredHorizontal("SPACE INVADERS", 100, TITLE_FONT_SIZE); //x:200, y:100
-	Render::DrawTextCenteredHorizontal("PRESS SPACE TO BEGIN", 350, DEFAULT_FONT_SIZE); //200,350
+	Render::DrawTextCenteredHorizontal("PRESS SPACE TO BEGIN", 350);//, DEFAULT_FONT_SIZE); //200,350
 }
 
 
-Gameplay::Gameplay(Game* game) : GameScene(game), player() {
+Gameplay::Gameplay(Game* game) : GameScene(game), player(&game->getTextures().shipTextures) {
 	_game = game;
 	if(_game == nullptr) return;
 	for (int i = 0; i < STAR_COUNT; i++) {
 		Stars.push_back(Star());
 	}
 	for (int i = 0; i < WALL_COUNT; i++)  {
-		Wall newWalls(i, &_game->textures.barrierTexture);
-//		newWalls._texture = &_game->textures.barrierTexture;
-		Walls.push_back(newWalls);
+		Wall newWall(i, &_game->getTextures().barrierTexture);
+		Walls.push_back(newWall);
 	}
 	score = 0;
-	player._texture = &game->textures.shipTextures[0];
+	player.animation_textures = &game->getTextures().shipTextures;
+	player._texture = &game->getTextures().shipTextures.front(); 
 }
-
-//void Game::Start() { //start scene
-	// creating walls
-	//	float window_width = WINDOW_WIDTH; //TODO: window is not resizable, we do not need to keep getting screen bounds
-	//	float window_height = WINDOW_HEIGHT; //could this be member variable?
-
-
-
-	//creating player TODO: why are we creating a new variable instead of player = Player()? also Initialize should be in constructor
-//	player = Player();
-
-	//creating aliens
-//	SpawnAliens();
-
-//	background = Background();
-	//reset score
-//	score = 0; //yeah
-
-//	gameState = State::GAMEPLAY; //create Gameplay class?
-	//GameScene _scene;
-	//if(_scene != nullptr) delete _scene;
-	//_scene = new GameplayScene();
-	//_scene.OnEnter(*this);
-	//move Start function into GamePlayScene OnEnter() function
-
-//}
 
 Gameplay::~Gameplay() {
 	PlayerProjectiles.clear(); //GameplayScene Destructor
 	EnemyProjectiles.clear(); //GameplayScene Destructor
 	Walls.clear();
 	Aliens.clear();
-
 }
 
 std::optional<GameScene*> Gameplay::Update() {
@@ -97,9 +61,7 @@ std::optional<GameScene*> Gameplay::Update() {
 		return {};
 	}
 	player.Update();
-	if (player.lives < 1){
-		return new EndScreen(_game, score);
-	}
+
 	//Update Aliens and Check if they are past player
 	for(auto &alien : Aliens) {
 		alien.Update();
@@ -119,19 +81,17 @@ std::optional<GameScene*> Gameplay::Update() {
 	for(auto &projectile : EnemyProjectiles) {
 		projectile.Update();
 	}
-//	//UPDATE PROJECTILE //Edit: Walls
-//	for(auto &wall : Walls) {
-//		wall.Update();
-//	}
 
 	CheckAllCollisions();
 
-	if(player.lives < 1) return new EndScreen(_game, score);
+	if (player.isDead()) {
+		return new EndScreen(_game, score);
+	}
 
 	//MAKE PROJECTILE
 	if (IsKeyPressed(KEY_SPACE)) {
-		PlayerProjectile newPlayerProjetile( &_game->textures.laserTexture,  { player.getX(), WINDOW_HEIGHT - PROJECTILE_START_Y});
-		PlayerProjectiles.push_back(newPlayerProjetile);
+		PlayerProjectile newPlayerProjectile(&_game->getTextures().laserTexture, player.getX());
+		PlayerProjectiles.push_back(newPlayerProjectile);
 	}
 
 	AliensShooting();
@@ -160,7 +120,7 @@ void Gameplay::Render() {
 	}
 
 	Render::DrawText(TextFormat("Score: %i", score), 50, 20);//, DEFAULT_FONT_SIZE, TEXT_COLOR);
-	DrawText(TextFormat("Lives: %i", player.lives), 50, 70);//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+	DrawText(TextFormat("Lives: %i", player.getHealth()), 50, 70);//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
 
 	if(paused) { Render::DrawTextCentered("PAUSED", HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); }
 }
@@ -215,10 +175,10 @@ void Gameplay::CheckAllCollisions() {
 	//ENEMY PROJECTILES HERE		ENEMY_PROJECTILE-PLAYER
 	for (int i = 0; i < EnemyProjectiles.size(); i++) {
 		if (CheckCollision(Circle(player.getPosition(), PLAYER_RADIUS), EnemyProjectiles[i].getLine())) {
-			_game->sounds.playHitSound();
+			_game->getSounds().playHitSound();
 			std::println("dead");// << "dead!\n";
 			EnemyProjectiles[i].Hit();
-			player.lives--;
+			player.Hit();
 			//if(player.lives < 1) { return new EndScreen(game, score); } //game over
 		}
 
@@ -238,30 +198,24 @@ void Gameplay::CheckAllCollisions() {
 	}
 }
 
-EndScreen::EndScreen(Game* game, int s) {
-	_game = game;
+EndScreen::EndScreen(Game* game, int s) : GameScene(game) {
+	EndScreen();
 	score = s;
 	if(_game == nullptr) return;
-	newHighScore = _game->leaderboard.CheckNewHighScore(score);
+	newHighScore = _game->getLeaderboard().CheckNewHighScore(score);
 }
 
 EndScreen::~EndScreen() {
 	if(_game == nullptr) return;
-	_game->leaderboard.SaveToFile();
+	_game->getLeaderboard().SaveToFile();
+}
+void EndScreen::ShowScoreboard() {
+	Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", WINDOW_HEIGHT - 200);//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);//200
+	if(_game == nullptr) return;
+	_game->getLeaderboard().Render();
 }
 
-void EndScreen::Render() {
-	//DrawText("END", 50, 50, 40, YELLOW);
-	if (!newHighScore) { // If no highscore or name is entered, show scoreboard and call it a day
-		Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", WINDOW_HEIGHT - 200, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);//200
-		if(_game == nullptr) return;
-		_game->leaderboard.Render();
-		return;
-	}
-
-	Render::DrawTextCenteredHorizontal("NEW HIGHSCORE!", 300, HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); //y-pos = 300 down from
-	Render::DrawTextCenteredHorizontal("PLACE MOUSE OVER INPUT BOX!", 400, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
-
+void EndScreen::DrawInputBox() {
 	DrawRectangleRec(textBox, TEXTBOX_COLOR);
 
 	Color inputFieldColor = (mouseOnText ? INPUT_ACTIVE_COLOR : INPUT_INACTIVE_COLOR);
@@ -271,22 +225,30 @@ void EndScreen::Render() {
 	DrawText(name, static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
 
 	//Draw the text explaining how many characters are used
-	Render::DrawTextCenteredHorizontal(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
+	Render::DrawTextCenteredHorizontal(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, HALF_FONT_SIZE);
 
-	if (mouseOnText) {
-		if (letterCount < MAX_LETTER_COUNT) {
-			// Draw blinking underscore char
-			if (((framesCounter / 20) % 2) == 0) {
-				DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(name, DEFAULT_FONT_SIZE), static_cast<int>(textBox.y) + 12, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
-			}
-		}
-		else
-		{
-			//Name needs to be shorter
-			//DrawText("Press BACKSPACE to delete chars...", 600, 650, HALF_FONT_SIZE, TEXT_COLOR);
-			Render::DrawTextCenteredHorizontal("Press BACKSPACE to delete chars...", 650, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
-		}
+	if (!mouseOnText) return;
+
+	if (letterCount < MAX_LETTER_COUNT) {
+		DrawInputCursor();
+		return;
 	}
+	Render::DrawTextCenteredHorizontal("Press BACKSPACE to delete chars...", 650, HALF_FONT_SIZE);
+}
+
+void EndScreen::DrawInputCursor() {
+	if (((framesCounter / 20) % 2) != 0) return;
+	DrawText("_", static_cast<int>(textBox.x) + MeasureText(name, DEFAULT_FONT_SIZE) + 8, static_cast<int>(textBox.y) + 12, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
+}
+void EndScreen::Render() {
+	if (!newHighScore) { // If no highscore or name is entered, show scoreboard and call it a day
+		return ShowScoreboard();
+	}
+
+	Render::DrawTextCenteredHorizontal("NEW HIGHSCORE!", 300, HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); //y-pos = 300 down from
+	Render::DrawTextCenteredHorizontal("PLACE MOUSE OVER INPUT BOX!", 400, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
+
+	DrawInputBox();
 
 	// Explain how to continue when name is input
 	if (letterCount > 0 && letterCount < MAX_LETTER_COUNT) {
@@ -338,7 +300,7 @@ std::optional<GameScene*> EndScreen::Update() {
 		// name + score to scoreboard
 		if (letterCount > 0 && letterCount < MAX_LETTER_COUNT && IsKeyReleased(KEY_ENTER)) {
 			std::string nameEntry(name);
-			if(_game) _game->leaderboard.InsertNewHighScore(nameEntry, score);
+			if(_game) _game->getLeaderboard().InsertNewHighScore(nameEntry, score);
 			newHighScore = false; //new high score was entered, high score updated
 		}
 	}
@@ -346,7 +308,11 @@ std::optional<GameScene*> EndScreen::Update() {
 }
 
 void Gameplay::CleanUpEntities() {
-	// REMOVE INACTIVE/DEAD SPRITE ENTITIES
+	std::erase_if(EnemyProjectiles, [](const EnemyProjectile& projectile) { return projectile.isHidden(); });
+	std::erase_if(PlayerProjectiles, [](const PlayerProjectile& projectile) { return projectile.isHidden(); });
+	std::erase_if(Aliens, [](const Alien& alien) { return alien.isHidden(); });
+	std::erase_if(Walls, [](const Wall& wall) { return wall.isHidden(); });
+	 //REMOVE INACTIVE/DEAD SPRITE ENTITIES
 	for (int i = 0; i < EnemyProjectiles.size(); i++) {
 		if (EnemyProjectiles[i].isHidden()) {
 			EnemyProjectiles.erase(EnemyProjectiles.begin() + i);
@@ -355,6 +321,7 @@ void Gameplay::CleanUpEntities() {
 			i--;
 		}
 	}
+
 	for (int i = 0; i < PlayerProjectiles.size(); i++) {
 		//			if (Projectiles[i].active == false)
 		if (PlayerProjectiles[i].isHidden()) {
@@ -383,7 +350,7 @@ void Gameplay::SpawnAliens() {
 	if(!Aliens.empty() || _game == nullptr) return;
 	for (int row = 0; row < FORMATION_HEIGHT; row++) {
 		for (int col = 0; col < FORMATION_WIDTH; col++) {
-			Alien newAlien = Alien(col, row, &_game->textures.alienTexture);
+			Alien newAlien = Alien(col, row, &_game->getTextures().alienTexture);
 			Aliens.push_back(newAlien);
 		}
 	}
@@ -398,7 +365,7 @@ void Gameplay::AliensShooting() {
 			randomAlienIndex = rand() % Aliens.size();
 		}
 
-		EnemyProjectile newEnemyProjectile(&_game->textures.laserTexture, Aliens[randomAlienIndex].getPosition());
+		EnemyProjectile newEnemyProjectile(&_game->getTextures().laserTexture, Aliens[randomAlienIndex].getPosition());
 		//		newEnemyProjectile.position.y += 40; //magic number
 		EnemyProjectiles.push_back(newEnemyProjectile);
 		shootTimer = 0;
