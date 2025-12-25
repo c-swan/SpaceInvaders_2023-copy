@@ -32,7 +32,7 @@ static constexpr int ALIEN_SPEED = 2;
 static constexpr int PLAYER_SPEED = 7;
 static constexpr int PROJECTILE_SPEED = 15;
 static constexpr int PROJECTILE_BOUNDS = WINDOW_HEIGHT + 420 * RESOLUTION_SCALE;
-
+static constexpr float SHIP_ANIMATION_TIME = 0.4f;
 
 static constexpr int PROJECTILE_LENGTH = 30;
 
@@ -74,7 +74,7 @@ static constexpr int FORMATION_X = 100;
 static constexpr int FORMATION_Y = 50;
 static constexpr int ALIEN_PADDING_X = 450;
 static constexpr int ALIEN_HEIGHT = 187;
-static constexpr float ALIEN_MOVEMENT_Y = 45;
+static constexpr float ALIEN_MOVEMENT_Y = 50; //45?
 
 static constexpr int STAR_COUNT = 600;
 

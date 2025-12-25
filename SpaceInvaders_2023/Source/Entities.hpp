@@ -18,138 +18,127 @@ enum struct ErrorType {
 	MISSING_TEXTURE,
 	MISSING_FILE,
 };
-enum struct ProjectileType //TODO: EntityType only used to distinguish projectiles, use derived classes instead
-{
-	PLAYER_PROJECTILE,
-	ENEMY_PROJECTILE
-};
 
-class Sprite {
-public:
-	Sprite(Texture2D* texture) : _texture(texture) {}
-	Texture2D* _texture = nullptr;
-
-	Vector2 position{0,0};
-	Rectangle rect {0,0,100,100};
+class Entity {
+protected:
+	Vector2 position {0,0};
+	Rectangle bounds {0,0, 100, 100};
 	bool hidden = false;
-
-	inline Rectangle getBounds() { return rect + position; }
-	inline Vector2 getOrigin() { return getCenter(getBounds()); }
-	void Render();
-};
-
-class Player {
 public:
-	explicit Player() : position(Vector2(WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT)) {}
-
-	Vector2 position;
-	Rectangle rect {0, 0, PLAYER_SIZE, PLAYER_SIZE};
-//	const float radius = PLAYER_RADIUS;
-
+	bool isHidden() const noexcept { return hidden; }
+	Rectangle getBounds() const noexcept {return bounds; }
+	void setSize(float s) noexcept {bounds = {0,0, s, s}; }
+	void setPosition(const Vector2 &pos) noexcept { position = pos; }
+	Vector2 getPosition() const noexcept { return position; }
 	float getX() const noexcept { return position.x; }
 	float getY() const noexcept { return position.y; }
-	//	float speed = 7; //TODO: constant...
+};
+class Sprite : public Entity {
+public:
+	Sprite(Texture2D* texture = nullptr) : Entity(), _texture(texture) { }
+	Texture2D* _texture = nullptr;
+	Rectangle getTextureRect() const noexcept { return texture_rect; }
+	protected:
+	Rectangle texture_rect = {0, 0, 100, 100};
+};
+class Player : public Sprite {
+public:
+	Player(Texture2D* texture = nullptr) : Sprite(texture) { position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT}; setSize(PLAYER_SIZE); texture_rect = ::getBounds(ALIEN_PLAYER_TEXTURE_RESOLUTION);}
 
 	int lives = MAX_LIVES; //TODO: initial value constant
 
-	int direction = 0; //velocity direction x-axis, 0, +1 or -1
 	int activeTexture = 0; //texture number...
 	float animationTimer = 0; //timer for what?
 
 	void Update();
-	void Render(Texture2D texture); //TODO: pass by const ref
+	void Render();
+	void Hit();
+	bool isDead() const noexcept { return lives < 1; }
 
-	void hit();
+private:
+	void animate();
 };
 
-class Projectile {
+class Projectile : public Sprite {
 public:
-	Projectile(const Vector2& pos) : position(pos) {}
-
-	Vector2 position = {0,0};
-	Rectangle rect{0, 0, PROJECTILE_SIZE, PROJECTILE_SIZE};
+	Projectile(const Vector2& pos, Texture2D *laserTexture = nullptr) : Sprite(laserTexture) { position = pos; setSize(PROJECTILE_SIZE); texture_rect = ::getBounds(PROJECTILE_TEXTURE_RESOLUTION); }
 	int speed;
-	bool active = true;
-
-	// LINE WILL UPDATE WITH POSITION FOR CALCULATIONS
-	Vector2 lineStart = { 0, 0 }; //what is this line...?
-	Vector2 lineEnd = { 0, 0 };
+	LineSegment getLine() const noexcept { return LineSegment { position + Vector2{0, -PROJECTILE_LENGTH / 2}, position + Vector2{0, PROJECTILE_LENGTH / 2 } }; }
 
 	void Update();
-	void Render(Texture2D texture);
+//	void Render(Texture2D texture);
+	void Hit() { hidden = true;}
 
 	virtual bool isEnemy() = 0;// {return false;}
+
 };
 
 class EnemyProjectile : public Projectile {
 public:
-	EnemyProjectile(const Vector2 &pos) : Projectile(pos) { speed = PROJECTILE_SPEED; position.y += 40; }
+	EnemyProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { speed = PROJECTILE_SPEED; position.y += 40; }
 	virtual bool isEnemy() { return true; }
 };
 
 class PlayerProjectile : public Projectile {
 public:
-	PlayerProjectile(const Vector2 &pos) : Projectile(pos) { speed = -PROJECTILE_SPEED; }
+	PlayerProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { speed = -PROJECTILE_SPEED; }
 	virtual bool isEnemy() { return false; }
 };
 
-struct Wall {
+class Wall : public Sprite {
 public:
-	explicit Wall(int index);
+	Wall(int index, Texture2D *barrierTexture);
 
-	Vector2 position {0, 0};
-	Rectangle rect {0, 0, WALL_SIZE, WALL_SIZE };
-	bool active = true;
+//	Vector2 position {0, 0};
+//	Rectangle rect {0, 0, WALL_SIZE, WALL_SIZE };
+//	bool active = true;
+
 
 	//const int radius = WALL_RADIUS;
 
+//	void Update();
+	void Hit();
+	int getHealth() const noexcept { return health; }
+	private:
 	int health = WALL_MAX_HEALTH;
 
-	void Update();
-	void Render(Texture2D texture);
 };
 
-struct Alien {
+class Alien : public Sprite {
 public:
-	Alien(int col, int row); //position, scale, active, health, radius, update, render
+	Alien(int col, int row, Texture2D *alienTexture); //position, scale, active, health, radius, update, render
 
-	Vector2 position{0,0};
-	Rectangle rect {0, 0, ALIEN_SIZE, ALIEN_SIZE};
-	bool active = true;
+//	Vector2 position{0,0};
+//	Rectangle rect {0, 0, ALIEN_SIZE, ALIEN_SIZE};
+//	bool active = true;
 
 //	const int radius = ALIEN_RADIUS;
 
 	bool moveRight = true;
 
 	void Update();
-	void Render(Texture2D texture);
+	void Render();
+	void Hit() { hidden = true; }
 };
 
 
-struct Star {
-	explicit Star();
-	explicit Star(const Vector2 &pos);
+class Star : public Entity {
+public:
+	Star();
 
-	Vector2 localPosition = { 0, 0 }; //local position for child,
-	Vector2 position = { 0, 0 }; //parent position + local position
-					   //	Color color = STAR_COLOR; //constant?
-	float size = 1;
-
-	//	void Update();
+	float getSize() const noexcept { return size; }
 	void Render();
+private:
+	float size =1;
 };
 
 class Background {
 public:
-	explicit Background();
+	Background();
 	std::vector<Star> Stars;
-	Vector2 position = {0,0}; //replaces offset
+	float offset_x;
 
-	//	void Initialize(); //TODO: use constructor
-	//	void Update();
 	void Render();
-
-	void setOffset(float offsetX);
 };
 
 

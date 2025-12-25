@@ -23,74 +23,75 @@ enum struct State
 class Game {
 	public:
 	Game();
-	~Game();
+	~Game() { if(_scene) delete _scene; }
 
 	void run();
 
 	State gameState = State::STARTSCREEN;
 
-	int score = 0;
-	float shootTimer = 0; //Aliens shooting
+//	int score = 0;
+//	float shootTimer = 0; //Aliens shooting
+//
+//	bool newHighScore = false; //TODO: probably don't need this bool
 
-	bool newHighScore = false;
+//	void Start(); //StartScreen -> Gameplay
+//	void End(); // Gameplay -> EndScreen
+//
+//	void Continue(); //EndScreen -> StartScreen
+//	void Launch(); //constructor ...?
 
-	void Start(); //StartScreen -> Gameplay
-	void End(); // Gameplay -> EndScreen
-
-	void Pause(); //new functionality (Gameplay)
-
-	void Continue(); //EndScreen -> StartScreen
-//	void Launch(); //constructor
-
+//	void Input();
 	void Update();
 	void Render();
-
-	void GameplayUpdate();
-	void GameplayRender();
+	void Render(const Sprite& sprite);
 	
-	void StartScreenUpdate();
-	void StartScreenRender();
+//	void GameplayUpdate();
+//	void GameplayRender();
+//	void GameplayInput();
+//	void GameplayOnExit();
+//	void GameplayOnEnter();
+//
+//	void StartScreenUpdate();
+//	void StartScreenRender();
+//	void StartScreenInput();
+//
+//	void EndScreenUpdate();
+//	void EndScreenRender();
+//	void EndScreenInput();
 
-	void EndScreenUpdate();
-	void EndScreenRender();
+//	static void DrawTextCentered(const char *text, int fontSize, Color color);
+//	static void DrawTextCentered(const char *text, Vector2 offset, int fontSize, Color color);
+//	static void DrawTextCenteredHorizontal(const char *text, int posY, int fontSize, Color color);
 
-	void DrawTextCentered(const char *text, int fontSize, Color color);
-	void DrawTextCentered(const char *text, Vector2 offset, int fontSize, Color color);
-	void DrawTextCenteredHorizontal(const char *text, int posY, int fontSize, Color color);
+//	void SpawnAliens();
+//	void cleanUpEntities();
 
-	void SpawnAliens();
-	void cleanUpEntities();
+//	void checkAllCollisions();
 
-	void checkAllCollisions();
-	bool CheckCollision(const Vector2& circlePos, const float& circleRadius, const Vector2& lineTop, const Vector2& lineBottom);
-	bool CheckCollision(const Circle& circle, const LineSegment& line);
-
-//high-score / leaderboard
-
-	// Entity Storage and Resources
 	Window window;
 	Textures textures;
 	Sounds sounds;
+//
+//	Player player;
+//	std::vector<EnemyProjectile> EnemyProjectiles; //TODO: separate into PlayerProjectiles and EnemyProjectiles and get rid of EntityType
+//	std::vector<PlayerProjectile> PlayerProjectiles; //TODO: separate into PlayerProjectiles and EnemyProjectiles and get rid of EntityType
+//	std::vector<Wall> Walls;
+//	std::vector<Alien> Aliens;
+//	Background background;
+//
+//	std::vector<Sprite> sprites; //things to render, needed: texture, position, rect, hidden
 
-	Player player;
-	std::vector<EnemyProjectile> EnemyProjectiles; //TODO: separate into PlayerProjectiles and EnemyProjectiles and get rid of EntityType
-	std::vector<PlayerProjectile> PlayerProjectiles; //TODO: separate into PlayerProjectiles and EnemyProjectiles and get rid of EntityType
-	std::vector<Wall> Walls;
-	std::vector<Alien> Aliens;
-	Background background;
-
-	bool paused = false;
-
+	
 	GameScene* _scene = nullptr;
-
-	Leaderboard leaderboard;
-	//TEXTBOX ENTER
-	char name[MAX_LETTER_COUNT + 1] = "\0";      //One extra space required for null terminator char '\0'
-	int letterCount = 0;
-
-	Rectangle textBox = { 600, 500, 225, 50 };
-	bool mouseOnText = false;
-
-	int framesCounter = 0;
+//
+//	Leaderboard leaderboard;
+//	//TEXTBOX ENTER
+//	char name[MAX_LETTER_COUNT + 1] = "\0";      //One extra space required for null terminator char '\0'
+//	int letterCount = 0;
+//
+//	Rectangle textBox = { 600, 500, 225, 50 };
+//	bool mouseOnText = false;
+//
+//	int framesCounter = 0;
 
 };

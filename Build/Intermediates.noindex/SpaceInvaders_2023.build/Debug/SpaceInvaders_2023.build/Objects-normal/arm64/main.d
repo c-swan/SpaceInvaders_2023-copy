@@ -9,5 +9,5 @@ dependencies: \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/Math.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/Window.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/GameScene.hpp \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/Leaderboard.hpp \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/Entities.hpp
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/Entities.hpp \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023/SpaceInvaders_2023/Source/Leaderboard.hpp

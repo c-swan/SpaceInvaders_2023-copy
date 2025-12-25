@@ -68,7 +68,6 @@ void Leaderboard::LoadFromFile() {
 
 
 void Leaderboard::Render() {
-
 	DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, TEXT_COLOR);
 
 	int i=0;

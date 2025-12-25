@@ -22,6 +22,7 @@ public:
 
 	void LoadFromFile();
 	void SaveToFile();
+	
 	void Render();
 	bool CheckNewHighScore(int score);
 	void InsertNewHighScore(std::string name, int score);

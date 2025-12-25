@@ -75,6 +75,8 @@ struct Circle {
 	float radius;
 };
 
+bool floatInRange(float value, float min, float max);
+bool lineOnLine(const LineSegment& line1, const LineSegment& line2);
 inline bool pointOnPoint(const Vector2& p1, const Vector2& p2) { return p1 == p2; }
 bool pointOnLine(const LineSegment& line, const Vector2& point);
 bool pointInCircle(const Circle& circle, const Vector2& point);
@@ -86,6 +88,11 @@ bool pointInRect(const Rectangle& rect, const Vector2& point);
  * \param B vector onto which A is projected
  */
 Vector2 projectOnto(const Vector2& A, const Vector2& B);
+
+
+bool CheckCollision(const Circle& circle, const LineSegment& line);
+
+
 
 //original math functions
 //bool pointInCircle(Vector2 circlePos, float radius, Vector2 point);

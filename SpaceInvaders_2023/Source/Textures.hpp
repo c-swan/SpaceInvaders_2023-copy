@@ -1,9 +1,10 @@
 #pragma once
 #include "raylib.h"
 #include "vector"
+#include <print>
 
-struct Textures { //change to wrapper class, RAII
-
+class Textures { //change to wrapper class, RAII
+	public:
 	Textures() { //TODO: error handling
 		alienTexture = LoadTexture("./Assets/Alien.png"); //change ".Assets/" to constant...
 		barrierTexture = LoadTexture("./Assets/Barrier.png");
@@ -11,6 +12,7 @@ struct Textures { //change to wrapper class, RAII
 		shipTextures.push_back(LoadTexture("./Assets/Ship1.png"));
 		shipTextures.push_back(LoadTexture("./Assets/Ship2.png"));
 		shipTextures.push_back(LoadTexture("./Assets/Ship3.png"));
+		std::println("loaded assets");
 	}
 	~Textures() {
 		UnloadTexture(alienTexture);
