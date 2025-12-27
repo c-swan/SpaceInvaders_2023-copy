@@ -1,24 +1,19 @@
-//
 //  Entities.hpp
 //  SpaceInvaders_2023
 //
 //  Created by Carl Swanberg on 2025-12-20.
-//
 
 #ifndef Entities_hpp
 #define Entities_hpp
+
 #include "Math.hpp"
 #include "raylib.h"
 #include "Constants.h"
 #include <string>
 #include <vector>
-
 #include <expected>
 
-enum struct ErrorType {
-	MISSING_TEXTURE,
-	MISSING_FILE,
-};
+using texture_type = Texture2D*;
 
 class Entity {
 protected:
@@ -27,8 +22,11 @@ protected:
 	bool hidden = false;
 public:
 	bool isHidden() const noexcept { return hidden; }
+	void setSize(float s) noexcept { bounds = ::getBounds(s); }
+
 	Rectangle getBounds() const noexcept { return bounds; }
-	void setSize(float s) noexcept {bounds = ::getBounds(s); }
+	float getWidth() const noexcept { return bounds.width; }
+	float getHeight() const noexcept { return bounds.height; }
 
 	void setPosition(const Vector2 &pos) noexcept { position = pos; }
 	Vector2 getPosition() const noexcept { return position; }
@@ -50,28 +48,40 @@ protected:
 	int max_health;
 	int health = max_health;
 };
+
 class Sprite : public Entity {
 public:
-	Sprite(Texture2D* texture = nullptr) : Entity(), _texture(texture) { }
-	Texture2D* _texture = nullptr;
-	Rectangle getTextureRect() const noexcept { return texture_rect; }
-	protected:
-	Rectangle texture_rect = {0, 0, 100, 100};
+	Sprite(texture_type texture) : Entity(), _texture(texture) { }
+	texture_type _texture;
+	Rectangle getTextureRect() const noexcept { return ::getBounds(_texture->width, _texture->height); }
+	virtual void Update() {}
+	virtual void Render() {
+		if(hidden) return;
+		DrawTexturePro(*_texture,
+				   getTextureRect(),
+				   bounds + position,
+				   getCenter(bounds),
+				   NO_ROTATION,
+				   NO_TINT);
+	}
+
 };
+
 class Player : public Sprite, public HealthObject {
 public:
-	Player();
-	Player(std::vector<Texture2D>* textures);
+	Player(std::vector<Texture2D*> textures);
 
 	float getRadius() const noexcept { return PLAYER_RADIUS; }
-	std::vector<Texture2D>* animation_textures;
+	Circle getCollider() noexcept { return Circle(position, getRadius()); }
+
+	std::vector<Texture2D*> animation_textures;
 	int activeTexture = 0;
 	float animationTimer = 0;
 
-	void Update();
-	void Render();
+	virtual void Update();
+
 	void Hit();
-	void setX(float x) noexcept { position.x = clamp(x, PLAYER_RADIUS, WINDOW_WIDTH - PLAYER_RADIUS); }
+	void setX(float x) noexcept { position.x = clamp(x, getRadius(), WINDOW_WIDTH - getRadius()); }
 	void moveX(float x) noexcept { setX(position.x + x); }
 
 private:
@@ -80,11 +90,12 @@ private:
 
 class Projectile : public Sprite {
 public:
-	Projectile(const Vector2& pos, Texture2D *laserTexture = nullptr) : Sprite(laserTexture) { position = pos; setSize(PROJECTILE_SIZE); texture_rect = ::getBounds(PROJECTILE_TEXTURE_RESOLUTION); }
+	Projectile(texture_type laserTexture, const Vector2& pos) : Sprite(laserTexture) { setPosition(pos); setSize(PROJECTILE_SIZE); }
 	int speed;
 	LineSegment getLine() const noexcept { return LineSegment { position + Vector2{0, -PROJECTILE_LENGTH / 2}, position + Vector2{0, PROJECTILE_LENGTH / 2 } }; }
+	LineSegment getCollider() const noexcept { return getLine(); }
 	int direction = 0;
-	void Update();
+	virtual void Update();
 	void Hit() { hidden = true;}
 	virtual bool isEnemy() = 0;// {return false;}
 
@@ -92,34 +103,39 @@ public:
 
 class EnemyProjectile : public Projectile {
 public:
-	EnemyProjectile(Texture2D* laserTexture, const Vector2 &pos) : Projectile(pos, laserTexture) { direction = 1; position.y += 40; }
+	EnemyProjectile(texture_type laserTexture, const Vector2 &pos) : Projectile(laserTexture, pos) { direction = 1; position.y += 40; }
 
 	virtual bool isEnemy() { return true; }
 };
 
 class PlayerProjectile : public Projectile {
 public:
-	PlayerProjectile(Texture2D* laserTexture, float x) : Projectile(Vector2(x,WINDOW_HEIGHT - PROJECTILE_START_Y), laserTexture) { direction = -1; }
+	PlayerProjectile(texture_type laserTexture, float x) : Projectile(laserTexture, Vector2(x,WINDOW_HEIGHT - PROJECTILE_START_Y)) { direction = -1; }
 	virtual bool isEnemy() { return false; }
 };
 
 class Wall : public Sprite, public HealthObject {
 public:
-	Wall(int index, Texture2D *barrierTexture);
+	Wall(int index, texture_type barrierTexture);
 
+	virtual void Update() {}
+	virtual void Render();
 	float getRadius() const noexcept { return WALL_RADIUS; }
+	Circle getCollider() const noexcept { return Circle(position, getRadius());}
 	void Hit();
 };
 
 class Alien : public Sprite {
 public:
-	Alien(int col, int row, Texture2D *alienTexture); //position, scale, active, health, radius, update, render
+	Alien(int col, int row, texture_type alienTexture); //position, scale, active, health, radius, update, render
 	float getRadius() const noexcept { return  ALIEN_RADIUS; }
+	Circle getCollider() const noexcept { return Circle(position, getRadius());}
+
+	virtual void Update();
+	void Hit() { hidden = true; }
+	private:
 	bool moveRight = true;
 
-	void Update();
-	void Render();
-	void Hit() { hidden = true; }
 };
 
 
@@ -127,9 +143,10 @@ class Star : public Entity {
 public:
 	Star();
 
+	virtual void setSize(float s) { Entity::setSize(size = s); }
+	void Render() { DrawCircleV(position + Vector2(star_offset_x, 0), getSize(), STAR_COLOR); }
 	float getSize() const noexcept { return size; }
-//	void Render();
-	float offsetX = 0;
+	static float star_offset_x;
 private:
 	float size = 1;
 };

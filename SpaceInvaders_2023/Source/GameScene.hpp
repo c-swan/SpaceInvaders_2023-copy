@@ -10,7 +10,7 @@
 #include "Entities.hpp"
 #include <string>
 #include <vector>
-#include "Textures.hpp"
+#include <memory>
 #include "Leaderboard.hpp"
 
 class Game;
@@ -24,17 +24,18 @@ public:
 	virtual std::optional<GameScene*> Update() = 0;
 	virtual void Render() = 0;
 };
-
+class EndScreen;
 class Gameplay : public GameScene {
 public:
 	Gameplay(Game* game);
 	~Gameplay();
 
-
 	virtual std::optional<GameScene*> Update();
 	virtual void Render();
-	void Render(const Sprite& sprite);
+
+	void Render(Sprite& sprite) { sprite.Render(); }
 	void Pause() noexcept {paused = !paused; } //new functionality (Gameplay)
+	EndScreen* GameOver() noexcept;
 
 	bool paused = false;
 	int score = 0;
@@ -47,29 +48,26 @@ public:
 	void CheckAllCollisions();
 
 	Player player;
-	std::vector<Sprite> Sprites; //for rendering
 	std::vector<EnemyProjectile> EnemyProjectiles;
 	std::vector<PlayerProjectile> PlayerProjectiles;
 	std::vector<Wall> Walls;
 	std::vector<Alien> Aliens;
 	std::vector<Star> Stars;
-	//std::vector<Sprite*> render_sprites; //things to render, needed: texture, position, rect, hidden
-
-	float star_offset_x = 0;
 };
 
 class StartScreen : public GameScene {
 public:
-	StartScreen(Game* game = nullptr) : GameScene(game) {}
+	StartScreen(Game* game) : GameScene(game) {}
 	~StartScreen() {}
 
 	virtual std::optional<GameScene*> Update();
 	virtual void Render();
+	Gameplay* StartGame() { return new Gameplay(_game); }
 };
 
 class EndScreen : public GameScene {
 public:
-	EndScreen(Game* game = nullptr) : GameScene(game) {}
+//	EndScreen(Game* game) : GameScene(game) {}
 	EndScreen(Game* game, int s); //new highscore
 	~EndScreen();
 
@@ -88,7 +86,7 @@ private:
 	char name[MAX_LETTER_COUNT + 1] = "\0";
 	int letterCount = 0;
 
-	Rectangle textBox = { 600, 500, 225, 50 };
+	Rectangle textBoxBounds = { 600, 500, 225, 50 };
 	bool mouseOnText = false;
 	int framesCounter = 0;
 };

@@ -13,14 +13,22 @@ class Sounds {
 	public:
 	Sounds() {
 		InitAudioDevice();  //TODO: Error handling
-		hitSound = LoadSound("./Assets/hitHurt.ogg");
+		if(!IsAudioDeviceReady()) throw std::exception();
+		hitSound = LoadSound("hitHurt");
 	}
 	~Sounds() {
 		UnloadSound(hitSound);
 		CloseAudioDevice();
 	}
-	void playHitSound() {  PlaySound(hitSound); }
+	void playHitSound() { PlaySound(hitSound); }
+
+	Sounds(const Sounds&) = delete;
+	Sounds(Sounds&&) = delete;
+	Sounds& operator=(const Sounds&) = delete;
+	Sounds& operator=(Sounds&&) = delete;
+
 	private:
-		Sound hitSound;
+	Sound LoadSound(const string& assetName) { return ::LoadSound(std::format("{}{}.ogg", ASSETS_DIR, assetName).c_str()); }
+	Sound hitSound;
 };
 #endif /* Sounds_h */

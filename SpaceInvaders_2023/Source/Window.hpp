@@ -3,10 +3,10 @@
 //  SpaceInvaders_2023
 //
 //  Created by Carl Swanberg on 2025-12-20.
-//
 
 #ifndef Window_hpp
 #define Window_hpp
+
 #include "Constants.h"
 #include <raylib.h>
 
@@ -17,8 +17,9 @@ public:
 
 	bool shouldClose() const { return WindowShouldClose(); }
 
-private:
-	
-
+	Window(const Window&) = delete;
+	Window(Window&&) = delete;
+	Window& operator=(const Window&) = delete;
+	Window& operator=(Window&&) = delete;
 };
 #endif /* Window_hpp */

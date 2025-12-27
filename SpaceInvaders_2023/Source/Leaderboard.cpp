@@ -4,21 +4,19 @@
 //
 //  Created by Carl Swanberg on 2025-12-20.
 //
-
+#include "Constants.h"
+#include "Render.h"
 #include "Leaderboard.hpp"
 #include <fstream>
 #include <print>
-#include "Constants.h"
-#include "Render.h"
+#include <string>
+#include <expected>
+#include "ErrorHandling.h"
 
-Leaderboard::Leaderboard() {
+using std::string;
 
-}
 
-Leaderboard::~Leaderboard() {
-
-}
-void Leaderboard::SaveToFile() {
+std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 
 	// SAVE LEADERBOARD AS ARRAY //clarification...?
 	/*
@@ -35,59 +33,62 @@ void Leaderboard::SaveToFile() {
 
 	// OPEN FILE
 	std::ofstream file; //fstream -> ofstream, to create file if doesn't exist
-
-	file.open("./Leaderboard.txt"); //use relative path and txt extension, why not
+	file.open(pathName); //use relative path and txt extension, why not
 
 	if (!file) {
-		std::println("file not found!");
+		return ErrorType::MISSING_FILE;
 	}
 	else {
 		std::println("file found!");
 	}
 
-	
 
 	// WRITE ARRAY DATA INTO FILE
 
+	file.close();
 	// CLOSE FILE
+	return {};
 }
 
 
-void Leaderboard::LoadFromFile() {
+std::optional<ErrorType> Leaderboard::LoadFromFile(const string &fileName) {
 
-	// CLEAR LEADERBOARD
-
-	// OPEN FILE
+	std::ifstream file;
 
 	// READ DATA
 
+	highscores.clear();
+
 	// WRITE DATA ONTO LEADERBOARD
 
-	// CLOSE FILE
+	file.close();
+	return {};
 }
 
-
-
 void Leaderboard::Render() {
-	DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-
-	int i=0;
+	Render::DrawText("LEADERBOARD", bounds);
+	int i=1;
 	for(auto &entry : highscores) {
-		char* tempNameDisplay = entry.name.data();
-		Render::DrawText(tempNameDisplay, 50, 140 + (i * 40));//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-		Render::DrawText(TextFormat("%i", entry.score), 350, 140 + (i * 40));//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+		Render::DrawText(entry.name, bounds + Vector2(0, i * DEFAULT_FONT_SIZE));
+		Render::DrawText(std::to_string(entry.score), bounds + Vector2(LEADERBOARD_SCORE_COLUMN, i * DEFAULT_FONT_SIZE));
 		i++;
 	}
 }
 
-void Leaderboard::InsertNewHighScore(std::string name, int score) {
-	PlayerData newData{name, score};
+void Leaderboard::InsertNewHighscore(const string& name, int score) {
+//	PlayerData newData{name, score};
 
-	for (int i = 0; i < highscores.size(); i++) { //
-		if (newData.score > highscores[i].score) {
-			highscores.insert(highscores.begin() + i, newData);
+	auto highscoreCheck = [score](PlayerData& entry) { return score > entry.score; };
+	auto insert_pos = std::find_if(highscores.begin(), highscores.end(), highscoreCheck);
+	if(insert_pos == highscores.end()) return;
+	highscores.insert(insert_pos, PlayerData(name, score));
+/*
+	for (int i = 0; i < highscores.size(); i++) {
+		if (score > highscores[i].score) {
+			highscores.insert(highscores.begin() + i, PlayerData(name, score));
 			highscores.pop_back();
 			return;
 		}
 	}
+ */
 }

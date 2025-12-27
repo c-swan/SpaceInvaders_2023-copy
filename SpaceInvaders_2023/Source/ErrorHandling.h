@@ -8,5 +8,9 @@
 #ifndef ErrorHandling_h
 #define ErrorHandling_h
 
+enum struct ErrorType {
+	MISSING_TEXTURE,
+	MISSING_FILE,
+};
 
 #endif /* ErrorHandling_h */

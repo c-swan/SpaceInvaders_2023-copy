@@ -4,7 +4,6 @@
 //
 //  Created by Carl Swanberg on 2025-12-20.
 //
-
 #include "GameScene.hpp"
 #include "raylib.h"
 #include "Constants.h"
@@ -15,35 +14,41 @@
 #include <vector>
 #include "Entities.hpp"
 #include "game.h"
+#include <algorithm>
+#include <cassert>
 
 using namespace Render;
+using Textures = TextureAtlas::Textures;
+
+//float Star::star_offset_x = 0;
 
 std::optional<GameScene*> StartScreen::Update() {
-	if (IsKeyReleased(KEY_SPACE)) { return new Gameplay(_game); }
+	if (IsKeyReleased(KEY_SPACE)) {
+		return StartGame();
+	}
 	return {};
 }
+
 void StartScreen::Render() {
-	Render::DrawTextCenteredHorizontal("SPACE INVADERS", 100, TITLE_FONT_SIZE); //x:200, y:100
-	Render::DrawTextCenteredHorizontal("PRESS SPACE TO BEGIN", 350);//, DEFAULT_FONT_SIZE); //200,350
+	Render::DrawTextCentered("SPACE INVADERS", {WINDOW_WIDTH / 2, 100}, TITLE_FONT_SIZE); //x:200, y:100
+	Render::DrawTextCentered("PRESS SPACE TO BEGIN", {WINDOW_WIDTH / 2, 350}); //200,350
 }
 
 
-Gameplay::Gameplay(Game* game) : GameScene(game), player(&game->getTextures().shipTextures) {
-	_game = game;
+Gameplay::Gameplay(Game* game) : GameScene(game), player(game->getShipTextures()) {
+	assert(_game != nullptr);
 	if(_game == nullptr) return;
-	for (int i = 0; i < STAR_COUNT; i++) {
-		Stars.push_back(Star());
-	}
+
+	Stars.resize(STAR_COUNT);
+
 	for (int i = 0; i < WALL_COUNT; i++)  {
-		Wall newWall(i, &_game->getTextures().barrierTexture);
+		Wall newWall(i, &_game->getTexture(Textures::BARRIER));
 		Walls.push_back(newWall);
 	}
-	score = 0;
-	player.animation_textures = &game->getTextures().shipTextures;
-	player._texture = &game->getTextures().shipTextures.front(); 
 }
 
 Gameplay::~Gameplay() {
+	Stars.clear();
 	PlayerProjectiles.clear(); //GameplayScene Destructor
 	EnemyProjectiles.clear(); //GameplayScene Destructor
 	Walls.clear();
@@ -52,7 +57,7 @@ Gameplay::~Gameplay() {
 
 std::optional<GameScene*> Gameplay::Update() {
 	if (IsKeyReleased(KEY_Q)) {
-		return new EndScreen(_game, score);
+		return GameOver();
 	}
 	if (IsKeyReleased(KEY_ENTER) || IsKeyReleased(KEY_PAUSE) || IsKeyReleased(KEY_P)) {
 		Pause(); return {};
@@ -60,21 +65,22 @@ std::optional<GameScene*> Gameplay::Update() {
 	if(paused) {
 		return {};
 	}
-	player.Update();
-
-	//Update Aliens and Check if they are past player
-	for(auto &alien : Aliens) {
-		alien.Update();
-		if (alien.getY() > WINDOW_HEIGHT - PLAYER_BASE_HEIGHT) {
-			return new EndScreen(_game, score);
-		}
-	}
 
 	SpawnAliens();
 
-	star_offset_x = -player.getX() / PARALLAX_FACTOR;
+	//MAKE PROJECTILE (inputs first)
+	if (IsKeyPressed(KEY_SPACE)) {
+		PlayerProjectile newPlayerProjectile(&_game->getTexture(Textures::LASER), player.getX());
+		PlayerProjectiles.push_back(newPlayerProjectile);
+	}
 
-	//UPDATE PROJECTILE
+	player.Update();
+
+	for(auto &alien : Aliens) {
+		alien.Update();
+	}
+	if(std::ranges::any_of( Aliens, [](Alien& alien) { return alien.getY() > PLAYER_POS_Y; } )) { return GameOver(); }
+
 	for(auto &projectile : PlayerProjectiles) {
 		projectile.Update();
 	}
@@ -82,32 +88,28 @@ std::optional<GameScene*> Gameplay::Update() {
 		projectile.Update();
 	}
 
+	Star::star_offset_x = -player.getX() / PARALLAX_FACTOR;
+
 	CheckAllCollisions();
 
-	if (player.isDead()) {
-		return new EndScreen(_game, score);
-	}
-
-	//MAKE PROJECTILE
-	if (IsKeyPressed(KEY_SPACE)) {
-		PlayerProjectile newPlayerProjectile(&_game->getTextures().laserTexture, player.getX());
-		PlayerProjectiles.push_back(newPlayerProjectile);
-	}
+	if (player.isDead()) return GameOver();
 
 	AliensShooting();
-
 	CleanUpEntities();
 	return {};
 }
 
+EndScreen* Gameplay::GameOver() noexcept {
+	return new EndScreen(_game, score);
+}
+
 void Gameplay::Render() {
 	for(auto &star : Stars) {
-		DrawCircleV(star.getPosition() + Vector2(star_offset_x, 0), star.getSize(), STAR_COLOR);
+		star.Render();
 	}
 	Render(player);
 	for (auto &wall : Walls) {
 		Render(wall);
-		RenderWallText(wall);
 	}
 	for (auto &alien : Aliens) {
 		Render(alien);
@@ -119,141 +121,95 @@ void Gameplay::Render() {
 		Render(projectile);
 	}
 
-	Render::DrawText(TextFormat("Score: %i", score), 50, 20);//, DEFAULT_FONT_SIZE, TEXT_COLOR);
-	DrawText(TextFormat("Lives: %i", player.getHealth()), 50, 70);//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+	Render::DrawTextCounter("Score", score, {LEFT_MARGIN, 20});
+	Render::DrawTextCounter("Lives", player.getHealth(), {LEFT_MARGIN, 70});
 
-	if(paused) { Render::DrawTextCentered("PAUSED", HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); }
-}
-
-void Gameplay::Render(const Sprite& sprite) {
-	if(sprite.isHidden()) return;
-	if(sprite._texture == nullptr) { // throw std::runtime_error("Sprite texture is nullptr");
-		return;
-	}
-	DrawTexturePro(*sprite._texture,
-			   sprite.getTextureRect(),
-			   sprite.getBounds() + sprite.getPosition(),
-			   getCenter(sprite.getBounds()),
-			   NO_ROTATION,
-			   NO_TINT);
-}
-
-void Gameplay::RenderWallText(const Wall &wall) {
-	int textHalfWidth = MeasureText(TextFormat("%i", wall.getHealth()), DEFAULT_FONT_SIZE) / 2;
-	DrawText(TextFormat("%i", wall.getHealth()), wall.getX() - textHalfWidth, wall.getY() + 10, DEFAULT_FONT_SIZE, WALL_TEXT_COLOR);
+	if(paused) Render::DrawTextCentered("PAUSED", {WINDOW_WIDTH / 2, WINDOW_WIDTH / 2}, HEADER_FONT_SIZE);
 }
 
 void Gameplay::CheckAllCollisions() {
-	//CHECK ALL COLLISONS HERE PLAYER_PROJECTILE-Aliens
-	for (int i = 0; i < PlayerProjectiles.size(); i++)
-	{
-		for (int a = 0; a < Aliens.size(); a++)
-		{
-			//std::remove_if for each alien
-			//std::remove_if for each projectile
-			//erase remove_if's
-			if (CheckCollision(Circle(Aliens[a].getPosition(), ALIEN_RADIUS), PlayerProjectiles[i].getLine())) {
-				std::println("Hit!");  // Set them as inactive, will be killed later
-				PlayerProjectiles[i].Hit();
-				Aliens[a].Hit();
+	for(auto &projectile : PlayerProjectiles) {
+		for(auto &alien : Aliens) {
+			if (CheckCollision(alien.getCollider(), projectile.getCollider())) {
+				projectile.Hit();
+				alien.Hit();
 				score += ALIEN_KILL_SCORE;
 			}
+		}
+		for(auto &wall : Walls) {
+			if (CheckCollision(wall.getCollider(), projectile.getCollider())) {
+				projectile.Hit();
+				wall.Hit();
+			}
+		}
+	}
+
+	for(auto &projectile : EnemyProjectiles) {
+		if (CheckCollision(player.getCollider(), projectile.getCollider())) {
+			_game->getSounds().playHitSound();
+			projectile.Hit();
+			player.Hit();
+			if(player.isDead()) return;
 		}
 
 		//WALLS–ENEMY_PROJECTILES & WALLS–PLAYER_PROJECTILES
 		for(auto &wall : Walls) {
-			if (CheckCollision(Circle(wall.getPosition(), WALL_RADIUS), PlayerProjectiles[i].getLine())) {
-				std::println("Hit!"); // Set them as inactive, will be killed later
-				PlayerProjectiles[i].Hit();
-				//					Walls[b].health -= 1;
-				wall.Hit();
-			}
-		}
-
-	}
-
-	//ENEMY PROJECTILES HERE		ENEMY_PROJECTILE-PLAYER
-	for (int i = 0; i < EnemyProjectiles.size(); i++) {
-		if (CheckCollision(Circle(player.getPosition(), PLAYER_RADIUS), EnemyProjectiles[i].getLine())) {
-			_game->getSounds().playHitSound();
-			std::println("dead");// << "dead!\n";
-			EnemyProjectiles[i].Hit();
-			player.Hit();
-			//if(player.lives < 1) { return new EndScreen(game, score); } //game over
-		}
-
-		//WALLS–ENEMY_PROJECTILES & WALLS–PLAYER_PROJECTILES
-		for(auto &wall : Walls)
-		{
-			if (CheckCollision(Circle(wall.getPosition(), WALL_RADIUS), EnemyProjectiles[i].getLine()))
-			{
-				// Kill!
-				std::println("Hit!");
-				// Set them as inactive, will be killed later
-				EnemyProjectiles[i].Hit();
-				//					Walls[b].health -= 1;
+			if (CheckCollision(wall.getCollider(), projectile.getCollider())) {
+				projectile.Hit();
 				wall.Hit();
 			}
 		}
 	}
 }
 
-EndScreen::EndScreen(Game* game, int s) : GameScene(game) {
-	EndScreen();
-	score = s;
-	if(_game == nullptr) return;
-	newHighScore = _game->getLeaderboard().CheckNewHighScore(score);
+EndScreen::EndScreen(Game* game, int s) : GameScene(game), score(s) {
+	assert(_game);
+	newHighScore = _game->getLeaderboard().CheckNewHighscore(score);
 }
 
 EndScreen::~EndScreen() {
-	if(_game == nullptr) return;
+	assert(_game);
 	_game->getLeaderboard().SaveToFile();
 }
 void EndScreen::ShowScoreboard() {
-	Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", WINDOW_HEIGHT - 200);//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);//200
+	Render::DrawTextCentered("PRESS ENTER TO CONTINUE", {WINDOW_WIDTH / 2, WINDOW_HEIGHT - 200});
 	if(_game == nullptr) return;
 	_game->getLeaderboard().Render();
 }
 
 void EndScreen::DrawInputBox() {
-	DrawRectangleRec(textBox, TEXTBOX_COLOR);
+	DrawRectangleRec(textBoxBounds, TEXTBOX_COLOR);
 
 	Color inputFieldColor = (mouseOnText ? INPUT_ACTIVE_COLOR : INPUT_INACTIVE_COLOR);
-	DrawRectangleLines(static_cast<int>(textBox.x), static_cast<int>(textBox.y), static_cast<int>(textBox.width), static_cast<int>(textBox.height), inputFieldColor);
+	Render::DrawRectangleLines(textBoxBounds, inputFieldColor);
 
 	//Draw the name being typed out
-	DrawText(name, static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
+	DrawText(name, textBoxBounds + Vector2(5, 8), DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
 
-	//Draw the text explaining how many characters are used
-	Render::DrawTextCenteredHorizontal(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, HALF_FONT_SIZE);
+	Render::DrawText(std::format("INPUT CHARS: {}/{}", letterCount, MAX_LETTER_COUNT - 1), Vector2{WINDOW_WIDTH / 2, 600}, HALF_FONT_SIZE);
 
 	if (!mouseOnText) return;
 
-	if (letterCount < MAX_LETTER_COUNT) {
-		DrawInputCursor();
-		return;
-	}
-	Render::DrawTextCenteredHorizontal("Press BACKSPACE to delete chars...", 650, HALF_FONT_SIZE);
+	if (letterCount < MAX_LETTER_COUNT) { return DrawInputCursor(); }
+
+	Render::DrawTextCentered("Press BACKSPACE to delete chars...", {WINDOW_WIDTH / 2, 650}, HALF_FONT_SIZE);
 }
 
 void EndScreen::DrawInputCursor() {
 	if (((framesCounter / 20) % 2) != 0) return;
-	DrawText("_", static_cast<int>(textBox.x) + MeasureText(name, DEFAULT_FONT_SIZE) + 8, static_cast<int>(textBox.y) + 12, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
+	//DrawTextCentered("_", textBoxBounds, DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
+	DrawText("_", textBoxBounds + Vector2(MeasureText(name, DEFAULT_FONT_SIZE) + 8, 12), DEFAULT_FONT_SIZE, TEXT_INPUT_COLOR);
 }
 void EndScreen::Render() {
-	if (!newHighScore) { // If no highscore or name is entered, show scoreboard and call it a day
-		return ShowScoreboard();
-	}
+	if (!newHighScore) return ShowScoreboard();
 
-	Render::DrawTextCenteredHorizontal("NEW HIGHSCORE!", 300, HEADER_FONT_SIZE, DEFAULT_FONT_COLOR); //y-pos = 300 down from
-	Render::DrawTextCenteredHorizontal("PLACE MOUSE OVER INPUT BOX!", 400, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
+	Render::DrawTextCentered("NEW HIGHSCORE!", {WINDOW_WIDTH / 2, 300}, HEADER_FONT_SIZE); //y-pos = 300 down from
+	Render::DrawTextCentered("PLACE MOUSE OVER INPUT BOX!", {WINDOW_WIDTH / 2, 400}, HALF_FONT_SIZE);
 
 	DrawInputBox();
 
-	// Explain how to continue when name is input
-	if (letterCount > 0 && letterCount < MAX_LETTER_COUNT) {
-		//DrawText("PRESS ENTER TO CONTINUE", 600, 800, DEFAULT_FONT_SIZE, TEXT_COLOR);
-		Render::DrawTextCenteredHorizontal("PRESS ENTER TO CONTINUE", 700, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR); //800 out of bounds
+	if (letterCount > 0 && letterCount < MAX_LETTER_COUNT) { // Explain how to continue when name is input
+		Render::DrawTextCentered("PRESS ENTER TO CONTINUE", {WINDOW_WIDTH / 2, WINDOW_HEIGHT - 100}); //600, 800
 	}
 }
 
@@ -263,7 +219,7 @@ std::optional<GameScene*> EndScreen::Update() {
 	}
 
 	if (newHighScore) {
-		mouseOnText = CheckCollisionPointRec(GetMousePosition(), textBox);
+		mouseOnText = CheckCollisionPointRec(GetMousePosition(), textBoxBounds);
 
 		SetMouseCursor(mouseOnText ? MOUSE_CURSOR_IBEAM : MOUSE_CURSOR_DEFAULT);
 		if (mouseOnText) {
@@ -300,7 +256,7 @@ std::optional<GameScene*> EndScreen::Update() {
 		// name + score to scoreboard
 		if (letterCount > 0 && letterCount < MAX_LETTER_COUNT && IsKeyReleased(KEY_ENTER)) {
 			std::string nameEntry(name);
-			if(_game) _game->getLeaderboard().InsertNewHighScore(nameEntry, score);
+			if(_game) _game->getLeaderboard().InsertNewHighscore(nameEntry, score);
 			newHighScore = false; //new high score was entered, high score updated
 		}
 	}
@@ -312,62 +268,57 @@ void Gameplay::CleanUpEntities() {
 	std::erase_if(PlayerProjectiles, [](const PlayerProjectile& projectile) { return projectile.isHidden(); });
 	std::erase_if(Aliens, [](const Alien& alien) { return alien.isHidden(); });
 	std::erase_if(Walls, [](const Wall& wall) { return wall.isHidden(); });
-	 //REMOVE INACTIVE/DEAD SPRITE ENTITIES
-	for (int i = 0; i < EnemyProjectiles.size(); i++) {
-		if (EnemyProjectiles[i].isHidden()) {
-			EnemyProjectiles.erase(EnemyProjectiles.begin() + i);
-			// Prevent the loop from skipping an instance because of index changes, since all insances after
-			// the killed objects are moved down in index. This is the same for all loops with similar function
-			i--;
-		}
-	}
-
-	for (int i = 0; i < PlayerProjectiles.size(); i++) {
-		//			if (Projectiles[i].active == false)
-		if (PlayerProjectiles[i].isHidden()) {
-			PlayerProjectiles.erase(PlayerProjectiles.begin() + i);
-			// Prevent the loop from skipping an instance because of index changes, since all insances after
-			// the killed objects are moved down in index. This is the same for all loops with similar function
-			i--;
-		}
-	}
-	for (int i = 0; i < Aliens.size(); i++) {
-		if (Aliens[i].isHidden()) {
-			Aliens.erase(Aliens.begin() + i);
-			i--;
-		}
-	}
-
-	for (int i = 0; i < Walls.size(); i++) {
-		if (Walls[i].isHidden()) {
-			Walls.erase(Walls.begin() + i);
-			i--;
-		}
-	}
+	//REMOVE INACTIVE/DEAD SPRITE ENTITIES
+	//	for (int i = 0; i < EnemyProjectiles.size(); i++) {
+	//		if (EnemyProjectiles[i].isHidden()) {
+	//			EnemyProjectiles.erase(EnemyProjectiles.begin() + i);
+	//			// Prevent the loop from skipping an instance because of index changes, since all insances after
+	//			// the killed objects are moved down in index. This is the same for all loops with similar function
+	//			i--;
+	//		}
+	//	}
+	//
+	//	for (int i = 0; i < PlayerProjectiles.size(); i++) {
+	//		//			if (Projectiles[i].active == false)
+	//		if (PlayerProjectiles[i].isHidden()) {
+	//			PlayerProjectiles.erase(PlayerProjectiles.begin() + i);
+	//			// Prevent the loop from skipping an instance because of index changes, since all insances after
+	//			// the killed objects are moved down in index. This is the same for all loops with similar function
+	//			i--;
+	//		}
+	//	}
+	//	for (int i = 0; i < Aliens.size(); i++) {
+	//		if (Aliens[i].isHidden()) {
+	//			Aliens.erase(Aliens.begin() + i);
+	//			i--;
+	//		}
+	//	}
+	//
+	//	for (int i = 0; i < Walls.size(); i++) {
+	//		if (Walls[i].isHidden()) {
+	//			Walls.erase(Walls.begin() + i);
+	//			i--;
+	//		}
+	//	}
 }
 
 void Gameplay::SpawnAliens() {
 	if(!Aliens.empty() || _game == nullptr) return;
 	for (int row = 0; row < FORMATION_HEIGHT; row++) {
 		for (int col = 0; col < FORMATION_WIDTH; col++) {
-			Alien newAlien = Alien(col, row, &_game->getTextures().alienTexture);
-			Aliens.push_back(newAlien);
+			Aliens.push_back(Alien(col, row, &_game->getTexture(Textures::ALIEN)));
 		}
 	}
 }
 
 void Gameplay::AliensShooting() {
-	shootTimer += 1;
-	if (shootTimer > TARGET_FPS - 1) { //once per second
-		int randomAlienIndex = 0;
+	if (Aliens.empty()) return;
 
-		if (Aliens.size() > 1) {
-			randomAlienIndex = rand() % Aliens.size();
-		}
+	shootTimer++;
+	if (shootTimer < TARGET_FPS ) return; //once per second
 
-		EnemyProjectile newEnemyProjectile(&_game->getTextures().laserTexture, Aliens[randomAlienIndex].getPosition());
-		//		newEnemyProjectile.position.y += 40; //magic number
-		EnemyProjectiles.push_back(newEnemyProjectile);
-		shootTimer = 0;
-	}
+	int random_i = rand() % Aliens.size();
+	EnemyProjectile newEnemyProjectile(&_game->getTexture(Textures::LASER), Aliens[random_i].getPosition());
+	EnemyProjectiles.push_back(newEnemyProjectile);
+	shootTimer = 0;
 }
