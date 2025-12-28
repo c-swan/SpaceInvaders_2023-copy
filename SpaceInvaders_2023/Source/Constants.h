@@ -77,6 +77,7 @@ static constexpr int WALL_MAX_HEALTH = 50;
 static constexpr float WALL_SIZE = 200;
 static constexpr float WALL_RADIUS = 60;
 static constexpr float WALL_BASE_HEIGHT = 250;
+static constexpr float WALL_TEXT_POS_Y = 30;
 
 /*========    PLAYER    ========*/
 static constexpr int PLAYER_MAX_HEALTH = 3;

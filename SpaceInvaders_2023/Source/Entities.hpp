@@ -54,10 +54,11 @@ public:
 	Sprite(texture_type texture) : Entity(), _texture(texture) { }
 	texture_type _texture;
 	Rectangle getTextureRect() const noexcept { return ::getBounds(_texture->width, _texture->height); }
-	virtual void Update() {}
+	virtual void Update() = 0;
+	Texture2D& getTexture() const { return *_texture; }
 	virtual void Render() {
-		if(hidden) return;
-		DrawTexturePro(*_texture,
+		if(isHidden()) return;
+		DrawTexturePro(getTexture(),
 				   getTextureRect(),
 				   bounds + position,
 				   getCenter(bounds),
@@ -72,7 +73,7 @@ public:
 	Player(std::vector<Texture2D*> textures);
 
 	float getRadius() const noexcept { return PLAYER_RADIUS; }
-	Circle getCollider() noexcept { return Circle(position, getRadius()); }
+	Circle getCollider() const noexcept { return Circle(getPosition(), getRadius());}
 
 	std::vector<Texture2D*> animation_textures;
 	int activeTexture = 0;
@@ -90,28 +91,33 @@ private:
 
 class Projectile : public Sprite {
 public:
-	Projectile(texture_type laserTexture, const Vector2& pos) : Sprite(laserTexture) { setPosition(pos); setSize(PROJECTILE_SIZE); }
-	int speed;
-	LineSegment getLine() const noexcept { return LineSegment { position + Vector2{0, -PROJECTILE_LENGTH / 2}, position + Vector2{0, PROJECTILE_LENGTH / 2 } }; }
+	Projectile(texture_type laserTexture, const Vector2& pos) : Sprite(laserTexture)
+	{
+		setPosition(pos);
+		setSize(PROJECTILE_SIZE);
+	}
+	LineSegment getLine() const noexcept {
+		return LineSegment {
+			position + Vector2{0, -PROJECTILE_LENGTH / 2},
+			position + Vector2{0, PROJECTILE_LENGTH / 2 }
+		};
+	}
 	LineSegment getCollider() const noexcept { return getLine(); }
-	int direction = 0;
+
 	virtual void Update();
 	void Hit() { hidden = true;}
-	virtual bool isEnemy() = 0;// {return false;}
-
+	bool isOutOfBounds() const noexcept { return !floatInRange(getY(), 0, PROJECTILE_BOUNDS); }
+	int direction = 0;
 };
 
 class EnemyProjectile : public Projectile {
 public:
 	EnemyProjectile(texture_type laserTexture, const Vector2 &pos) : Projectile(laserTexture, pos) { direction = 1; position.y += 40; }
-
-	virtual bool isEnemy() { return true; }
 };
 
 class PlayerProjectile : public Projectile {
 public:
 	PlayerProjectile(texture_type laserTexture, float x) : Projectile(laserTexture, Vector2(x,WINDOW_HEIGHT - PROJECTILE_START_Y)) { direction = -1; }
-	virtual bool isEnemy() { return false; }
 };
 
 class Wall : public Sprite, public HealthObject {
@@ -121,21 +127,22 @@ public:
 	virtual void Update() {}
 	virtual void Render();
 	float getRadius() const noexcept { return WALL_RADIUS; }
-	Circle getCollider() const noexcept { return Circle(position, getRadius());}
+	Circle getCollider() const noexcept { return Circle(getPosition(), getRadius());}
 	void Hit();
+private:
+	Vector2 textPosition = Vector2{0, WALL_TEXT_POS_Y};
 };
 
 class Alien : public Sprite {
 public:
 	Alien(int col, int row, texture_type alienTexture); //position, scale, active, health, radius, update, render
 	float getRadius() const noexcept { return  ALIEN_RADIUS; }
-	Circle getCollider() const noexcept { return Circle(position, getRadius());}
+	Circle getCollider() const noexcept { return Circle(getPosition(), getRadius());}
 
 	virtual void Update();
 	void Hit() { hidden = true; }
 	private:
 	bool moveRight = true;
-
 };
 
 
@@ -150,17 +157,6 @@ public:
 private:
 	float size = 1;
 };
-
-
-//
-//class Background {
-//public:
-//	Background();
-//	std::vector<Star> Stars;
-//	float offset_x;
-//
-//	void Render();
-//};
 
 
 #endif /* Entities_hpp */

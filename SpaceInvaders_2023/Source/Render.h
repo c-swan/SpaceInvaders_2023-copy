@@ -22,7 +22,7 @@ namespace Render {
 	inline void DrawTextCounter(string_type text, float value, const Vector2& pos, int fontSize = DEFAULT_FONT_SIZE, Color color = DEFAULT_FONT_COLOR) { DrawText(std::format("{}: {}", text, value).c_str(), pos.x, pos.y , fontSize, color); }
 //	inline void DrawText(string_type text, float x, float y, int fontSize = DEFAULT_FONT_SIZE, Color color = DEFAULT_FONT_COLOR) { ::DrawText(text.c_str(), x, y, fontSize, color); }
 
-	inline void DrawTextCentered(string_type text, Vector2& pos, int fontSize = DEFAULT_FONT_SIZE, Color color = DEFAULT_FONT_COLOR) { DrawText(text, pos + (Vector2(MeasureText(text.c_str(), fontSize), fontSize) / -2), fontSize, color); }
+	inline void DrawTextCentered(string_type text, const Vector2& pos, int fontSize = DEFAULT_FONT_SIZE, Color color = DEFAULT_FONT_COLOR) { DrawText(text, pos + (Vector2(MeasureText(text.c_str(), fontSize), fontSize) / -2), fontSize, color); }
 	inline void DrawTextCentered(string_type text, const Rectangle& bounds, int fontSize = DEFAULT_FONT_SIZE, Color color = DEFAULT_FONT_COLOR) { DrawText(text, bounds + (Vector2(MeasureText(text.c_str(), fontSize), fontSize) / -2), fontSize, color); }
 };
 #endif /* Render_h */

@@ -6,7 +6,6 @@
 //
 #include "Entities.hpp"
 #include "raylib.h"
-#include <print>
 #include <cstdlib>
 #include <algorithm>
 #include "Math.hpp"
@@ -14,12 +13,9 @@
 #include "Render.h"
 
 Player::Player(std::vector<Texture2D*> textures) : Sprite(textures.front()), HealthObject(PLAYER_MAX_HEALTH), animation_textures(textures) {
-
 	position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT - PLAYER_BASE_HEIGHT};
 	setSize(PLAYER_SIZE);
 	assert(!animation_textures.empty());
-	if(animation_textures.empty()) return;
-//	_texture = &animation_textures->front();
 }
 
 void Player::Hit() {
@@ -29,7 +25,7 @@ void Player::Hit() {
 }
 
 void Player::Update() {
-	if(hidden) return;
+	if(isHidden()) return;
 	int direction = 0;
 	if (IsKeyDown(KEY_LEFT))  { direction--; }
 	if (IsKeyDown(KEY_RIGHT)) { direction++; }
@@ -52,7 +48,7 @@ void Player::animate() {
 void Projectile::Update() {
 	if(isHidden()) return;
 	position.y += PROJECTILE_SPEED * direction;
-	if(!floatInRange(getY(), 0, PROJECTILE_BOUNDS)) hidden = true; //Out of bounds
+	if(isOutOfBounds()) hidden = true; //Out of bounds
 }
 
 
@@ -69,10 +65,9 @@ void Wall::Hit() {
 }
 
 void Wall::Render() {
-	if(hidden) return;
+	if(isHidden()) return;
 	Sprite::Render();
-	Vector2 textPosition = position + Vector2{0,30};
-	Render::DrawTextCentered(std::to_string(getHealth()), textPosition, DEFAULT_FONT_SIZE, WALL_TEXT_COLOR);
+	Render::DrawTextCentered(std::to_string(getHealth()), textPosition + position, DEFAULT_FONT_SIZE, WALL_TEXT_COLOR);
 }
 
 Alien::Alien(int col, int row, texture_type alienTexture) : Sprite(alienTexture) {
@@ -91,8 +86,7 @@ void Alien::Update() {
 Star::Star() {
 	position.x = GetRandomValue(-BACKGROUND_EDGE_SIZE, WINDOW_WIDTH + BACKGROUND_EDGE_SIZE);
 	position.y = GetRandomValue(0, WINDOW_HEIGHT);
-	size = GetRandomValue(1, STAR_MAX_SIZE * 2) / 2;
-	setSize(size);
+	setSize(GetRandomValue(1, STAR_MAX_SIZE * 2) / 2);
 }
 
 

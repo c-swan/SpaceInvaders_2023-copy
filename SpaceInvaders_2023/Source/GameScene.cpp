@@ -4,6 +4,8 @@
 //
 //  Created by Carl Swanberg on 2025-12-20.
 //
+#include "game.h"
+#include "Math.hpp"
 #include "GameScene.hpp"
 #include "raylib.h"
 #include "Constants.h"
@@ -13,7 +15,6 @@
 #include <string>
 #include <vector>
 #include "Entities.hpp"
-#include "game.h"
 #include <algorithm>
 #include <cassert>
 
@@ -30,8 +31,8 @@ std::optional<GameScene*> StartScreen::Update() {
 }
 
 void StartScreen::Render() {
-	Render::DrawTextCentered("SPACE INVADERS", {WINDOW_WIDTH / 2, 100}, TITLE_FONT_SIZE); //x:200, y:100
-	Render::DrawTextCentered("PRESS SPACE TO BEGIN", {WINDOW_WIDTH / 2, 350}); //200,350
+	Render::DrawTextCentered("SPACE INVADERS", Vector2{WINDOW_WIDTH / 2, 100}, TITLE_FONT_SIZE); //x:200, y:100
+	Render::DrawTextCentered("PRESS SPACE TO BEGIN", Vector2{WINDOW_WIDTH / 2, 350}); //200,350
 }
 
 
@@ -124,7 +125,7 @@ void Gameplay::Render() {
 	Render::DrawTextCounter("Score", score, {LEFT_MARGIN, 20});
 	Render::DrawTextCounter("Lives", player.getHealth(), {LEFT_MARGIN, 70});
 
-	if(paused) Render::DrawTextCentered("PAUSED", {WINDOW_WIDTH / 2, WINDOW_WIDTH / 2}, HEADER_FONT_SIZE);
+	if(paused) Render::DrawTextCentered("PAUSED", Vector2{WINDOW_WIDTH / 2, WINDOW_WIDTH / 2}, HEADER_FONT_SIZE);
 }
 
 void Gameplay::CheckAllCollisions() {
@@ -172,7 +173,7 @@ EndScreen::~EndScreen() {
 	_game->getLeaderboard().SaveToFile();
 }
 void EndScreen::ShowScoreboard() {
-	Render::DrawTextCentered("PRESS ENTER TO CONTINUE", {WINDOW_WIDTH / 2, WINDOW_HEIGHT - 200});
+	Render::DrawTextCentered("PRESS ENTER TO CONTINUE", Vector2{WINDOW_WIDTH / 2, WINDOW_HEIGHT - 200});
 	if(_game == nullptr) return;
 	_game->getLeaderboard().Render();
 }
@@ -192,7 +193,7 @@ void EndScreen::DrawInputBox() {
 
 	if (letterCount < MAX_LETTER_COUNT) { return DrawInputCursor(); }
 
-	Render::DrawTextCentered("Press BACKSPACE to delete chars...", {WINDOW_WIDTH / 2, 650}, HALF_FONT_SIZE);
+	Render::DrawTextCentered("Press BACKSPACE to delete chars...", Vector2{WINDOW_WIDTH / 2, 650}, HALF_FONT_SIZE);
 }
 
 void EndScreen::DrawInputCursor() {
@@ -203,13 +204,13 @@ void EndScreen::DrawInputCursor() {
 void EndScreen::Render() {
 	if (!newHighScore) return ShowScoreboard();
 
-	Render::DrawTextCentered("NEW HIGHSCORE!", {WINDOW_WIDTH / 2, 300}, HEADER_FONT_SIZE); //y-pos = 300 down from
-	Render::DrawTextCentered("PLACE MOUSE OVER INPUT BOX!", {WINDOW_WIDTH / 2, 400}, HALF_FONT_SIZE);
+	Render::DrawTextCentered("NEW HIGHSCORE!", Vector2{WINDOW_WIDTH / 2, 300}, HEADER_FONT_SIZE); //y-pos = 300 down from
+	Render::DrawTextCentered("PLACE MOUSE OVER INPUT BOX!", Vector2{WINDOW_WIDTH / 2, 400}, HALF_FONT_SIZE);
 
 	DrawInputBox();
 
 	if (letterCount > 0 && letterCount < MAX_LETTER_COUNT) { // Explain how to continue when name is input
-		Render::DrawTextCentered("PRESS ENTER TO CONTINUE", {WINDOW_WIDTH / 2, WINDOW_HEIGHT - 100}); //600, 800
+		Render::DrawTextCentered("PRESS ENTER TO CONTINUE", Vector2{WINDOW_WIDTH / 2, WINDOW_HEIGHT - 100}); //600, 800
 	}
 }
 
@@ -265,7 +266,7 @@ std::optional<GameScene*> EndScreen::Update() {
 
 void Gameplay::CleanUpEntities() {
 	std::erase_if(EnemyProjectiles, [](const EnemyProjectile& projectile) { return projectile.isHidden(); });
-	std::erase_if(PlayerProjectiles, [](const PlayerProjectile& projectile) { return projectile.isHidden(); });
+	std::erase_if(PlayerProjectiles, [](const PlayerProjectile& projectile) { return projectile.isHidden() || projectile.isOutOfBounds(); });
 	std::erase_if(Aliens, [](const Alien& alien) { return alien.isHidden(); });
 	std::erase_if(Walls, [](const Wall& wall) { return wall.isHidden(); });
 	//REMOVE INACTIVE/DEAD SPRITE ENTITIES

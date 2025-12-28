@@ -7,46 +7,33 @@
 #include "Constants.h"
 #include "Render.h"
 #include "Leaderboard.hpp"
+#include "ErrorHandling.h"
+
 #include <fstream>
 #include <print>
+#include <format>
 #include <string>
 #include <expected>
-#include "ErrorHandling.h"
 
 using std::string;
 
-
 std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 
-	// SAVE LEADERBOARD AS ARRAY //clarification...?
-	/*
-	 {
-	 "Leaderboard" : [
-	 { "name":"Player 1", "score":2000 },
-	 { "name":"Player 2", "score":1000 },
-	 { "name":"Player 3", "score":500 },
-	 { "name":"Player 4", "score":200 },
-	 { "name":"Player 5", "score":100 },
-	 ]
-	 }
-	 */
-
-	// OPEN FILE
 	std::ofstream file; //fstream -> ofstream, to create file if doesn't exist
 	file.open(pathName); //use relative path and txt extension, why not
 
 	if (!file) {
 		return ErrorType::MISSING_FILE;
 	}
-	else {
-		std::println("file found!");
+
+	file << "{\n" << "\"Leaderboard\" : [\n";
+	for(auto& entry : highscores) {
+		//{ "name":"Player 1", "score":2000 },
+		file << "{ " << std::format("\"name\":\"{}\", \"score\":{}", entry.name, entry.score) << " },\n";
 	}
-
-
-	// WRITE ARRAY DATA INTO FILE
+	file << "]\n}";
 
 	file.close();
-	// CLOSE FILE
 	return {};
 }
 

@@ -32,8 +32,8 @@ inline Vector2 operator/(const Vector2& lhs, float rhs) noexcept { return Vector
 inline Vector2 operator*(float lhs, const Vector2& rhs) noexcept { return Vector2{rhs.x * lhs, rhs.y * lhs}; }
 inline Vector2 operator/(float lhs, const Vector2& rhs) noexcept { return Vector2{rhs.x / lhs, rhs.y / lhs}; }
 
-inline Rectangle operator+(const Scale& lhs, const Vector2& rhs) noexcept 	{ return Rectangle{rhs.x, rhs.y, lhs.width, lhs.height}; }
-inline Rectangle operator+(const Vector2& lhs, const Scale& rhs) noexcept 	{ return Rectangle{lhs.x, lhs.y, rhs.width, rhs.height}; }
+inline Rectangle operator+(const Scale& lhs, const Vector2& rhs) noexcept { return Rectangle{rhs.x, rhs.y, lhs.width, lhs.height}; }
+inline Rectangle operator+(const Vector2& lhs, const Scale& rhs) noexcept { return Rectangle{lhs.x, lhs.y, rhs.width, rhs.height}; }
 
 inline float magnitude(const Vector2& v) noexcept 						{ return hypot(v.x, v.y); }
 inline float dot(const Vector2& lhs, const Vector2& rhs) noexcept				{ return lhs.x * rhs.x + lhs.y * rhs.y; }
@@ -57,9 +57,9 @@ inline Rectangle getBounds(const Scale &scale)  noexcept { return Rectangle{0, 0
 inline Rectangle getBounds(float width, float height) noexcept 				{ return Rectangle{} + Scale(width, height); }
 inline Rectangle getBounds(float size) noexcept 						{ return Rectangle{ 0, 0, size, size}; }
 
-inline Vector2 getSizeVector(const Rectangle& rect) noexcept 			{ return Vector2(rect.width, rect.height ); }
-inline Vector2 getPositionVector(const Rectangle& rect) noexcept 			{ return Vector2(rect.x, rect.y ); }
-inline Vector2 getCenter(const Rectangle& rect) noexcept 				{ return getPositionVector(rect) + getSizeVector(rect) / 2; }
+inline Vector2 getSizeVector(const Rectangle& rect) noexcept 	{ return Vector2(rect.width, rect.height ); }
+inline Vector2 getPositionVector(const Rectangle& rect) noexcept 	{ return Vector2(rect.x, rect.y ); }
+inline Vector2 getCenter(const Rectangle& rect) noexcept 		{ return getPositionVector(rect) + getSizeVector(rect) / 2;}
 
 /* ==== LineSegment, Circle ==== */
 
@@ -80,67 +80,41 @@ inline bool floatInRange(float value, float min, float max) { return min < value
 template <typename T>
 inline T clamp(T value, T min, T max) { return (value < min) ? min : ((value > max) ? max : value); }
 
-
-bool lineOnLine(const LineSegment& line1, const LineSegment& line2);
-inline bool pointOnPoint(const Vector2& p1, const Vector2& p2) { return p1 == p2; }
-bool pointOnLine(const LineSegment& line, const Vector2& point);
-bool pointInCircle(const Circle& circle, const Vector2& point);
-bool pointInRect(const Rectangle& rect, const Vector2& point);
-//bool rectInRect(const Rectangle& rect1, const Rectangle& rect2);
 /**
  *
- * \param A vector which is projected onto B
- * \param B vector onto which A is projected
+ * \param a vector which is projected onto B
+ * \param b vector onto which A is projected
  */
-Vector2 projectOnto(const Vector2& A, const Vector2& B);
+inline Vector2 projectOnto(const Vector2& a, const Vector2& b) { return dot(a, b) / dot(b, b) * b; }
+/**
+ * 			       v•u     u	    v•u	         v•u
+ * 	proj_v(û) = (v•û)û = ––––   ––   =   ––––– u =  ––––– u
+ * 			       ||u||   ||u||	   ||u||²	         u•u
+ *
+ */
 
 
+inline bool CheckCollision(const Circle& circle, const Vector2& point) { return distance(circle.position, point) < circle.radius; }
+inline bool CheckCollision(const Circle& circle1, const Circle& circle2) { return CheckCollisionCircles(circle1.position, circle1.radius, circle2.position, circle2.radius); }
 bool CheckCollision(const Circle& circle, const LineSegment& line);
-
-
-
-//original math functions
-//bool pointInCircle(Vector2 circlePos, float radius, Vector2 point);
-//float lineLength(Vector2 A, Vector2 B);
-//Uses pythagoras to calculate the length of a line
-						    // A Line has infinite length, so this is technically a LineSegment defined by Points A and B, which are defined in terms of Vectors OA and OB, we could instead take the length of Vector OB - OA = AB, i.e. magnitude of B-A
-
-// ====
-
-
-//Print Vector2
+bool pointOnLine(const LineSegment& line, const Vector2& point);
+//====    Print Vector2    ====//
 template <>
 struct std::formatter<Vector2> {
-	constexpr auto parse(std::format_parse_context& ctx) {
-		return ctx.begin();
-	}
-
-	auto format(const Vector2& v, std::format_context& ctx) const {
-		return std::format_to(ctx.out(), "(x: {}, y: {})", v.x, v.y);
-	}
+	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+	auto format(const Vector2& v, std::format_context& ctx) const { return std::format_to(ctx.out(), "(x: {}, y: {})", v.x, v.y); }
 };
 
 template <>
 struct std::formatter<Scale> {
-	constexpr auto parse(std::format_parse_context& ctx) {
-		return ctx.begin();
-	}
-
-	auto format(const Scale& s, std::format_context& ctx) const {
-		return std::format_to(ctx.out(), "(width: {}, height: {})", s.width, s.height);
-	}
+	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+	auto format(const Scale& s, std::format_context& ctx) const { return std::format_to(ctx.out(), "(width: {}, height: {})", s.width, s.height); }
 };
-
 
 template <>
 struct std::formatter<Rectangle> {
-	constexpr auto parse(std::format_parse_context& ctx) {
-		return ctx.begin();
-	}
-
-	auto format(const Rectangle& r, std::format_context& ctx) const {
-		return std::format_to(ctx.out(), "(x: {}, y: {}, width: {}, height: {})", r.x, r.y, r.width, r.height);
-	}
+	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+	auto format(const Rectangle& r, std::format_context& ctx) const { return std::format_to(ctx.out(), "(x: {}, y: {}, width: {}, height: {})", r.x, r.y, r.width, r.height); }
 };
 
 #endif /* Math_hpp */
