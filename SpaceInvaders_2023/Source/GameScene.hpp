@@ -10,8 +10,9 @@
 #include "Entities.hpp"
 #include <string>
 #include <vector>
-#include <memory>
+//#include <memory>
 #include "Leaderboard.hpp"
+#include <variant>
 
 class Game;
 
@@ -46,6 +47,9 @@ public:
 	void CleanUpEntities();
 	void SpawnAliens();
 	void CheckAllCollisions();
+	void CheckCollision(Alien& alien, PlayerProjectile& projectile);
+	void CheckCollision(Player& player, EnemyProjectile& projectile);
+	void CheckCollision(Wall& wall, Projectile& projectile);
 
 	Player player;
 	std::vector<EnemyProjectile> EnemyProjectiles;

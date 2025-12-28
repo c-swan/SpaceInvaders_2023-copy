@@ -131,38 +131,41 @@ void Gameplay::Render() {
 void Gameplay::CheckAllCollisions() {
 	for(auto &projectile : PlayerProjectiles) {
 		for(auto &alien : Aliens) {
-			if (CheckCollision(alien.getCollider(), projectile.getCollider())) {
-				projectile.Hit();
-				alien.Hit();
-				score += ALIEN_KILL_SCORE;
-			}
+			CheckCollision(alien, projectile);
 		}
 		for(auto &wall : Walls) {
-			if (CheckCollision(wall.getCollider(), projectile.getCollider())) {
-				projectile.Hit();
-				wall.Hit();
-			}
+			CheckCollision(wall, projectile);
 		}
 	}
 
 	for(auto &projectile : EnemyProjectiles) {
-		if (CheckCollision(player.getCollider(), projectile.getCollider())) {
-			_game->getSounds().playHitSound();
-			projectile.Hit();
-			player.Hit();
-			if(player.isDead()) return;
-		}
+		CheckCollision(player, projectile);
 
-		//WALLS–ENEMY_PROJECTILES & WALLS–PLAYER_PROJECTILES
 		for(auto &wall : Walls) {
-			if (CheckCollision(wall.getCollider(), projectile.getCollider())) {
-				projectile.Hit();
-				wall.Hit();
-			}
+			CheckCollision(wall, projectile);
 		}
 	}
 }
-
+void Gameplay::CheckCollision(Alien& alien, PlayerProjectile& projectile) {
+	if (::CheckCollision(alien.getCollider(), projectile.getCollider())) {
+		projectile.Hit();
+		alien.Hit();
+		score += ALIEN_KILL_SCORE;
+	}
+}
+void Gameplay::CheckCollision(Player& player, EnemyProjectile& projectile) {
+	if (::CheckCollision(player.getCollider(), projectile.getCollider())) {
+		_game->getSounds().playHitSound();
+		projectile.Hit();
+		player.Hit();
+	}
+}
+void Gameplay::CheckCollision(Wall& wall, Projectile& projectile) {
+	if (::CheckCollision(wall.getCollider(), projectile.getCollider())) {
+		projectile.Hit();
+		wall.Hit();
+	}
+}
 EndScreen::EndScreen(Game* game, int s) : GameScene(game), score(s) {
 	assert(_game);
 	newHighScore = _game->getLeaderboard().CheckNewHighscore(score);

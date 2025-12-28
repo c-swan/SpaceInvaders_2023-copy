@@ -18,7 +18,6 @@
 using std::string;
 
 std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
-
 	std::ofstream file; //fstream -> ofstream, to create file if doesn't exist
 	file.open(pathName); //use relative path and txt extension, why not
 
@@ -26,12 +25,15 @@ std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 		return ErrorType::MISSING_FILE;
 	}
 
-	file << "{\n" << "\"Leaderboard\" : [\n";
+	file << "{\n" << "\t\"Leaderboard\" : [\n";
+	int i=0;
 	for(auto& entry : highscores) {
 		//{ "name":"Player 1", "score":2000 },
-		file << "{ " << std::format("\"name\":\"{}\", \"score\":{}", entry.name, entry.score) << " },\n";
+		file << "\t\t{ " << std::format("\"name\":\"{}\", \"score\":{}", entry.name, entry.score);
+		file << ((i == highscores.size() - 1) ? " }\n" : " },\n");
+		i++;
 	}
-	file << "]\n}";
+	file << "\t]\n}";
 
 	file.close();
 	return {};
@@ -45,8 +47,18 @@ std::optional<ErrorType> Leaderboard::LoadFromFile(const string &fileName) {
 	// READ DATA
 
 	highscores.clear();
-
-	// WRITE DATA ONTO LEADERBOARD
+	//Reverse-engineer this
+/*
+	file << "{\n" << "\t\"Leaderboard\" : [\n"; //Read from "[" after checking "{" and "Leaderboard"
+	int i=0;
+	for(auto& entry : highscores) { //read until reached "]"
+		//{ "name":"Player 1", "score":2000 }, //read name after "name":" until ", truncate to 8 char, read number after , "score":, check for }, ... then next line
+		file << "\t\t{ " << std::format("\"name\":\"{}\", \"score\":{}", entry.name, entry.score);
+		file << ((i == highscores.size() - 1) ? " }\n" : " },\n");
+		i++;
+	}
+	file << "\t]\n}";
+	*/
 
 	file.close();
 	return {};
@@ -69,6 +81,7 @@ void Leaderboard::InsertNewHighscore(const string& name, int score) {
 	auto insert_pos = std::find_if(highscores.begin(), highscores.end(), highscoreCheck);
 	if(insert_pos == highscores.end()) return;
 	highscores.insert(insert_pos, PlayerData(name, score));
+	highscores.pop_back();
 /*
 	for (int i = 0; i < highscores.size(); i++) {
 		if (score > highscores[i].score) {
