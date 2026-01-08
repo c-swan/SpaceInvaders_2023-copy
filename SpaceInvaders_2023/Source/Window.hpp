@@ -4,18 +4,13 @@
 
 class Window {
 public:
-	Window() {
-		InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SPACE INVADERS");
-	}
-	~Window() {
-		CloseWindow();
-	}
+	Window(int width = SCREEN_WIDTH, int height = SCREEN_HEIGHT, const std::string title = GAME_TITLE) { InitWindow(width, height, title.c_str()); }
+	~Window() { CloseWindow(); }
 
-	bool shouldClose() const { return WindowShouldClose(); }
+	bool shouldClose() const noexcept { return WindowShouldClose(); }
 
 	Window(const Window&) = delete;
 	Window(Window&&) = delete;
 	Window& operator=(const Window&) = delete;
 	Window& operator=(Window&&) = delete;
 };
-

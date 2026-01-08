@@ -1,9 +1,9 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
-#include "Resources.h"
+#include "Constants.h"
+#include "Assets.h"
 #include "Window.hpp"
-#include "AudioAssets.hpp"
 
 #include <string>
 #include <print>
@@ -129,20 +129,22 @@ struct Background
 class Game {
 	public:
 	Game() {
-		SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+		SetTargetFPS(60);
 	}
 	~Game() {}
 
 	Window window;
-	Resources resources;
-	AudioAssets audioAssets;
+
+
+	TexturePack texturePack;
+	SoundPack soundPack;
 
 	inline void playSounds() {
 		if (IsKeyPressed(KEY_SPACE)) {
-			PlaySound(audioAssets.sound);
+			PlaySound(soundPack.getSound("hitHurt"));
 		}
 		if (IsKeyPressed(KEY_BACKSPACE)) {
-			StopSound(audioAssets.sound);
+			StopSound(soundPack.getSound("hitHurt"));
 		}
 	}
 	inline void Draw() {
@@ -151,16 +153,10 @@ class Game {
 		Render(); //Draw and Render need not be separated
 		EndDrawing();
 	}
-	//...
 
-	// Gamestate
 	State gameState = State::STARTSCREEN;
-
 	int score = 0;
 	float alienShootTimer = 0;
-
-	//Aliens stuff? (idk cause liv wrote this)
-	Rectangle rec = { 0, 0 ,0 ,0 };
 
 	bool newHighScore = false;
 
@@ -187,15 +183,11 @@ class Game {
 	Player player;
 
 	std::vector<Projectile> Projectiles;
-
 	std::vector<Wall> Walls;
-
 	std::vector<Alien> Aliens;
-
 	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
 	
 	Background background;
-
 
 	Vector2 playerPos;
 	Vector2 alienPos; 

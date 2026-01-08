@@ -1,12 +1,28 @@
-//
-//  ErrorHandling.h
-//  SpaceInvaders_2023
-//
-//  Created by Carl Swanberg on 2026-01-08.
-//
+#pragma once
+#include <iostream>
+#include <string>
+#include <format>
+#include <print>
 
-#ifndef ErrorHandling_h
-#define ErrorHandling_h
+enum struct ErrorType {
+	MISSING_TEXTURE,
+	MISSING_FILE,
+	UNKNOWN
+};
 
+inline void log_error(const std::string msg) {
+	std::cerr << msg << std::endl;
+}
+inline void log_error(const std::string msg, const std::exception& e) {
+	std::cerr << std::format("Runtime error: {}\n", e.what() );
+}
 
-#endif /* ErrorHandling_h */
+inline std::runtime_error file_error(std::string msg, std::string filepath) {
+	return std::runtime_error("Could not open file: " + filepath);
+}
+
+inline void debug_log(const std::string &msg) {
+#ifdef DEBUG
+	std::println("{}", msg);
+#endif
+}

@@ -1,12 +1,12 @@
-#pragma once 
-#include <iostream>
+#pragma once
 #include <string>
-#include <fstream>
+#include <vector>
+#include <optional>
+#include <raylib.h>
 
-
-struct Entity
-{
+struct Entity {
+	Vector2 position;
 	float x, y;
-
-	void LoadLevelFromAFile(const std::string& filename);
 };
+
+std::optional<std::vector<Entity>>  LoadEntityFromFile(const std::string& filename);

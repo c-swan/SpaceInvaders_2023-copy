@@ -23,10 +23,20 @@
 
 #include "raylib.h"
 #include "game.h"
+#include <iostream>
+#include "ErrorHandling.h"
 
 int main() {
-	Game game; //game constructor called, resources constructor called
-	game.Launch();
+	try {
+		Game game; //game constructor called, resources constructor called
+		game.Launch();
+	}
+	catch(std::runtime_error e) {
+		log_error("Runtime error", e);
+	}
+	catch(std::exception e) {
+		std::cerr << "Exception: " << e.what() << std::endl;
+	}
 	//Game destructor called
-	return 0;
+	return APP_QUIT_CODE;
 }

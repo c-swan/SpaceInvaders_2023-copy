@@ -1,0 +1,58 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildOnly"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "d63501925a7046c2839869b47017b8286eb66ca64ab30cd559bfacf9ef9f6f00"
+    }
+  ],
+  "containerPath" : "/Users/carlswanberg/Documents/Uppsala University/Modern C++/SpaceInvaders_2023 copy/SpaceInvaders_2023.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx26.1",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/carlswanberg/Documents/Uppsala University/Modern C++/SpaceInvaders_2023 copy/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/carlswanberg/Documents/Uppsala University/Modern C++/SpaceInvaders_2023 copy/Build/Products",
+      "derivedDataPath" : "/Users/carlswanberg/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/carlswanberg/Library/Developer/Xcode/DerivedData/SpaceInvaders_2023-bqpbteymthuudocedvmywcxcrmch/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/carlswanberg/Library/Developer/Xcode/DerivedData/SpaceInvaders_2023-bqpbteymthuudocedvmywcxcrmch/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/carlswanberg/Documents/Uppsala University/Modern C++/SpaceInvaders_2023 copy/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

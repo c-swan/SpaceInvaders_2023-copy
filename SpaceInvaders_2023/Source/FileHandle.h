@@ -1,12 +1,27 @@
-//
-//  FileHandle.h
-//  SpaceInvaders_2023
-//
-//  Created by Carl Swanberg on 2026-01-08.
-//
+#pragma once
+#include <fstream>
+#include <optional>
+#include "ErrorHandling.h"
 
-#ifndef FileHandle_h
-#define FileHandle_h
+class FileHandle {
+public:
+	FileHandle(std::string filepath) {
+		file.open(filepath);
+		if(!file) {
+			throw file_error("Could not read file", filepath);
+		}
+		if(!is_open()) {
+			throw file_error("Could not open file", filepath);
+		}
 
+	}
+	~FileHandle() { file.close(); }
 
-#endif /* FileHandle_h */
+	bool is_open() const noexcept { return file.is_open(); }
+	bool operator!() { return !file; }
+
+	std::fstream& getFile() { return file; }
+	bool fail() { return file.fail(); }
+private:
+	std::fstream file;
+};

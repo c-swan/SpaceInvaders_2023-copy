@@ -1,40 +1,40 @@
 #include <iostream>
 #include <fstream>
-#include <vector> 
+#include <vector>
 #include <string>
+#include <print>
+#include <format>
 #include "level.h"
+#include "Math.hpp"
+#include "ErrorHandling.h"
+#include <optional>
+#include "FileHandle.h"
 
-void LoadLevelFromFile(const std::string& filename) 
-{
-	std::ifstream file(filename); 
+std::optional<std::vector<Entity>> LoadEntityFromFile(const std::string& filename) {
+	FileHandle file(filename);
 
-	if (file.is_open())
-	{
-		std::vector<Entity> entities;
-		float x, y; 
+	if(!file) {
+		throw file_error("File not found", filename);
+		return std::nullopt;
+	}
+	if (!file.is_open()) {
+		throw file_error("Unable to open file", filename);
+		return std::nullopt;
+	}
 
-		while (file >> x >> y) 
-		{
-		Entity entity;  
-		entity.x = x;
-		entity.y = y; 
-		entities.push_back(entity); 
-		}
+	std::vector<Entity> entities;
+	float x, y;
 
-	    file.close(); 
-
-		for (int i = 0; i < entities.size(); i++)
-		{
-			const Entity& entity = entities[i]; 
-			std::cout << "Spawn entity at X:" << entity.x << ",Y:" << entity.y << std::endl; 
+	while (file.getFile() >> x >> y) {
+		entities.push_back(Entity({x, y}));
+		debug_log(std::format("Spawn entity at: ", entities.back().position));
+		if(file.fail()) {
+			throw file_error("Failed to read entities from file: ", filename);
+			return std::nullopt;
 		}
 	}
-	else 
-	{
-		std::cout << "Unable to open file:" << filename << std::endl; 
-	}
-	
+	return entities;
 }
 
 
-	
+
