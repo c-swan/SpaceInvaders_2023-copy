@@ -125,7 +125,7 @@ struct Background
 
 class Game {
 	public:
-	Game() : gameState(State::STARTSCREEN) {
+	Game() : gameState(State::STARTSCREEN), resources() {
 		InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SPACE INVADERS"); //TODO: Window RAII
 		SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
@@ -159,21 +159,16 @@ class Game {
 	// Gamestate
 	State gameState = State::STARTSCREEN;
 
-	// Score
-	int score;
-
-	// for later, make a file where you can adjust the number of walls (config file) 
-	int wallCount = 5;
+	int score = 0;
 
 	//Aliens shooting
-	float shootTimer = 0;
+	float alienShootTimer = 0;
 
 	//Aliens stuff? (idk cause liv wrote this)
 	Rectangle rec = { 0, 0 ,0 ,0 };  //how about default constructor?
 
 
 	bool newHighScore = false;
-	
 
 	void Start();
 	void End();
@@ -188,7 +183,7 @@ class Game {
 
 	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
 
-	bool CheckNewHighScore();
+	bool CheckNewHighScore() { return (score > Leaderboard.back().score); }
 
 	void InsertNewHighScore(std::string name);
 

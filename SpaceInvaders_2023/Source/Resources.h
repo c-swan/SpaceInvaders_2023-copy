@@ -4,17 +4,17 @@
 #include <format>
 #include "Constants.h"
 
-inline Texture2D LoadTexture(std::string assetName) {
-	return LoadTexture(std::format("{}{}.png", ASSETS_DIR, assetName).c_str());
+inline Texture2D LoadTexture(const std::string assetName) {
+	return ::LoadTexture(std::format("{}{}.png", ASSETS_DIR, assetName).c_str());
 }
 
 struct Resources {
 	Resources() {
 		alienTexture = LoadTexture("Alien");
 		barrierTexture = LoadTexture("Barrier");
-		for(int i=1; i<=SHIP_TEXTURE_COUNT; i++) {
-			shipTextures.push_back(LoadTexture(std::format("Ship{}", i)));
-		}
+		shipTextures.push_back(LoadTexture("Ship1"));
+		shipTextures.push_back(LoadTexture("Ship2"));
+		shipTextures.push_back(LoadTexture("Ship3"));
 		laserTexture = LoadTexture("Laser");
 	}
 	~Resources() {

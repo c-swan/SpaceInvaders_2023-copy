@@ -10,8 +10,8 @@ void Game::Start() {
 	// creating walls
 	float window_width = (float)GetScreenWidth(); 
 	float window_height = (float)GetScreenHeight(); 
-	float wall_distance = window_width / (wallCount + 1); 
-	for (int i = 0; i < wallCount; i++)
+	float wall_distance = window_width / (WALL_COUNT + 1);
+	for (int i = 0; i < WALL_COUNT; i++)
 	{
 		Wall newWalls;
 		newWalls.position.y = window_height - 250; 
@@ -58,9 +58,8 @@ void Game::Continue()
 	gameState = State::STARTSCREEN; //TODO: FSM should use enterState
 }
 
-void Game::Launch()
-{
-	
+void Game::Launch() {
+	gameState = State::STARTSCREEN;
 }
 
 void Game::Update()
@@ -189,8 +188,8 @@ void Game::Update()
 		}
 
 		//Aliens Shooting
-		shootTimer += 1;
-		if (shootTimer > 59) //once per second
+		alienShootTimer += 1;
+		if (alienShootTimer > 59) //once per second
 		{
 			int randomAlienIndex = 0;
 
@@ -205,7 +204,7 @@ void Game::Update()
 			newProjectile.speed = -15;
 			newProjectile.type = EntityType::ENEMY_PROJECTILE;
 			Projectiles.push_back(newProjectile);
-			shootTimer = 0;
+			alienShootTimer = 0;
 		}
 
 		// REMOVE INACTIVE/DEAD ENITITIES
@@ -460,8 +459,8 @@ void Game::Render() {
 
 void Game::SpawnAliens()
 {
-	for (int row = 0; row < ALIEN_FORMATION_POS.y; row++) {
-		for (int col = 0; col < ALIEN_FORMATION_POS.x; col++) {
+	for (int row = 0; row < ALIEN_FORMATION_HEIGHT; row++) {
+		for (int col = 0; col < ALIEN_FORMATION_WIDTH; col++) {
 			Alien newAlien = Alien();
 			newAlien.active = true;
 			newAlien.position.x = ALIEN_FORMATION_POS.x + 450 + (col * ALIEN_SPACING);
@@ -473,11 +472,6 @@ void Game::SpawnAliens()
 	}
 
 }
-
-bool Game::CheckNewHighScore() {
-	return (score > Leaderboard[4].score);
-}
-
 void Game::InsertNewHighScore(std::string name)
 {
 	PlayerData newData;
