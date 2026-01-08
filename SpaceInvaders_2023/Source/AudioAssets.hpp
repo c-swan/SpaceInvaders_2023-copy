@@ -2,19 +2,20 @@
 #include "Constants.h"
 #include <raylib.h>
 
-class Window {
+class AudioAssets {
 public:
-	Window() {
-		InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SPACE INVADERS");
+	AudioAssets() {
+		InitAudioDevice();
+		sound = LoadSound("./hitHurt.ogg");
 	}
-	~Window() {
-		CloseWindow();
+	~AudioAssets() {
+		CloseAudioDevice();
 	}
 
-	bool shouldClose() const { return WindowShouldClose(); }
+	Sound sound;
 
-	Window(const Window&) = delete;
-	Window(Window&&) = delete;
-	Window& operator=(const Window&) = delete;
-	Window& operator=(Window&&) = delete;
+	AudioAssets(const AudioAssets&) = delete;
+	AudioAssets(AudioAssets&&) = delete;
+	AudioAssets& operator=(const AudioAssets&) = delete;
+	AudioAssets& operator=(AudioAssets&&) = delete;
 };

@@ -2,8 +2,11 @@
 #include "raylib.h"
 #include <vector>
 #include "Resources.h"
-#include <string>
+#include "Window.hpp"
+#include "AudioAssets.hpp"
 
+#include <string>
+#include <print>
 enum struct State
 {
 	STARTSCREEN,
@@ -125,27 +128,21 @@ struct Background
 
 class Game {
 	public:
-	Game() : gameState(State::STARTSCREEN), resources() {
-		InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SPACE INVADERS"); //TODO: Window RAII
+	Game() {
 		SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+	}
+	~Game() {}
 
-		InitializeAudio(); //TODO: RAII
-	}
-	~Game() {
-		CloseAudioDevice();
-		CloseWindow();        // Close window and OpenGL context
-	}
+	Window window;
+	Resources resources;
+	AudioAssets audioAssets;
 
-	inline void InitializeAudio() {
-		InitAudioDevice();
-		sound = LoadSound("./hitHurt.ogg");
-	}
 	inline void playSounds() {
 		if (IsKeyPressed(KEY_SPACE)) {
-			PlaySound(sound);
+			PlaySound(audioAssets.sound);
 		}
 		if (IsKeyPressed(KEY_BACKSPACE)) {
-			StopSound(sound);
+			StopSound(audioAssets.sound);
 		}
 	}
 	inline void Draw() {
@@ -160,13 +157,10 @@ class Game {
 	State gameState = State::STARTSCREEN;
 
 	int score = 0;
-
-	//Aliens shooting
 	float alienShootTimer = 0;
 
 	//Aliens stuff? (idk cause liv wrote this)
-	Rectangle rec = { 0, 0 ,0 ,0 };  //how about default constructor?
-
+	Rectangle rec = { 0, 0 ,0 ,0 };
 
 	bool newHighScore = false;
 
@@ -190,10 +184,6 @@ class Game {
 	void LoadLeaderboard();
 	void SaveLeaderboard();
 
-
-	Resources resources;
-	Sound sound;
-
 	Player player;
 
 	std::vector<Projectile> Projectiles;
@@ -207,13 +197,10 @@ class Game {
 	Background background;
 
 
-
 	Vector2 playerPos;
 	Vector2 alienPos; 
 	Vector2 cornerPos;
 	float offset;
-
-
 
 	//TEXTBOX ENTER
 	char name[9 + 1] = "\0";      //One extra space required for null terminator char '\0'

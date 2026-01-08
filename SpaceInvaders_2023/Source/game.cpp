@@ -52,14 +52,18 @@ void Game::End()
 	gameState = State::ENDSCREEN;
 }
 
-void Game::Continue()
-{
+void Game::Continue() {
 	SaveLeaderboard();
 	gameState = State::STARTSCREEN; //TODO: FSM should use enterState
 }
 
 void Game::Launch() {
 	gameState = State::STARTSCREEN;
+	while (!window.shouldClose()) {// Detect window close button or ESC key
+		//playSounds(); -> move to Update or delete
+		Update();
+		Draw();
+	}
 }
 
 void Game::Update()

@@ -24,16 +24,9 @@
 #include "raylib.h"
 #include "game.h"
 
-int main(void) {
-	Game game; //game constructor called
+int main() {
+	Game game; //game constructor called, resources constructor called
 	game.Launch();
-	// Main game loop
-	while (!WindowShouldClose()) {// Detect window close button or ESC key
-		//game.playSounds(); -> move to Update or delete
-		game.Update();
-		game.Draw();
-	}
 	//Game destructor called
-	std::string filename = "level.txt";
 	return 0;
 }
