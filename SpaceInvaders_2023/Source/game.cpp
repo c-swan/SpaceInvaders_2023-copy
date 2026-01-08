@@ -6,11 +6,8 @@
 #include <fstream>
 #include "Math.hpp"
 
-
-
-void Game::Start()
-{
-	// creating walls 
+void Game::Start() {
+	// creating walls
 	float window_width = (float)GetScreenWidth(); 
 	float window_height = (float)GetScreenHeight(); 
 	float wall_distance = window_width / (wallCount + 1); 
@@ -23,7 +20,6 @@ void Game::Start()
 		Walls.push_back(newWalls); 
 
 	}
-
 
 	//creating player
 	Player newPlayer;
@@ -64,8 +60,7 @@ void Game::Continue()
 
 void Game::Launch()
 {
-	//LOAD SOME RESOURCES HERE
-	resources.Load();
+	
 }
 
 void Game::Update()
@@ -465,12 +460,12 @@ void Game::Render() {
 
 void Game::SpawnAliens()
 {
-	for (int row = 0; row < formationHeight; row++) {
-		for (int col = 0; col < formationWidth; col++) {
+	for (int row = 0; row < ALIEN_FORMATION_POS.y; row++) {
+		for (int col = 0; col < ALIEN_FORMATION_POS.x; col++) {
 			Alien newAlien = Alien();
 			newAlien.active = true;
-			newAlien.position.x = formationX + 450 + (col * alienSpacing);
-			newAlien.position.y = formationY + (row * alienSpacing);
+			newAlien.position.x = ALIEN_FORMATION_POS.x + 450 + (col * ALIEN_SPACING);
+			newAlien.position.y = ALIEN_FORMATION_POS.y + (row * ALIEN_SPACING);
 			Aliens.push_back(newAlien);
 			std::cout << "Find Alien -X:" << newAlien.position.x << std::endl;
 			std::cout << "Find Alien -Y:" << newAlien.position.y << std::endl;

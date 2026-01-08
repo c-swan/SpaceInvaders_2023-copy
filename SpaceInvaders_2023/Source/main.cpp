@@ -24,55 +24,16 @@
 #include "raylib.h"
 #include "game.h"
 
-Game game;
-Sound sound;
-Resources resources;
-
-void Initialize() {
-	const int screenWidth = 1920;
-	const int screenHeight = 1080;
-
-	InitWindow(screenWidth, screenHeight, "SPACE INVADERS");
-	SetTargetFPS(60); // Set our game to run at 60 frames-per-second
-}
-void InitializeGame() {
-	game = { State::STARTSCREEN };
-	game.resources = resources;
-	game.Launch();
-}
-void InitializeAudio() {
-	InitAudioDevice();
-	sound = LoadSound("./hitHurt.ogg");
-}
-void Draw() {
-	BeginDrawing();
-	ClearBackground(BLACK);
-	game.Render();
-	EndDrawing();
-}
-void Deinitialize() {
-	CloseAudioDevice();
-	CloseWindow();        // Close window and OpenGL context
-}
-void playSounds() {
-	if (IsKeyPressed(KEY_SPACE)) {
-		PlaySound(sound);
-	}
-	if (IsKeyPressed(KEY_BACKSPACE)) {
-		StopSound(sound);
-	}
-}
 int main(void) {
-	Initialize();
-	InitializeGame();
-	InitializeAudio();
+	Game game; //game constructor called
+	game.Launch();
 	// Main game loop
 	while (!WindowShouldClose()) {// Detect window close button or ESC key
-		//playSounds();
+		//game.playSounds(); -> move to Update or delete
 		game.Update();
-		Draw();
+		game.Draw();
 	}
-	Deinitialize();
+	//Game destructor called
 	std::string filename = "level.txt";
 	return 0;
 }

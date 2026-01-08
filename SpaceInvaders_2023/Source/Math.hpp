@@ -10,6 +10,11 @@
 #include "raylib.h"
 #include <cmath>
 
+
+struct Size {
+	int width, height;
+};
+
 Vector2 operator+(Vector2& lhs, Vector2& rhs); /* { return Vector2(lhs.x + rhs.x, lhs.y + rhs.y); }*/
 Vector2 operator-(Vector2& lhs, Vector2& rhs); /* { return Vector2(lhs.x + rhs.x, lhs.y + rhs.y); }*/
 

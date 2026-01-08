@@ -4,7 +4,6 @@
 #include "Resources.h"
 #include <string>
 
-
 enum struct State
 {
 	STARTSCREEN,
@@ -124,10 +123,41 @@ struct Background
 
 };
 
-struct Game
-{
+class Game {
+	public:
+	Game() : gameState(State::STARTSCREEN) {
+		InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SPACE INVADERS"); //TODO: Window RAII
+		SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+
+		InitializeAudio(); //TODO: RAII
+	}
+	~Game() {
+		CloseAudioDevice();
+		CloseWindow();        // Close window and OpenGL context
+	}
+
+	inline void InitializeAudio() {
+		InitAudioDevice();
+		sound = LoadSound("./hitHurt.ogg");
+	}
+	inline void playSounds() {
+		if (IsKeyPressed(KEY_SPACE)) {
+			PlaySound(sound);
+		}
+		if (IsKeyPressed(KEY_BACKSPACE)) {
+			StopSound(sound);
+		}
+	}
+	inline void Draw() {
+		BeginDrawing();
+		ClearBackground(BLACK);
+		Render(); //Draw and Render need not be separated
+		EndDrawing();
+	}
+	//...
+
 	// Gamestate
-	State gameState = {}; //wild
+	State gameState = State::STARTSCREEN;
 
 	// Score
 	int score;
@@ -141,11 +171,6 @@ struct Game
 	//Aliens stuff? (idk cause liv wrote this)
 	Rectangle rec = { 0, 0 ,0 ,0 };  //how about default constructor?
 
-	int formationWidth = 8; //how about const?
-	int formationHeight = 5;
-	int alienSpacing = 80;
-	int formationX = 100;
-	int formationY = 50;
 
 	bool newHighScore = false;
 	
@@ -171,8 +196,8 @@ struct Game
 	void SaveLeaderboard();
 
 
-	// Entity Storage and Resources
 	Resources resources;
+	Sound sound;
 
 	Player player;
 
