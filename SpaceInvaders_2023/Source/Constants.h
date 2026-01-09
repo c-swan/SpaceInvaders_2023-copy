@@ -19,3 +19,11 @@ static constexpr Vector2 ALIEN_FORMATION_POS = {100, 50};
 static constexpr int WALL_COUNT = 5;
 
 static constexpr int SHIP_TEXTURE_COUNT = 3;
+
+static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
+
+static constexpr int TITLE_FONT_SIZE = 60;
+static constexpr int DEFAULT_FONT_SIZE = 40;
+static constexpr int HALF_FONT_SIZE = DEFAULT_FONT_SIZE / 2;
+
+static constexpr float PLAYER_BASE_HEIGHT = 70.0f;

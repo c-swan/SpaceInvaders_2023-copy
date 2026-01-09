@@ -62,8 +62,8 @@
             filePath = "SpaceInvaders_2023/Source/game.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "551"
-            endingLineNumber = "551"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
             landmarkName = "Game::CheckCollision(circlePos, circleRadius, lineStart, lineEnd)"
             landmarkType = "7">
          </BreakpointContent>

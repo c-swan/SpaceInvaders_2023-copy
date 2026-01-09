@@ -34,7 +34,6 @@ public:
 
 	float x_pos = 0;
 	float speed = 7;
-	float player_base_height = 70.0f;  
 	float radius = 50;
 	int lives = 3;
 	int direction = 0;
@@ -46,7 +45,8 @@ public:
 	void Initialize();
 	void Render(Texture2D texture);
 	void Update();
-	
+
+	bool isDead() const noexcept { return lives < 1; }
 };
 
 
@@ -100,7 +100,9 @@ public:
 	int speed = 2; 
 		 
 	void Update(); 
-	void Render(Texture2D texture); 
+	void Render(Texture2D texture);
+
+	bool isBehindPlayer() { return position.y > GetScreenHeight() - PLAYER_BASE_HEIGHT; }
 };
 
 
@@ -154,7 +156,19 @@ class Game {
 	void Update();
 	void Render();
 
+	void StartScreenUpdate();
+	void StartScreenRender();
+	void GameplayUpdate();
+	void GameplayRender();
+	void EndScreenUpdate();
+	void EndScreenRender();
+
 	void SpawnAliens();
+	void UpdateBackground();
+	void CheckCollisions();
+	void MakeProjectile();
+	void AlienShooting();
+	void RemoveInactiveEntities();
 
 	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
 	bool CheckNewHighScore() { return (score > Leaderboard.back().score); }
