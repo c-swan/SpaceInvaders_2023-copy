@@ -6,7 +6,6 @@
 
 struct Entity {
 	Vector2 position;
-	float x, y;
 };
 
-std::optional<std::vector<Entity>>  LoadEntityFromFile(const std::string& filename);
+std::optional<std::vector<Entity>> LoadEntityFromFile(const std::string& filename);

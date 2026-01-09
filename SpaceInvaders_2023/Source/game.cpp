@@ -72,48 +72,32 @@ void Game::Update()
 	switch (gameState)
 	{
 	case State::STARTSCREEN:
-		//Code 
-		if (IsKeyReleased(KEY_SPACE))
-		{
-			Start();
-
-
+		if (IsKeyReleased(KEY_SPACE)) {
+			return Start();
 		}
-
 		break;
 	case State::GAMEPLAY:
-		//Code
-		if (IsKeyReleased(KEY_Q))
-		{
-			End();
+		if (IsKeyReleased(KEY_Q)) {
+			return End();
 		}
 
-		//Update Player
 		player.Update();
 		
 		//Update Aliens and Check if they are past player
-		for (int i = 0; i < Aliens.size(); i++)
-		{
-			Aliens[i].Update(); 
-
-			if (Aliens[i].position.y > GetScreenHeight() - player.player_base_height)
-			{
-				End();
+		for(auto &alien : Aliens) {
+			alien.Update();
+			if (alien.position.y > GetScreenHeight() - player.player_base_height) {
+				return End();
 			}
 		}
 
-		//End game if player dies
-		if (player.lives < 1)
-		{
-			End();
+		if (player.lives < 1) { //End game if player dies
+			return End();
 		}
 
-		//Spawn new aliens if aliens run out
-		if (Aliens.size() < 1)
-		{
+		if (Aliens.size() < 1) { 		//Spawn new aliens if aliens run out
 			SpawnAliens();
 		}
-
 
 		// Update background with offset
 		playerPos = { player.x_pos, (float)player.player_base_height };
@@ -121,69 +105,45 @@ void Game::Update()
 		offset = lineLength(playerPos, cornerPos) * -1;
 		background.Update(offset / 15);
 
-
-		//UPDATE PROJECTILE
-		for (int i = 0; i < Projectiles.size(); i++)
-		{
-			Projectiles[i].Update();
+		for(auto &projectile : Projectiles) {
+			projectile.Update();
 		}
-		//UPDATE PROJECTILE
-		for (int i = 0; i < Walls.size(); i++)
-		{
-			Walls[i].Update();
+		for (auto &wall : Walls) {
+			wall.Update();
 		}
 
 		//CHECK ALL COLLISONS HERE
-		for (int i = 0; i < Projectiles.size(); i++)
-		{
-			if (Projectiles[i].type == EntityType::PLAYER_PROJECTILE)
-			{
-				for (int a = 0; a < Aliens.size(); a++)
-				{
-					if (CheckCollision(Aliens[a].position, Aliens[a].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
-					{
-						// Kill!
-						std::cout << "Hit! \n";
-						// Set them as inactive, will be killed later
-						Projectiles[i].active = false;
-						Aliens[a].active = false;
+		for (auto &projectile : Projectiles) {
+			if (projectile.type == EntityType::PLAYER_PROJECTILE) {
+				for(auto &alien : Aliens) {
+					if (CheckCollision(alien.position, alien.radius, projectile.lineStart, projectile.lineEnd)) { // Kill!
+						std::println("Hit!");	// Set them as inactive, will be killed later
+						projectile.active = false;
+						alien.active = false;
 						score += 100;
 					}
 				}
 			}
-
-			//ENEMY PROJECTILES HERE
-			for (int i = 0; i < Projectiles.size(); i++)
-			{
-				if (Projectiles[i].type == EntityType::ENEMY_PROJECTILE)
-				{
-					if (CheckCollision({player.x_pos, GetScreenHeight() - player.player_base_height }, player.radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
-					{
-						std::cout << "dead!\n"; 
-						Projectiles[i].active = false; 
-						player.lives -= 1; 
-					}
+			if (projectile.type == EntityType::ENEMY_PROJECTILE) { // Kill!
+				if (CheckCollision({player.x_pos, GetScreenHeight() - player.player_base_height }, player.radius, projectile.lineStart, projectile.lineEnd)) {
+					std::println("dead!");
+					projectile.active = false;
+					player.lives--;
 				}
 			}
 
-
-			for (int b = 0; b < Walls.size(); b++)
-			{
-				if (CheckCollision(Walls[b].position, Walls[b].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd))
-				{
-					// Kill!
-					std::cout << "Hit! \n";
-					// Set them as inactive, will be killed later
-					Projectiles[i].active = false;
-					Walls[b].health -= 1;
+			for(auto &wall : Walls) {
+				if (CheckCollision(wall.position, wall.radius, projectile.lineStart, projectile.lineEnd)) { // Kill!
+					std::println("Hit!");
+					projectile.active = false; 					// Set them as inactive, will be killed later
+					wall.health--;
 				}
 			}
 		}
 
 		//MAKE PROJECTILE
-		if (IsKeyPressed(KEY_SPACE))
-		{
-			float window_height = (float)GetScreenHeight();
+		if (IsKeyPressed(KEY_SPACE)) {
+			float window_height = GetScreenHeight();
 			Projectile newProjectile;
 			newProjectile.position.x = player.x_pos;
 			newProjectile.position.y = window_height - 130;
@@ -191,14 +151,11 @@ void Game::Update()
 			Projectiles.push_back(newProjectile);
 		}
 
-		//Aliens Shooting
-		alienShootTimer += 1;
-		if (alienShootTimer > 59) //once per second
-		{
+		alienShootTimer++;
+		if (alienShootTimer > 59) {//once per second
 			int randomAlienIndex = 0;
 
-			if (Aliens.size() > 1)
-			{
+			if (!Aliens.empty()) {
 				randomAlienIndex = rand() % Aliens.size();
 			}
 
@@ -212,251 +169,159 @@ void Game::Update()
 		}
 
 		// REMOVE INACTIVE/DEAD ENITITIES
-		for (int i = 0; i < Projectiles.size(); i++)
-		{
-			if (Projectiles[i].active == false)
-			{
+//		Prevent the loop from skipping an instance because of index changes,
+//		since all insances after the killed objects are moved down in index.
+//		This is the same for all loops with similar function
+		for (int i = 0; i < Projectiles.size(); i++) {
+			if (!Projectiles[i].active) {
 				Projectiles.erase(Projectiles.begin() + i);
-				// Prevent the loop from skipping an instance because of index changes, since all insances after
-				// the killed objects are moved down in index. This is the same for all loops with similar function
 				i--;
 			}
 		}
-		for (int i = 0; i < Aliens.size(); i++)
-		{
-			if (Aliens[i].active == false)
-			{
+		for (int i = 0; i < Aliens.size(); i++){
+			if (!Aliens[i].active) {
 				Aliens.erase(Aliens.begin() + i);
 				i--;
 			}
 		}
-		for (int i = 0; i < Walls.size(); i++)
-		{
-			if (Walls[i].active == false)
-			{
+		for (int i = 0; i < Walls.size(); i++) {
+			if (!Walls[i].active) {
 				Walls.erase(Walls.begin() + i);
 				i--;
 			}
 		}
-
-			
-		
-
-	break;
-	case State::ENDSCREEN:
-		//Code
-	
-		//Exit endscreen
-		if (IsKeyReleased(KEY_ENTER) && !newHighScore)
-		{
-			Continue();
-		}
-
-	
-
-		if (newHighScore)
-		{
-			if (CheckCollisionPointRec(GetMousePosition(), textBox)) mouseOnText = true;
-			else mouseOnText = false;
-
-			if (mouseOnText)
-			{
-				// Set the window's cursor to the I-Beam
-				SetMouseCursor(MOUSE_CURSOR_IBEAM);
-
-				// Get char pressed on the queue
-				int key = GetCharPressed();
-
-				// Check if more characters have been pressed on the same frame
-				while (key > 0)
-				{
-					// NOTE: Only allow keys in range [32..125]
-					if ((key >= 32) && (key <= 125) && (letterCount < 9))
-					{
-						name[letterCount] = (char)key;
-						name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
-						letterCount++;
-					}
-
-					key = GetCharPressed();  // Check next character in the queue
-				}
-
-				//Remove chars 
-				if (IsKeyPressed(KEY_BACKSPACE))
-				{
-					letterCount--;
-					if (letterCount < 0) letterCount = 0;
-					name[letterCount] = '\0';
-				}
-			}
-			else SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-			if (mouseOnText)
-			{
-				framesCounter++;
-			}
-			else
-			{
-				framesCounter = 0;
-			}
-
-			// If the name is right legth and enter is pressed, exit screen by setting highscore to false and add 
-			// name + score to scoreboard
-			if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER))
-			{
-				std::string nameEntry(name);
-
-				InsertNewHighScore(nameEntry);
-
-				newHighScore = false;
-			}
-
-
-		}
-		
-
-
 		break;
+	case State::ENDSCREEN:
+		if (!newHighScore) {
+			if(IsKeyReleased(KEY_ENTER)) {
+				Continue();
+			}
+			return;
+		}
+
+		mouseOnText = CheckCollisionPointRec(GetMousePosition(), textBox);
+		SetMouseCursor(mouseOnText ? MOUSE_CURSOR_IBEAM : MOUSE_CURSOR_DEFAULT);
+
+		{
+			// Get char pressed on the queue
+			int key = GetCharPressed();
+			while (key > 0) {// Check if more characters have been pressed on the same frame
+				// NOTE: Only allow keys in range [32..125]
+				if ((key >= 32) && (key <= 125) && (letterCount < 9)) {
+					name[letterCount] = static_cast<char>(key);
+					name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
+					letterCount++;
+				}
+
+				key = GetCharPressed();  // Check next character in the queue
+			}
+
+			//Remove chars
+			if (IsKeyPressed(KEY_BACKSPACE)) {
+				letterCount--;
+				if (letterCount < 0) letterCount = 0;
+				name[letterCount] = '\0';
+			}
+		}
+		if (!mouseOnText) {
+			framesCounter = 0;
+		}
+		else {
+			framesCounter++;
+		}
+
+		// If the name is right legth and enter is pressed, exit screen by setting highscore to false and add
+		// name + score to scoreboard
+		if(!IsKeyReleased(KEY_ENTER)) {
+			return;
+		}
+		if (letterCount > 0 && letterCount < 9) {
+			std::string nameEntry(name);
+			InsertNewHighScore(nameEntry);
+			newHighScore = false;
+		}
 	default:
-		//SHOULD NOT HAPPEN
+		throw std::out_of_range("Default game state in switch loop");
 		break;
 	}
 }
 
 
+/*
+ TODO: branching code...
+ TODO: the beauty of having a state machine is you can send render to different states!
+ gameState.render() ->
+ gameState == startScreen, endScreen, etc
+ startScreen.render();
+ endScreen.render();
+ OR switch(gameSate) and call different render functions for different states)*/
+
 void Game::Render() {
-	//TODO: branching code...
-	//TODO: the beauty of having a state machine is you can send render to different states!
-	// gameState.render() ->
-	// gameState == startScreen, endScreen, etc
-	// startScreen.render();
-	// endScreen.render();
-	// OR switch(gameSate) and call different render functions for different states)
-
-	switch (gameState)
-	{
+	switch (gameState) {
 	case State::STARTSCREEN:
-
 		DrawText("SPACE INVADERS", 200, 100, 160, YELLOW);
-
 		DrawText("PRESS SPACE TO BEGIN", 200, 350, 40, YELLOW);
-
-
 		break;
+
 	case State::GAMEPLAY:
-		//Code
-
-
-		//background render LEAVE THIS AT TOP
 		background.Render();
 
-		//DrawText("GAMEPLAY", 50, 30, 40, YELLOW);
 		DrawText(TextFormat("Score: %i", score), 50, 20, 40, YELLOW);
 		DrawText(TextFormat("Lives: %i", player.lives), 50, 70, 40, YELLOW);
 
-		//player rendering 
 		player.Render(texturePack.getShipTexture(player.activeTexture));
 
-		//projectile rendering
-		for (int i = 0; i < Projectiles.size(); i++)
-		{
-			Projectiles[i].Render(texturePack.getTexture("Laser"));
+		for(auto& projectile : Projectiles) {
+			projectile.Render(texturePack.getTexture("Laser"));
 		}
-
-		// wall rendering 
-		for (int i = 0; i < Walls.size(); i++)
-		{
-			Walls[i].Render(texturePack.getTexture("Barrier"));
+		for(auto& wall : Walls) {
+			wall.Render(texturePack.getTexture("Barrier"));
 		}
-
-		//alien rendering  
-		for (int i = 0; i < Aliens.size(); i++)
-		{
-			Aliens[i].Render(texturePack.getTexture("Alien"));
+		for(auto& alien : Aliens) {
+			alien.Render(texturePack.getTexture("Alien"));
 		}
-
-
-
-
-
-
 		break;
 	case State::ENDSCREEN:
-		//Code
-		//DrawText("END", 50, 50, 40, YELLOW);
-
-		if (newHighScore)
-		{
+		if (newHighScore) {
 			DrawText("NEW HIGHSCORE!", 600, 300, 60, YELLOW);
-
-
 
 			// BELOW CODE IS FOR NAME INPUT RENDER
 			DrawText("PLACE MOUSE OVER INPUT BOX!", 600, 400, 20, YELLOW);
 
 			DrawRectangleRec(textBox, LIGHTGRAY);
-			if (mouseOnText)
-			{
-				// HOVER CONFIRMIATION
-				DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RED);
-			}
-			else
-			{
-				DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
-			}
+			DrawRectangleLinesEx(textBox, 5 /*line thickness*/, (mouseOnText ? RED : DARKGRAY) /*highlight color*/); //HOVER CONFIRMIATION mouseOnText highlight
 
 			//Draw the name being typed out
-			DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
-
+			DrawText(name, static_cast<int>(textBox.x) + 5, static_cast<int>(textBox.y) + 8, 40, MAROON);
 			//Draw the text explaining how many characters are used
 			DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, 600, 20, YELLOW);
 
-			if (mouseOnText)
-			{
-				if (letterCount < 9)
-				{
-					// Draw blinking underscore char
-					if (((framesCounter / 20) % 2) == 0)
-					{
-						DrawText("_", (int)textBox.x + 8 + MeasureText(name, 40), (int)textBox.y + 12, 40, MAROON);
-					}
-
-				}
-				else
-				{
-					//Name needs to be shorter
+			if (mouseOnText) {
+				if (letterCount > 8) { //Name needs to be shorter
 					DrawText("Press BACKSPACE to delete chars...", 600, 650, 20, YELLOW);
 				}
-				
+				else if (((framesCounter / 20) % 2) == 0) { // Draw blinking underscore char
+					DrawText("_", static_cast<int>(textBox.x) + 8 + MeasureText(name, 40), static_cast<int>(textBox.y) + 12, 40, MAROON);
+				}
 			}
 
-			// Explain how to continue when name is input
-			if (letterCount > 0 && letterCount < 9)
-			{
+			if (letterCount > 0 && letterCount < 9) { // Explain how to continue when name is input
 				DrawText("PRESS ENTER TO CONTINUE", 600, 800, 40, YELLOW);
 			}
-
 		}
-		else {
-			// If no highscore or name is entered, show scoreboard and call it a day
+		else { // If no highscore or name is entered, show scoreboard and call it a day
 			DrawText("PRESS ENTER TO CONTINUE", 600, 200, 40, YELLOW);
-
 			DrawText("LEADERBOARD", 50, 100, 40, YELLOW);
 
-			for (int i = 0; i < Leaderboard.size(); i++)
-			{
+			for (int i = 0; i < Leaderboard.size(); i++) {
 				char* tempNameDisplay = Leaderboard[i].name.data();
 				DrawText(tempNameDisplay, 50, 140 + (i * 40), 40, YELLOW);
 				DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * 40), 40, YELLOW);
 			}
 		}
-
-		
-
-
 		break;
 	default:
-		//SHOULD NOT HAPPEN
+		throw std::out_of_range("Default game state in switch loop");
 		break;
 	}
 }
@@ -844,19 +709,6 @@ void Background::Render()
 		Stars[i].Render();
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
