@@ -1,12 +1,12 @@
 #pragma once
-#include "raylib.h"
-#include <vector>
+#include <raylib.h>
 #include "Constants.h"
 #include "Assets.h"
 #include "Window.hpp"
-
 #include <string>
+#include <vector>
 #include <print>
+
 enum struct State
 {
 	STARTSCREEN,
@@ -128,31 +128,16 @@ struct Background
 
 class Game {
 	public:
-	Game() {
-		SetTargetFPS(60);
-	}
+	Game() {}
 	~Game() {}
 
 	Window window;
 
-
 	TexturePack texturePack;
 	SoundPack soundPack;
 
-	inline void playSounds() {
-		if (IsKeyPressed(KEY_SPACE)) {
-			PlaySound(soundPack.getSound("hitHurt"));
-		}
-		if (IsKeyPressed(KEY_BACKSPACE)) {
-			StopSound(soundPack.getSound("hitHurt"));
-		}
-	}
-	inline void Draw() {
-		BeginDrawing();
-		ClearBackground(BLACK);
-		Render(); //Draw and Render need not be separated
-		EndDrawing();
-	}
+	void playSounds();
+	void Draw();
 
 	State gameState = State::STARTSCREEN;
 	int score = 0;
@@ -172,7 +157,6 @@ class Game {
 	void SpawnAliens();
 
 	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
-
 	bool CheckNewHighScore() { return (score > Leaderboard.back().score); }
 
 	void InsertNewHighScore(std::string name);

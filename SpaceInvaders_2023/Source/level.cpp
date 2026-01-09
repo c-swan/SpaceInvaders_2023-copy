@@ -25,7 +25,7 @@ std::optional<std::vector<Entity>> LoadEntityFromFile(const std::string& filenam
 	std::vector<Entity> entities;
 	float x, y;
 
-	while (file.getFile() >> x >> y) {
+	while (file.getFile() >> x >> y) { //no input sanitation
 		entities.push_back(Entity({x, y}));
 		debug_log(std::format("Spawn entity at: ", entities.back().position));
 		if(file.fail()) {

@@ -16,27 +16,24 @@
  *
  *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
  *   BSD-like license that allows static linking with closed source software
- *b
+ *
  *   Copyright (c) 2013-2022 Ramon Santamaria (@raysan5)
  *
  ********************************************************************************************/
 
-#include "raylib.h"
 #include "game.h"
-#include <iostream>
 #include "ErrorHandling.h"
 
 int main() {
 	try {
-		Game game; //game constructor called, resources constructor called
+		Game game;
 		game.Launch();
 	}
 	catch(std::runtime_error e) {
 		log_error("Runtime error", e);
 	}
 	catch(std::exception e) {
-		std::cerr << "Exception: " << e.what() << std::endl;
+		log_error("Exception", e);
 	}
-	//Game destructor called
 	return APP_QUIT_CODE;
 }

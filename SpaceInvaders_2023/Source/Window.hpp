@@ -4,7 +4,10 @@
 
 class Window {
 public:
-	Window(int width = SCREEN_WIDTH, int height = SCREEN_HEIGHT, const std::string title = GAME_TITLE) { InitWindow(width, height, title.c_str()); }
+	Window(int width = SCREEN_WIDTH, int height = SCREEN_HEIGHT, const std::string title = GAME_TITLE) {
+		InitWindow(width, height, title.c_str());
+		SetTargetFPS(60);
+	}
 	~Window() { CloseWindow(); }
 
 	bool shouldClose() const noexcept { return WindowShouldClose(); }
