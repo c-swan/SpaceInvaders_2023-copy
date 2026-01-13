@@ -7,13 +7,16 @@
 
 struct Projectile {
 	enum Type { Player, Alien } type = Type::Player;
-	Projectile(Type t, TexturePack* txtrPck) : type(t), texturePack(txtrPck) {
+	Projectile(Type t, Vector2 pos, TexturePack* txtrPck) : type(t), position(pos), texturePack(txtrPck) {
 		if(isPlayerProjectile()) {
 			direction = -1;
 		}
+		if(isAlienProjectile()) {
+			position.y += 40;
+		}
 	}
 
-	Vector2 position{0,0};
+	Vector2 position;
 	int direction = 1;
 	bool active = true;
 

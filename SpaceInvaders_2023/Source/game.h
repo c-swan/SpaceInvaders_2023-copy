@@ -45,7 +45,7 @@ class Game {
 
 	void Start();
 	void SpawnWalls();
-	void End();
+	void GameOver();
 
 	void Continue();
 	void Launch();

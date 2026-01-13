@@ -37,6 +37,8 @@ static constexpr int PLAYER_MAX_LIVES = 3;
 
 static constexpr int ALIEN_SPEED = 2;
 static constexpr float ALIEN_RADIUS = 30;
+static constexpr int ALIEN_OFFSET_X = 450;
+static constexpr int ALIEN_HIT_SCORE = 100;
 
 static constexpr int STAR_COUNT = 600;
 static constexpr int BACKGROUND_EDGE_X = 150;
@@ -51,3 +53,4 @@ static constexpr float PROJECTILE_HEIGHT = 30;
 static constexpr float PROJECTILE_WIDTH = 6;
 static constexpr float PLAYER_ANIMATION_FRAME_DURATION = 0.4;
 static constexpr float PARALLAX_FACTOR = 15;
+static constexpr float LASER_BASE_POS_Y = 130;
