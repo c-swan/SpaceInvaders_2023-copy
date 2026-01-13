@@ -2,16 +2,15 @@
 #include <raylib.h>
 #include "Constants.h"
 #include "Window.hpp"
-#include "Entities.hpp"
 #include "Math.h"
-
+#include "TextUI.h"
 
 class Renderer {
 public:
 	Renderer(const Window& window) : bounds(0,0, window.GetWidth(), window.GetHeight()) { }
 	~Renderer() {}
 
-	void Render(Texture2D* texture, Rectangle& bounds, Vector2& position)  {
+	void Render(Texture2D* texture, const Rectangle& bounds, const Vector2& position)  {
 		DrawTexturePro(*texture, ::getRect(texture->width, texture->height), bounds + position, Vector2(bounds.width, bounds.height) / 2, NO_ROTATION, NO_TINT);
 	}
 	void Render(const Circle& circle, const Color& color) noexcept { DrawCircle(circle.center.x, circle.center.y, circle.radius, color); }

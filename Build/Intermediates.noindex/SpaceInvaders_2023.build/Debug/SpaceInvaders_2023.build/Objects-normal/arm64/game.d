@@ -8,8 +8,8 @@ dependencies: \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Assets.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Window.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Player.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Entities.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Renderer.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/TextUI.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Alien.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Projectile.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Bunker.h \

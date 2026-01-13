@@ -4,7 +4,7 @@
 
 class Window {
 public:
-	Window(int width = SCREEN_WIDTH, int height = SCREEN_HEIGHT, const std::string title = GAME_TITLE) {
+	Window(int width = WINDOW_WIDTH, int height = WINDOW_HEIGHT, const std::string title = GAME_TITLE) {
 		InitWindow(width, height, title.c_str());
 	}
 	~Window() { CloseWindow(); }

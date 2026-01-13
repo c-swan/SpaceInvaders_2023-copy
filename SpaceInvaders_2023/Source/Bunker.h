@@ -7,7 +7,7 @@
 struct Bunker {
 	Bunker(float x, float y, TexturePack* txtrPck) : texturePack(txtrPck) { position.x = x; position.y = y; }
 	void Render(Renderer& renderer) {
-		renderer.Render(texturePack->getTexture("Barrier"), bounds, position);
+		renderer.Render(texturePack->getTexture(BUNKER_TEXTURE_NAME), bounds, position);
 		renderer.DrawText(std::to_string(health), position + textPosition, DEFAULT_FONT_SIZE, BUNKER_TEXT_COLOR);
 	}
 	Vector2 getPosition() { return position; }

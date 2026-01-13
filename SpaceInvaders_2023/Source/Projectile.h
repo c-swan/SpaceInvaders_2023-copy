@@ -1,6 +1,5 @@
 #pragma once
 #include <raylib.h>
-#include "Entities.hpp"
 #include "Renderer.h"
 #include "Constants.h"
 #include "Assets.h"
@@ -23,19 +22,18 @@ struct Projectile {
 	Rectangle bounds {0, 0, 50, 50};
 	TexturePack *texturePack;
 	void Update() {
-		position.y += direction * LASER_SPEED;
+		position.y += direction * PROJECTILE_SPEED;
 
 		if (isOutOfBounds()) {
 			active = false;
 		}
 	}
 
-	void Render(Renderer& renderer) { renderer.Render(texturePack->getTexture("Laser"), bounds, position); }
-
+	void Render(Renderer& renderer) { renderer.Render(texturePack->getTexture(PROJECTILE_TEXTURE_NAME), bounds, position); }
 
 	bool isActive() const noexcept { return active; }
 	bool isOutOfBounds() const noexcept { return position.y < 0 || position.y > 1500; }
-	bool isWithinkBunkerRange() noexcept { return (position.y > GetScreenHeight() - BUNKER_POSITION_Y - BUNKER_RADIUS - getWidth() / 2) && (position.y < GetScreenHeight() - BUNKER_POSITION_Y + BUNKER_RADIUS + getWidth() / 2); }
+	bool isWithinBunkerRange() noexcept { return (position.y > GetScreenHeight() - BUNKER_POSITION_Y - BUNKER_RADIUS - getWidth() / 2) && (position.y < GetScreenHeight() - BUNKER_POSITION_Y + BUNKER_RADIUS + getWidth() / 2); }
 	bool isWithinPlayerRange() noexcept { return (position.y > GetScreenHeight() - PLAYER_BASE_HEIGHT - PLAYER_RADIUS - PROJECTILE_HEIGHT / 2); }
 
 	Vector2 getPosition() const noexcept { return position; }

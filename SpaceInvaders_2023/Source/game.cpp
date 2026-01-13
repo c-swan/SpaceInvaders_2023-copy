@@ -11,7 +11,7 @@
 
 float Star::offsetX = 0;
 
-void Game::Start() {
+void Game::Start() { //init gameplay
 	Stars.resize(STAR_COUNT);
 	player = Player(&texturePack);
 
@@ -23,13 +23,16 @@ void Game::Start() {
 }
 
 void Game::SpawnWalls() {
-	// creating walls
 	float window_width = static_cast<float>(GetScreenWidth());
 	float window_height = static_cast<float>(GetScreenHeight());
 	float bunker_distance = window_width / (BUNKER_COUNT + 1);
 	for (int i = 0; i < BUNKER_COUNT; i++) {
-		Bunker bunker(bunker_distance * (i + 1), window_height - BUNKER_POSITION_Y, &texturePack);
-		Bunkers.push_back(bunker);
+		Bunkers.emplace_back(
+					   Bunker(
+						    bunker_distance * (i + 1),
+						    window_height - BUNKER_POSITION_Y,
+						    &texturePack)
+					   );
 	}
 }
 
@@ -38,12 +41,11 @@ void Game::GameOver() {
 	Bunkers.clear();
 	Aliens.clear();
 	Stars.clear();
-	newHighScore = CheckNewHighScore();
+	newHighscore = CheckNewHighScore();
 	gameState = State::ENDSCREEN;
 }
 
 void Game::Continue() {
-	SaveLeaderboard();
 	gameState = State::STARTSCREEN; //TODO: FSM should use enterState
 }
 
@@ -133,43 +135,22 @@ void Game::GameplayUpdate() {
 
 void Game::CheckCollisions() {
 	for(auto& projectile : Projectiles) {
-		if (projectile.isActive() && projectile.isPlayerProjectile()) {
-			for (auto& alien : Aliens) {
-				bool alien_collision = CheckCollision(alien.getCollider(), projectile.getCollider());
-//Collider Tests
-				DrawRectangleLinesEx(projectile.getCollider(), 5, alien_collision ? GREEN : RED);
-				renderer.Render(alien.getCollider(), alien_collision ? GREEN : RED);
-
-				if (alien_collision) {
-					projectile.hit();
-					alien.hit();
-					score += ALIEN_HIT_SCORE;
+		if (projectile.isActive()) {
+			if(projectile.isPlayerProjectile()) {
+				for (auto& alien : Aliens) {
+					if (CheckCollision(alien.getCollider(), projectile.getCollider())) {
+						projectile.hit();
+						alien.hit();
+						score += ALIEN_HIT_SCORE;
+					}
 				}
 			}
-		}
-
-		//ENEMY PROJECTILES HERE
-		for(auto& projectile : Projectiles) {
-			if (projectile.isAlienProjectile() && projectile.isActive() && projectile.isWithinPlayerRange()) {
-				bool player_collision = CheckCollision(player.getCollider(), projectile.getCollider());
-
-				DrawRectangleLinesEx(projectile.getCollider(), 5, player_collision ? GREEN : RED);
-				renderer.Render(player.getCollider(), player_collision ? GREEN : RED);
-
-				if (player_collision) {
-					projectile.hit();
-					player.hit();
-				}
+			else if (projectile.isAlienProjectile() && projectile.isWithinPlayerRange() && CheckCollision(player.getCollider(), projectile.getCollider())) {
+				projectile.hit();
+				player.hit();
 			}
-		}
-
-		for (auto& bunker : Bunkers) {
-			if(projectile.isActive() && (projectile.getPosition().y > bunker.getPosition().y - bunker.getRadius()) && (projectile.getPosition().y < bunker.getPosition().y + bunker.getRadius())) {
-				bool bunker_collision = CheckCollisionCircleRec(bunker.getPosition(), bunker.getRadius(), projectile.getCollider());
-				DrawRectangleLinesEx(projectile.getCollider(), 5, bunker_collision ? GREEN : RED);
-				renderer.Render(bunker.getCollider(), bunker_collision ? GREEN : RED);
-
-				if (bunker_collision) {
+			for (auto& bunker : Bunkers) {
+				if (projectile.isWithinBunkerRange() && CheckCollision(bunker.getCollider(), projectile.getCollider())) {
 					projectile.hit();
 					bunker.hit();
 				}
@@ -181,11 +162,11 @@ void Game::CheckCollisions() {
 
 
 void Game::MakeProjectile() {
-	Projectiles.push_back(Projectile(
+	Projectiles.emplace_back(Projectile(
 						   Projectile::Type::Player,
 						   {
 							   player.getX(),
-							   GetScreenHeight() - LASER_BASE_POS_Y
+							   GetScreenHeight() - PROJECTILE_BASE_POS_Y
 						   },
 						   &texturePack)
 				    );
@@ -196,11 +177,11 @@ void Game::AlienShooting() {
 		return;
 	}
 	alienShootTimer++;
-	if (alienShootTimer < 60) {
+	if (alienShootTimer < ALIEN_SHOOT_TIME) {
 		return;
 	}
 
-	int randomAlienIndex = rand() % Aliens.size(); //don't forget to seed
+	int randomAlienIndex = GetRandomValue(0, static_cast<int>(Aliens.size()) - 1);
 
 	Projectiles.push_back(Projectile(
 						   Projectile::Type::Alien,
@@ -212,11 +193,11 @@ void Game::AlienShooting() {
 }
 
 void Game::RemoveInactiveEntities() {
-
 	std::erase_if(Projectiles, [](auto& projectile) { return !projectile.isActive() || projectile.isOutOfBounds(); });
 	std::erase_if(Aliens, [](auto& alien) { return alien.isDead(); });
 	std::erase_if(Bunkers, [](auto& bunker) { return bunker.isDead(); });
 }
+
 //
 //	for (int i = 0; i < Projectiles.size(); i++) {
 //		if (!Projectiles[i].active) {
@@ -259,11 +240,11 @@ void Game::GameplayRender() {
 }
 
 void Game::EndScreenUpdate() {
-	if (IsKeyReleased(KEY_ENTER) && !newHighScore) {
+	if (IsKeyReleased(KEY_ENTER) && !newHighscore) {
 		return Continue();
 	}
 
-	if (newHighScore) {
+	if (newHighscore) {
 		mouseOnText = (CheckCollisionPointRec(GetMousePosition(), textBox));
 		SetMouseCursor(mouseOnText ? MOUSE_CURSOR_IBEAM : MOUSE_CURSOR_DEFAULT);
 		if (mouseOnText) {
@@ -300,77 +281,63 @@ void Game::EndScreenUpdate() {
 		if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER)) {
 			std::string nameEntry(name);
 			InsertNewHighScore(std::string(name));
-			newHighScore = false;
+			newHighscore = false;
 		}
 	}
 }
-
-struct TextUI {
-	TextUI(std::string txt) : text(txt) {}
-	TextUI(std::string txt, Vector2 pos) : text(txt), position(pos) {}
-	TextUI(std::string txt, Vector2 pos, int size = DEFAULT_FONT_SIZE, Color c = DEFAULT_FONT_COLOR) : text(txt), position(pos), fontSize(size), fontColor(c) {}
-
-	std::string text = "";
-	Vector2 position = {0,0};
-	int fontSize = DEFAULT_FONT_SIZE;
-	Color fontColor = DEFAULT_FONT_COLOR;
-	void Render() {DrawText(text.c_str(), position.x, position.y, fontSize, fontColor);}
-};
 
 void Game::EndScreenRender() {
-	if (newHighScore) {
-		std::vector<TextUI> Texts;
-		for(auto& text : Texts) {
-			text.Render();
-		}
-		TextUI highscoreText("NEW HIGHSCORE!", {600, 300}, TITLE_FONT_SIZE);
-		highscoreText.Render();
-		DrawText("NEW HIGHSCORE!", 600, 300, TITLE_FONT_SIZE, DEFAULT_FONT_COLOR);
-
-		// BELOW CODE IS FOR NAME INPUT RENDER
-		DrawText("PLACE MOUSE OVER INPUT BOX!", 600, 400, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
-
-		DrawRectangleRec(textBox, LIGHTGRAY);
-		DrawRectangleLinesEx(textBox, 5, mouseOnText ? RED : DARKGRAY);
-
-
-		//Draw the name being typed out
-		DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, DEFAULT_FONT_SIZE, MAROON);
-
-		//Draw the text explaining how many characters are used
-		DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), 600, 600, 20, DEFAULT_FONT_COLOR);
-
-		if (mouseOnText) {
-			if (letterCount < 9) {
-				// Draw blinking underscore char
-				if (((framesCounter / 20) % 2) == 0) {
-					DrawText("_", (int)textBox.x + 8 + MeasureText(name, DEFAULT_FONT_SIZE), (int)textBox.y + 12, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-				}
-			}
-			else {
-				//Name needs to be shorter
-				DrawText("Press BACKSPACE to delete chars...", 600, 650, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
-			}
-		}
-
-		// Explain how to continue when name is input
-		if (letterCount > 0 && letterCount < 9) {
-			DrawText("PRESS ENTER TO CONTINUE", 600, 800, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-		}
+	if (newHighscore) {
+		RenderNewHighscore();
 	}
 	else {
-		// If no highscore or name is entered, show scoreboard and call it a day
-		DrawText("PRESS ENTER TO CONTINUE", 600, 200, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-		DrawText("LEADERBOARD", 50, 100, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-
-		for (int i = 0; i < Leaderboard.size(); i++) {
-			char* tempNameDisplay = Leaderboard[i].name.data();
-			DrawText(tempNameDisplay, 50, 140 + (i * DEFAULT_FONT_SIZE), DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-			DrawText(TextFormat("%i", Leaderboard[i].score), 350, 140 + (i * DEFAULT_FONT_SIZE), DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-		}
+		ShowScoreboard();
 	}
 }
 
+void Game::RenderNewHighscore() {
+	renderer.DrawText("NEW HIGHSCORE!", {600, 300}, 60, DEFAULT_FONT_COLOR);
+
+	// BELOW CODE IS FOR NAME INPUT RENDER
+	renderer.DrawText("PLACE MOUSE OVER INPUT BOX!", {600, 400}, HALF_FONT_SIZE);//, DEFAULT_FONT_COLOR);
+
+	DrawRectangleRec(textBox, LIGHTGRAY);
+	DrawRectangleLinesEx(textBox, 5, mouseOnText ? RED : DARKGRAY);
+
+	renderer.DrawText(name, {textBox.x + 5, textBox.y + 8}, DEFAULT_FONT_SIZE, MAROON);
+
+	//Draw the text explaining how many characters are used
+	renderer.DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, 8), {600, 600}, HALF_FONT_SIZE);//, DEFAULT_FONT_COLOR);
+
+	if (mouseOnText) {
+		if (letterCount < 9) {
+			// Draw blinking underscore char
+			if (((framesCounter / 20) % 2) == 0) {
+				renderer.DrawText("_", {textBox.x + 8 + MeasureText(name, DEFAULT_FONT_SIZE), textBox.y + 12});/*, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);*/
+			}
+		}
+		else {
+			//Name needs to be shorter
+			renderer.DrawText("Press BACKSPACE to delete chars...", {600, 650}, HALF_FONT_SIZE);//, DEFAULT_FONT_COLOR);
+		}
+	}
+
+	// Explain how to continue when name is input
+	if (letterCount > 0 && letterCount < 9) {
+		renderer.DrawText("PRESS ENTER TO CONTINUE", {600, 800});//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+	}
+}
+void Game::ShowScoreboard() {
+	// If no highscore or name is entered, show scoreboard and call it a day
+	renderer.DrawText("PRESS ENTER TO CONTINUE", {600, 200});//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+	renderer.DrawText("LEADERBOARD", {50, 100});//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+
+	for (int i = 0; i < Leaderboard.size(); i++) {
+//		char* tempNameDisplay = Leaderboard[i].name.data();
+		renderer.DrawText(Leaderboard[i].name.data(), {50, 140.0f + (i * DEFAULT_FONT_SIZE)});//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+		renderer.DrawText(TextFormat("%i", Leaderboard[i].score), {350, 140.0f + (i * DEFAULT_FONT_SIZE)});//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+	}
+}
 //====
 
 void Game::SpawnAliens() {
@@ -383,56 +350,15 @@ void Game::SpawnAliens() {
 		}
 	}
 }
-void Game::InsertNewHighScore(std::string name) {
-	PlayerData newData;
-	newData.name = name;
-	newData.score = score;
+void Game::InsertNewHighScore(std::string name) { //TODO: replace with algorithm
+	PlayerData newData{name, score};
 
 	for (int i = 0; i < Leaderboard.size(); i++) {
-		if (newData.score > Leaderboard[i].score) //find correct place to insert and then remove last element
-		{ //maybe insert then sort? or use algorithm to find position
+		if (newData.score > Leaderboard[i].score) {//find correct place to insert and then remove last element
+		//maybe insert then sort? or use algorithm to find position
 			Leaderboard.insert(Leaderboard.begin() + i, newData);
 			Leaderboard.pop_back();
-
 			return;
 		}
 	}
-}
-
-void Game::LoadLeaderboard() {
-	//TODO: well this explains why I don't seem to be able to see anything?
-	// CLEAR LEADERBOARD
-
-	// OPEN FILE
-
-	// READ DATA
-
-	// WRITE DATA ONTO LEADERBOARD
-
-	//CLOSE FILE
-}
-
-void Game::SaveLeaderboard()
-{
-	// SAVE LEADERBOARD AS ARRAY
-
-	// OPEN FILE
-	std::ofstream file; //changed to ofstream to create file if does not exist
-
-	file.open("./Leaderboard");
-
-	if (!file)
-	{
-		std::cout << "file not found \n";
-
-	}
-	else
-	{
-		std::cout << "file found \n";
-	}
-	// CLEAR FILE
-
-	// WRITE ARRAY DATA INTO FILE
-
-	// CLOSE FILE
 }

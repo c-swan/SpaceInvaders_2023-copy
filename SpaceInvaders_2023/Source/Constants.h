@@ -7,8 +7,10 @@ static constexpr int FPS = 60;
 static constexpr std::string GAME_TITLE = "SPACE INVADERS";
 static constexpr int APP_QUIT_CODE = 0;
 
-static constexpr int SCREEN_WIDTH = 1920;
-static constexpr int SCREEN_HEIGHT = 1080;
+static constexpr std::string LEADERBOARD_PATH = "./leaderboard.json";
+
+static constexpr int WINDOW_WIDTH = 1920;
+static constexpr int WINDOW_HEIGHT = 1080;
 
 static constexpr std::string ASSETS_DIRECTORY = "./Assets/";
 
@@ -26,7 +28,7 @@ static constexpr int SHIP_TEXTURE_COUNT = 3;
 
 static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
 
-static constexpr int TITLE_FONT_SIZE = 60;
+static constexpr int TITLE_FONT_SIZE = 160;
 static constexpr int DEFAULT_FONT_SIZE = 40;
 static constexpr int HALF_FONT_SIZE = DEFAULT_FONT_SIZE / 2;
 
@@ -39,6 +41,7 @@ static constexpr int ALIEN_SPEED = 2;
 static constexpr float ALIEN_RADIUS = 30;
 static constexpr int ALIEN_OFFSET_X = 450;
 static constexpr int ALIEN_HIT_SCORE = 100;
+static constexpr int ALIEN_SHOOT_TIME = 60;
 
 static constexpr int STAR_COUNT = 600;
 static constexpr int BACKGROUND_EDGE_X = 150;
@@ -48,9 +51,26 @@ static constexpr int NO_ROTATION = 0;
 static constexpr Color NO_TINT = WHITE;
 
 static constexpr Color BACKGROUND_COLOR = BLACK;
-static constexpr float LASER_SPEED = 15;
+static constexpr float PROJECTILE_SPEED = 15;
 static constexpr float PROJECTILE_HEIGHT = 30;
 static constexpr float PROJECTILE_WIDTH = 6;
 static constexpr float PLAYER_ANIMATION_FRAME_DURATION = 0.4;
 static constexpr float PARALLAX_FACTOR = 15;
-static constexpr float LASER_BASE_POS_Y = 130;
+static constexpr float PROJECTILE_BASE_POS_Y = 130;
+
+static constexpr std::string ALIEN_TEXTURE_NAME = "Alien";
+static constexpr std::string BUNKER_TEXTURE_NAME = "Barrier";
+static constexpr std::string PROJECTILE_TEXTURE_NAME = "Laser";
+static constexpr std::string SHIP_TEXTURE_NAME = "Ship";
+
+/*========    LEADERBOARD    ========*/
+static constexpr int LEFT_MARGIN = 50;
+static constexpr int LEADERBOARD_SIZE = 5;
+static constexpr Vector2 LEADERBOARD_POSITION {50, 100};
+//static constexpr int LEADERBOARD_POSITION_X = 50;
+//static constexpr int LEADERBOARD_POSITION_Y = 100;
+static constexpr int LEADERBOARD_SCORE_COLUMN = 300;
+
+static constexpr int ASCII_SPACE = 32;
+static constexpr int ASCII_RIGHT_BRACKET = 125;
+static constexpr int MAX_LETTER_COUNT = 8;

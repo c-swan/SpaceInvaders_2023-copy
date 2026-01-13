@@ -41,21 +41,6 @@ inline Rectangle operator+(const Rectangle& lhs, const Vector2& rhs) noexcept	{ 
 inline Rectangle getRect(float width, float height) noexcept 			{ return Rectangle{0,0, width, height}; }
 inline Vector2 getCenter(const Rectangle& rect) noexcept 				{ return Vector2(rect.width, rect.height) / 2.0f; }
 
-/* ==== Math Functions ====*/
-inline float lineLength(Vector2 A, Vector2 B) //Uses pythagoras to calculate the length of a line
-{
-	float length = sqrtf(pow(B.x - A.x, 2) + pow(B.y - A.y, 2));
-
-	return length;
-}
-
-//inline bool pointInCircle(Vector2 circlePos, float radius, Vector2 point) // Uses pythagoras to calculate if a point is within a circle or not
-//{
-//	float distanceToCentre = lineLength(circlePos, point);
-//
-//	return (distanceToCentre < radius);
-//}
-
 template <>
 struct std::formatter<Vector2> {
 	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }

@@ -41,7 +41,7 @@ class Game {
 	State gameState = State::STARTSCREEN;
 	int score = 0;
 	float alienShootTimer = 0;
-	bool newHighScore = false;
+	bool newHighscore = false;
 
 	void Start();
 	void SpawnWalls();
@@ -60,23 +60,27 @@ class Game {
 	void EndScreenUpdate();
 	void EndScreenRender();
 
+	void RenderNewHighscore();
+	void ShowScoreboard();
+
 	void SpawnAliens();
 	void UpdateBackground();
 	void CheckCollisions();
 	void MakeProjectile();
 	void AlienShooting();
 	void RemoveInactiveEntities();
-
 	void UpdateStarPositions() { Star::offsetX = player.getPosition().x / -PARALLAX_FACTOR; }
-//	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
+
+	bool DrawColliders(const Circle &circle, const Rectangle &rect, bool collision) {
+		DrawRectangleLinesEx(rect, 5, collision ? GREEN : RED);
+		renderer.Render(circle, collision ? GREEN : RED);
+		return collision;
+	}
 	bool CheckCollision(Rectangle rect1, Rectangle rect2) { return CheckCollisionRecs(rect1, rect2); }
-	bool CheckCollision(Circle circle, Rectangle rect) { return CheckCollisionCircleRec(circle.center, circle.radius, rect);}
+	bool CheckCollision(Circle circle, Rectangle rect) { return DrawColliders(circle, rect, CheckCollisionCircleRec(circle.center, circle.radius, rect)); }
 	bool CheckNewHighScore() { return (score > Leaderboard.back().score); }
 
 	void InsertNewHighScore(std::string name);
-
-	void LoadLeaderboard();
-	void SaveLeaderboard();
 
 	Player player;
 
