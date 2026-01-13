@@ -7,6 +7,12 @@
 #include <vector>
 #include <print>
 
+#include "Player.h"
+#include "Alien.h"
+#include "Projectile.h"
+#include "Bunker.h"
+#include "Stars.h"
+
 enum struct State
 {
 	STARTSCREEN,
@@ -14,140 +20,31 @@ enum struct State
 	ENDSCREEN
 };
 
-enum struct EntityType
-{
-	PLAYER,
-	ENEMY,
-	PLAYER_PROJECTILE,
-	ENEMY_PROJECTILE
-};
 
-struct PlayerData
-{
+struct PlayerData {
 	std::string name;
 	int score;
 };
 
-struct Player
-{
-public:
-
-	float x_pos = 0;
-	float speed = 7;
-	float radius = 50;
-	int lives = 3;
-	int direction = 0;
-	int activeTexture = 0;
-	float timer = 0;
-
-	EntityType type = EntityType::PLAYER;
-
-	void Initialize();
-	void Render(Texture2D texture);
-	void Update();
-
-	bool isDead() const noexcept { return lives < 1; }
-};
-
-
-struct Projectile
-{
-public: 
-	// INITIALIZE PROJECTILE WHILE DEFINING IF ITS PLAYER OR ENEMY 
-	Vector2 position = {0,0};
-	int speed = 15; 
-	bool active = true;  
-	EntityType type = {};
-
-	// LINE WILL UPDATE WITH POSITION FOR CALCULATIONS
-	Vector2 lineStart = { 0, 0 };
-	Vector2 lineEnd = { 0, 0 };
-
-	void Update();
-
-	void Render(Texture2D texture);
-};
-
-struct Wall 
-{
-public: 
-	Vector2 position; 
-	Rectangle rec; 
-	bool active; 
-	Color color; 
-	int health = 50;
-	int radius = 60;
-
-
-	void Render(Texture2D texture); 
-	void Update(); 
-};
-
-struct Alien
-{
-public:
-	
-	Color color = WHITE; 
-	Vector2 position = {0, 0};
-	int x = 0; 
-	int y = 0; 
-	float radius = 30;
-	bool active = true;  
-	bool moveRight = true; 
-	
-	EntityType type = EntityType::ENEMY; 
-
-	int speed = 2; 
-		 
-	void Update(); 
-	void Render(Texture2D texture);
-
-	bool isBehindPlayer() { return position.y > GetScreenHeight() - PLAYER_BASE_HEIGHT; }
-};
-
-
-struct Star
-{
-	Vector2 initPosition = { 0, 0 };
-	Vector2 position = { 0, 0 };
-	Color color = GRAY;
-	float size = 0;
-	void Update(float starOffset);
-	void Render();
-};
-
-struct Background
-{
-	
-
-	std::vector<Star> Stars;
-
-	void Initialize(int starAmount);
-	void Update(float offset);
-	void Render();
-
-};
-
 class Game {
 	public:
-	Game() {}
+	Game() : window(), renderer(window), player(&texturePack) {
+		SetTargetFPS(FPS);
+	}
 	~Game() {}
 
 	Window window;
+	Renderer renderer;
 
 	TexturePack texturePack;
-	SoundPack soundPack;
-
-	void playSounds();
-	void Draw();
 
 	State gameState = State::STARTSCREEN;
 	int score = 0;
 	float alienShootTimer = 0;
-
 	bool newHighScore = false;
 
 	void Start();
+	void SpawnWalls();
 	void End();
 
 	void Continue();
@@ -170,7 +67,10 @@ class Game {
 	void AlienShooting();
 	void RemoveInactiveEntities();
 
-	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
+	void UpdateStarPositions() { Star::offsetX = player.getPosition().x / -PARALLAX_FACTOR; }
+//	bool CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineTop, Vector2 lineBottom);
+	bool CheckCollision(Rectangle rect1, Rectangle rect2) { return CheckCollisionRecs(rect1, rect2); }
+	bool CheckCollision(Circle circle, Rectangle rect) { return CheckCollisionCircleRec(circle.center, circle.radius, rect);}
 	bool CheckNewHighScore() { return (score > Leaderboard.back().score); }
 
 	void InsertNewHighScore(std::string name);
@@ -181,16 +81,12 @@ class Game {
 	Player player;
 
 	std::vector<Projectile> Projectiles;
-	std::vector<Wall> Walls;
+	std::vector<Bunker> Bunkers;
 	std::vector<Alien> Aliens;
-	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
-	
-	Background background;
+	std::vector<Star> Stars;
 
-	Vector2 playerPos;
-	Vector2 alienPos; 
-	Vector2 cornerPos;
-	float offset;
+	std::vector<PlayerData> Leaderboard = { {"Player 1", 500}, {"Player 2", 400}, {"Player 3", 300}, {"Player 4", 200}, {"Player 5", 100} };
+
 
 	//TEXTBOX ENTER
 	char name[9 + 1] = "\0";      //One extra space required for null terminator char '\0'

@@ -1,12 +1,8 @@
-//
-//  TextUI.h
-//  SpaceInvaders_2023
-//
-//  Created by Carl Swanberg on 2026-01-09.
-//
+#pragma once
+#include <raylib.h>
+#include <string>
 
-#ifndef TextUI_h
-#define TextUI_h
-
-
-#endif /* TextUI_h */
+struct TextUI {
+	std::string str;
+	Vector position;
+};

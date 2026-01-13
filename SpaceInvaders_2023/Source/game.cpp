@@ -5,52 +5,39 @@
 #include <thread>
 #include "Constants.h"
 #include <fstream>
-#include "Math.hpp"
+#include "Math.h"
 #include <algorithm>
 #include <ranges>
 
+float Star::offsetX = 0;
+
 void Game::Start() {
-	// creating walls
-	float window_width = (float)GetScreenWidth(); 
-	float window_height = (float)GetScreenHeight(); 
-	float wall_distance = window_width / (WALL_COUNT + 1);
-	for (int i = 0; i < WALL_COUNT; i++)
-	{
-		Wall newWalls;
-		newWalls.position.y = window_height - 250; 
-		newWalls.position.x = wall_distance * (i + 1); 
+	SpawnWalls();
+	player = Player(&texturePack);
 
-		Walls.push_back(newWalls); 
-
-	}
-
-	//creating player
-	Player newPlayer;
-	player = newPlayer; //move? copy? why not reset or 
-	player.Initialize(); //wtf???
-
-	//creating aliens
 	SpawnAliens();
-	
+	Stars.resize(STAR_COUNT);
 
-	//creating background
-	Background newBackground;
-	newBackground.Initialize(600);
-	background = newBackground;
-
-	//reset score
 	score = 0;
-
 	gameState = State::GAMEPLAY;
-
 }
 
-void Game::End()
-{
-	//SAVE SCORE AND UPDATE SCOREBOARD
+void Game::SpawnWalls() {
+	// creating walls
+	float window_width = static_cast<float>(GetScreenWidth());
+	float window_height = static_cast<float>(GetScreenHeight());
+	float bunker_distance = window_width / (BUNKER_COUNT + 1);
+	for (int i = 0; i < BUNKER_COUNT; i++) {
+		Bunker bunker(bunker_distance * (i + 1), window_height - BUNKER_POSITION_Y, &texturePack);
+		Bunkers.push_back(bunker);
+	}
+}
+
+void Game::End() {
 	Projectiles.clear();
-	Walls.clear();
+	Bunkers.clear();
 	Aliens.clear();
+	Stars.clear();
 	newHighScore = CheckNewHighScore();
 	gameState = State::ENDSCREEN;
 }
@@ -62,10 +49,9 @@ void Game::Continue() {
 
 void Game::Launch() {
 	gameState = State::STARTSCREEN;
-	while (!window.shouldClose()) {// Detect window close button or ESC key
-		//playSounds(); -> move to Update or delete
+	while (!window.shouldClose()) {	
 		Update();
-		Draw();
+		Render();
 	}
 }
 
@@ -83,6 +69,9 @@ void Game::Update() {
 }
 
 void Game::Render() {
+	BeginDrawing();
+	ClearBackground(BACKGROUND_COLOR);
+
 	switch (gameState) {
 	case State::STARTSCREEN:
 		StartScreenRender(); break;
@@ -93,6 +82,7 @@ void Game::Render() {
 	default: //SHOULD NOT HAPPEN
 		throw std::runtime_error("No game state!"); break;
 	}
+	EndDrawing();
 }
 
 void Game::StartScreenUpdate() {
@@ -108,184 +98,170 @@ void Game::StartScreenRender() {
 
 void Game::GameplayUpdate() {
 	if (IsKeyReleased(KEY_Q)) {
-		End();
+		return End();
 	}
 
 	player.Update();
-
-	//Update Aliens and Check if they are past player
 	for (auto& alien : Aliens) {
 		alien.Update();
 
 		if (alien.isBehindPlayer()) {
-			End();
+			return End();
 		}
 	}
-
 	if (player.isDead()) {
 		return End();
 	}
-
 	if (Aliens.empty()) {
 		SpawnAliens();
 	}
 
-	UpdateBackground();
+	UpdateStarPositions();
 
 	for(auto& projectile : Projectiles) {
 		projectile.Update();
 	}
-	for(auto& wall : Walls) {
-		wall.Update();
-	}
-
-	CheckCollisions();
 
 	MakeProjectile();
-
 	AlienShooting();
 
+	CheckCollisions();
 	RemoveInactiveEntities();
 }
 
 void Game::CheckCollisions() {
-	for (int i = 0; i < Projectiles.size(); i++) {
-		if (Projectiles[i].type == EntityType::PLAYER_PROJECTILE) {
-			for (int a = 0; a < Aliens.size(); a++) {
-				if (CheckCollision(Aliens[a].position, Aliens[a].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd)) {
-					// Kill!
-					std::cout << "Hit! \n";
-					// Set them as inactive, will be killed later
-					Projectiles[i].active = false;
-					Aliens[a].active = false;
+	for(auto& projectile : Projectiles) {
+		if (projectile.isActive() && projectile.isPlayerProjectile()) {
+			for (auto& alien : Aliens) {
+				bool alien_collision = CheckCollision(alien.getCollider(), projectile.getCollider());
+//Collider Tests
+				DrawRectangleLinesEx(projectile.getCollider(), 5, alien_collision ? GREEN : RED);
+				renderer.Render(alien.getCollider(), alien_collision ? GREEN : RED);
+
+				if (alien_collision) {
+					projectile.hit();
+					alien.hit();
 					score += 100;
 				}
 			}
 		}
 
 		//ENEMY PROJECTILES HERE
-		for (int i = 0; i < Projectiles.size(); i++) {
-			if (Projectiles[i].type == EntityType::ENEMY_PROJECTILE) {
-				if (CheckCollision({player.x_pos, GetScreenHeight() - PLAYER_BASE_HEIGHT }, player.radius, Projectiles[i].lineStart, Projectiles[i].lineEnd)) {
-					std::cout << "dead!\n";
-					Projectiles[i].active = false;
-					player.lives -= 1;
+		for(auto& projectile : Projectiles) {
+			if (projectile.isAlienProjectile() && projectile.isActive() && projectile.isWithinPlayerRange()) {
+				bool player_collision = CheckCollision(player.getCollider(), projectile.getCollider());
+
+				DrawRectangleLinesEx(projectile.getCollider(), 5, player_collision ? GREEN : RED);
+				renderer.Render(player.getCollider(), player_collision ? GREEN : RED);
+
+				if (player_collision) {
+					projectile.hit();
+					player.hit();
 				}
 			}
 		}
 
+		for (auto& bunker : Bunkers) {
+			if(projectile.isActive() && (projectile.getPosition().y > bunker.getPosition().y - bunker.getRadius()) && (projectile.getPosition().y < bunker.getPosition().y + bunker.getRadius())) {
+				bool bunker_collision = CheckCollisionCircleRec(bunker.getPosition(), bunker.getRadius(), projectile.getCollider());
+				DrawRectangleLinesEx(projectile.getCollider(), 5, bunker_collision ? GREEN : RED);
+				renderer.Render(bunker.getCollider(), bunker_collision ? GREEN : RED);
 
-		for (int b = 0; b < Walls.size(); b++) {
-			if (CheckCollision(Walls[b].position, Walls[b].radius, Projectiles[i].lineStart, Projectiles[i].lineEnd)) {
-				// Kill!
-				std::cout << "Hit! \n";
-				// Set them as inactive, will be killed later
-				Projectiles[i].active = false;
-				Walls[b].health -= 1;
+				if (bunker_collision) {
+					projectile.hit();
+					bunker.hit();
+				}
 			}
 		}
 	}
 }
-void Game::UpdateBackground() {
-	// Update background with offset
-	playerPos = { player.x_pos, PLAYER_BASE_HEIGHT };
-	cornerPos = { 0, PLAYER_BASE_HEIGHT };
-	offset = lineLength(playerPos, cornerPos) * -1;
-	background.Update(offset / 15);
-}
+
+
+
 void Game::MakeProjectile() {
 	if (IsKeyPressed(KEY_SPACE)) {
-		float window_height = (float)GetScreenHeight();
-		Projectile newProjectile;
-		newProjectile.position.x = player.x_pos;
-		newProjectile.position.y = window_height - 130;
-		newProjectile.type = EntityType::PLAYER_PROJECTILE;
+		Projectile newProjectile(Projectile::Type::Player, &texturePack);
+		newProjectile.position = { player.getX(), GetScreenHeight() - 130.0f};
 		Projectiles.push_back(newProjectile);
 	}
 }
 void Game::AlienShooting() {
-	alienShootTimer ++;
+	alienShootTimer++;
 	if (alienShootTimer > 59) { //once per second
 		int randomAlienIndex = 0;
 
-		if (Aliens.size() > 1) {
+		if (!Aliens.empty()) {
 			randomAlienIndex = rand() % Aliens.size();
 		}
 
-		Projectile newProjectile;
+		Projectile newProjectile(Projectile::Type::Alien, &texturePack);
 		newProjectile.position = Aliens[randomAlienIndex].position;
 		newProjectile.position.y += 40;
-		newProjectile.speed = -15;
-		newProjectile.type = EntityType::ENEMY_PROJECTILE;
 		Projectiles.push_back(newProjectile);
 		alienShootTimer = 0;
 	}
 }
 void Game::RemoveInactiveEntities() {
-	for (int i = 0; i < Projectiles.size(); i++) {
-		if (!Projectiles[i].active) {
-			Projectiles.erase(Projectiles.begin() + i);
-			// Prevent the loop from skipping an instance because of index changes, since all insances after
-			// the killed objects are moved down in index. This is the same for all loops with similar function
-			i--;
-		}
-	}
-	for (int i = 0; i < Aliens.size(); i++) {
-		if (!Aliens[i].active) {
-			Aliens.erase(Aliens.begin() + i);
-			i--;
-		}
-	}
-	for (int i = 0; i < Walls.size(); i++) {
-		if (!Walls[i].active) {
-			Walls.erase(Walls.begin() + i);
-			i--;
-		}
-	}
+
+	std::erase_if(Projectiles, [](const Projectile& projectile) { return !projectile.isActive() || projectile.isOutOfBounds(); });
+	std::erase_if(Aliens, [](const Alien& alien) { return alien.isDead(); });
+	std::erase_if(Bunkers, [](const Bunker& bunker) { return bunker.isDead(); });
+//
+//	for (int i = 0; i < Projectiles.size(); i++) {
+//		if (!Projectiles[i].active) {
+//			Projectiles.erase(Projectiles.begin() + i);
+//			// Prevent the loop from skipping an instance because of index changes, since all insances after
+//			// the killed objects are moved down in index. This is the same for all loops with similar function
+//			i--;
+//		}
+//	}
+//	for (int i = 0; i < Aliens.size(); i++) {
+//		if (!Aliens[i].active) {
+//			Aliens.erase(Aliens.begin() + i);
+//			i--;
+//		}
+//	}
+//	for (int i = 0; i < Bunkers.size(); i++) {
+//		if (!Bunkers[i].active) {
+//			Bunkers.erase(Bunkers.begin() + i);
+//			i--;
+//		}
+//	}
 }
 void Game::GameplayRender() {
 	//background render LEAVE THIS AT TOP
-	background.Render();
+	for(auto& star : Stars) {
+		star.Render(renderer);
+	}
 
 	//DrawText("GAMEPLAY", 50, 30, 40, YELLOW);
-	DrawText(TextFormat("Score: %i", score), 50, 20, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
-	DrawText(TextFormat("Lives: %i", player.lives), 50, 70, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+	renderer.DrawText(TextFormat("Score: %i", score), {50, 20});
+	renderer.DrawText(TextFormat("Lives: %i", player.lives), {50, 70});
+//	DrawText(TextFormat("Score: %i", score), 50, 20, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
+//	DrawText(TextFormat("Lives: %i", player.lives), 50, 70, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
 
-	//player rendering
-	player.Render(texturePack.getTexture("Ship1"));
-
-	//projectile rendering
-	for (int i = 0; i < Projectiles.size(); i++) {
-		Projectiles[i].Render(texturePack.getTexture("Laser"));
+	player.Render(renderer);
+	for(auto& projectile : Projectiles) {
+		projectile.Render(renderer);
 	}
-
-	// wall rendering
-	for (int i = 0; i < Walls.size(); i++) {
-		Walls[i].Render(texturePack.getTexture("Barrier"));
+	for(auto& bunker: Bunkers) {
+		bunker.Render(renderer);
 	}
-
-	//alien rendering
-	for (int i = 0; i < Aliens.size(); i++) {
-		Aliens[i].Render(texturePack.getTexture("Alien"));
+	for (auto& alien : Aliens) {
+		alien.Render(renderer);
 	}
 }
 
 void Game::EndScreenUpdate() {
 	if (IsKeyReleased(KEY_ENTER) && !newHighScore) {
-		Continue();
+		return Continue();
 	}
 
 	if (newHighScore) {
-		if (CheckCollisionPointRec(GetMousePosition(), textBox)) {
-			mouseOnText = true;
-		}
-		else {
-			mouseOnText = false;
-		}
-
+		mouseOnText = (CheckCollisionPointRec(GetMousePosition(), textBox));
+		SetMouseCursor(mouseOnText ? MOUSE_CURSOR_IBEAM : MOUSE_CURSOR_DEFAULT);
 		if (mouseOnText) {
-			// Set the window's cursor to the I-Beam
-			SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
 
 			// Get char pressed on the queue
 			int key = GetCharPressed();
@@ -294,7 +270,7 @@ void Game::EndScreenUpdate() {
 			while (key > 0) {
 				// NOTE: Only allow keys in range [32..125]
 				if ((key >= 32) && (key <= 125) && (letterCount < 9)) {
-					name[letterCount] = (char)key;
+					name[letterCount] = static_cast<char>(key);
 					name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
 					letterCount++;
 				}
@@ -310,41 +286,47 @@ void Game::EndScreenUpdate() {
 				name[letterCount] = '\0';
 			}
 		}
-		else {
-			SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-		}
 
-		if (mouseOnText) {
-			framesCounter++;
-		}
-		else {
-			framesCounter = 0;
-		}
+		framesCounter = mouseOnText ? framesCounter + 1 : 0;
 
 		// If the name is right legth and enter is pressed, exit screen by setting highscore to false and add
 		// name + score to scoreboard
 		if (letterCount > 0 && letterCount < 9 && IsKeyReleased(KEY_ENTER)) {
 			std::string nameEntry(name);
-			InsertNewHighScore(nameEntry);
+			InsertNewHighScore(std::string(name));
 			newHighScore = false;
 		}
 	}
 }
 
+struct TextUI {
+	TextUI(std::string txt) : text(txt) {}
+	TextUI(std::string txt, Vector2 pos) : text(txt), position(pos) {}
+	TextUI(std::string txt, Vector2 pos, int size = DEFAULT_FONT_SIZE, Color c = DEFAULT_FONT_COLOR) : text(txt), position(pos), fontSize(size), fontColor(c) {}
+
+	std::string text = "";
+	Vector2 position = {0,0};
+	int fontSize = DEFAULT_FONT_SIZE;
+	Color fontColor = DEFAULT_FONT_COLOR;
+	void Render() {DrawText(text.c_str(), position.x, position.y, fontSize, fontColor);}
+};
+
 void Game::EndScreenRender() {
 	if (newHighScore) {
+		std::vector<TextUI> Texts;
+		for(auto& text : Texts) {
+			text.Render();
+		}
+		TextUI highscoreText("NEW HIGHSCORE!", {600, 300}, TITLE_FONT_SIZE);
+		highscoreText.Render();
 		DrawText("NEW HIGHSCORE!", 600, 300, TITLE_FONT_SIZE, DEFAULT_FONT_COLOR);
 
 		// BELOW CODE IS FOR NAME INPUT RENDER
 		DrawText("PLACE MOUSE OVER INPUT BOX!", 600, 400, HALF_FONT_SIZE, DEFAULT_FONT_COLOR);
 
 		DrawRectangleRec(textBox, LIGHTGRAY);
-		if (mouseOnText) { // HOVER CONFIRMIATION
-			DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RED);
-		}
-		else {
-			DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
-		}
+		DrawRectangleLinesEx(textBox, 5, mouseOnText ? RED : DARKGRAY);
+
 
 		//Draw the name being typed out
 		DrawText(name, (int)textBox.x + 5, (int)textBox.y + 8, DEFAULT_FONT_SIZE, MAROON);
@@ -388,19 +370,14 @@ void Game::EndScreenRender() {
 void Game::SpawnAliens() {
 	for (int row = 0; row < ALIEN_FORMATION_HEIGHT; row++) {
 		for (int col = 0; col < ALIEN_FORMATION_WIDTH; col++) {
-			Alien newAlien = Alien();
-			newAlien.active = true;
-			newAlien.position.x = ALIEN_FORMATION_POS.x + 450 + (col * ALIEN_SPACING);
-			newAlien.position.y = ALIEN_FORMATION_POS.y + (row * ALIEN_SPACING);
+			Alien newAlien = Alien(ALIEN_FORMATION_POS.x + 450 + (col * ALIEN_SPACING),
+						     ALIEN_FORMATION_POS.y + (row * ALIEN_SPACING),
+						     &texturePack);
 			Aliens.push_back(newAlien);
-			std::cout << "Find Alien -X:" << newAlien.position.x << std::endl;
-			std::cout << "Find Alien -Y:" << newAlien.position.y << std::endl;
 		}
 	}
-
 }
-void Game::InsertNewHighScore(std::string name)
-{
+void Game::InsertNewHighScore(std::string name) {
 	PlayerData newData;
 	newData.name = name;
 	newData.score = score;
@@ -416,8 +393,7 @@ void Game::InsertNewHighScore(std::string name)
 	}
 }
 
-void Game::LoadLeaderboard()
-{
+void Game::LoadLeaderboard() {
 	//TODO: well this explains why I don't seem to be able to see anything?
 	// CLEAR LEADERBOARD
 
@@ -454,376 +430,64 @@ void Game::SaveLeaderboard()
 
 	// CLOSE FILE
 }
-
-
-bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
-{
-	// our objective is to calculate the distance between the closest point on the line to the centre of the circle, 
-	// and determine if it is shorter than the radius.
-
-	// check if either edge of line is within circle
-	if (pointInCircle(circlePos, circleRadius, lineStart) || pointInCircle(circlePos, circleRadius, lineEnd))
-	{
-		return true;
-	}
-
-	// simplify variables
-	Vector2 A = lineStart;
-	Vector2 B = lineEnd;
-	Vector2 C = circlePos;
-
-	// calculate the length of the line
-	float length = lineLength(A, B);
-	
-	// calculate the dot product
-	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / pow(length, 2);
-
-	// use dot product to find closest point
-	float closestX = A.x + (dotP * (B.x - A.x));
-	float closestY = A.y + (dotP * (B.y - A.y));
-
-	//find out if coordinates are on the line.
-	// we do this by comparing the distance of the dot to the edges, with two vectors
-	// if the distance of the vectors combined is the same as the length the point is on the line
-
-	//since we are using floating points, we will allow the distance to be slightly innaccurate to create a smoother collision
-	float buffer = 0.1;
-
-	float closeToStart = lineLength(A, { closestX, closestY }); //closestX + Y compared to line Start
-	float closeToEnd = lineLength(B, { closestX, closestY });	//closestX + Y compared to line End
-
-	float closestLength = closeToStart + closeToEnd;
-
-	if (closestLength == length + buffer || closestLength == length - buffer)
-	{
-		//Point is on the line!
-
-		//Compare length between closest point and circle centre with circle radius
-
-		float closeToCentre = lineLength(A, { closestX, closestY }); //closestX + Y compared to circle centre
-
-		if (closeToCentre < circleRadius)
-		{
-			//Line is colliding with circle!
-			return true;
-		}
-		else
-		{
-			//Line is not colliding
-			return false;
-		}
-	}
-	else
-	{
-		// Point is not on the line, line is not colliding
-		return false;
-	}
-
-}
-
-void Game::playSounds() {
-	if (IsKeyPressed(KEY_SPACE)) {
-		PlaySound(soundPack.getSound("hitHurt"));
-	}
-	if (IsKeyPressed(KEY_BACKSPACE)) {
-		StopSound(soundPack.getSound("hitHurt"));
-	}
-}
-
-void Game::Draw() {
-	BeginDrawing();
-	ClearBackground(BLACK);
-	Render(); //Draw and Render need not be separated
-	EndDrawing();
-}
-
-void Player::Initialize() 
-{
-	//Move to constructor??
-	float window_width = (float)GetScreenWidth();
-	x_pos = window_width / 2;
-	std::cout<< "Find Player -X:" << GetScreenWidth() / 2 << "Find Player -Y" << GetScreenHeight() - PLAYER_BASE_HEIGHT << std::endl;
-
-}
-
-void Player::Update() 
-{
-
-	//Movement
-	direction = 0;
-	if (IsKeyDown(KEY_LEFT))
-	{
-		direction--;
-	}
-	if (IsKeyDown(KEY_RIGHT))
-	{
-		direction++;
-	}
-
-	x_pos += speed * direction;
-
-	if (x_pos < 0 + radius)
-	{
-		x_pos = 0 + radius;
-	}
-	else if (x_pos > GetScreenWidth() - radius)
-	{
-		x_pos = GetScreenWidth() - radius;
-	}
-
-
-	//Determine frame for animation
-	timer += GetFrameTime();
-
-	if (timer > 0.4 && activeTexture == 2)
-	{
-		activeTexture = 0;
-		timer = 0;
-	}
-	else if (timer > 0.4)
-	{
-		activeTexture++;
-		timer = 0;
-	}
-
-	
-}
-
-void Player::Render(Texture2D texture) 
-{
-	float window_height = GetScreenHeight(); 
-
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			352,
-			352,
-		},
-		{
-			x_pos, window_height - PLAYER_BASE_HEIGHT,
-			100,
-			100,
-		}, { 50, 50 },
-		0,
-		WHITE);
-}
-
-
-
-void Projectile::Update()
-{
-	position.y -= speed;
-
-	// UPDATE LINE POSITION
-	lineStart.y = position.y - 15;
-	lineEnd.y   = position.y + 15;
-
-	lineStart.x = position.x;
-	lineEnd.x   = position.x;
-
-	if (position.y < 0 || position.y > 1500)
-	{
-		active = false;
-	}
-}
-
-void Projectile::Render(Texture2D texture)
-{
-	//DrawCircle((int)position.x, (int)position.y, 10, RED);
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			176,
-			176,
-		},
-		{
-			position.x,
-			position.y,
-			50,
-			50,
-		}, { 25 , 25 },
-		0,
-		WHITE);
-}
-
-void Wall::Render(Texture2D texture)
-{
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			704,
-			704,
-		},
-		{
-			position.x,
-			position.y,
-			200,
-			200,
-		}, { 100 , 100 },
-		0,
-		WHITE);
-
-
-	DrawText(TextFormat("%i", health), position.x-21, position.y+10, 40, RED);
-	
-}
-
-void Wall::Update() 
-{
-
-	// set walls as inactive when out of health
-	if (health < 1)
-	{
-		active = false;
-	}
-
-
-}
-
-void Alien::Update() 
-{
-	int window_width = GetScreenWidth(); 
-
-	if (moveRight)
-	{
-		position.x += speed; 
-
-		if (position.x >= GetScreenWidth())
-		{
-			moveRight = false; 
-			position.y += 50; 
-		}
-	}
-	else 
-	{
-		position.x -= speed; 
-
-		if (position.x <= 0)
-		{
-			moveRight = true; 
-			position.y += 50; 
-		}
-	}
-}
-
-void Alien::Render(Texture2D texture) 
-{
-	//DrawRectangle((int)position.x - 25, (int)position.y, 30, 30, RED);
-	//DrawCircle((int)position.x, (int)position.y, radius, GREEN);
-	
-	
-
-	DrawTexturePro(texture,
-		{
-			0,
-			0,
-			352,
-			352,
-		},
-		{
-			position.x,
-			position.y,
-			100,
-			100,
-		}, {50 , 50},
-		0,
-		WHITE);
-}
-
-//BACKGROUND
-void Star::Update(float starOffset)
-{
-	position.x = initPosition.x + starOffset;
-	position.y = initPosition.y;
-
-}
-
-void Star::Render()
-{
-	DrawCircle((int)position.x, (int)position.y, size, color);
-}
-
-
-void Background::Initialize(int starAmount)
-{
-	for (int i = 0; i < starAmount; i++)
-	{
-		Star newStar;
-
-		newStar.initPosition.x = GetRandomValue(-150, GetScreenWidth() + 150);
-		newStar.initPosition.y = GetRandomValue(0, GetScreenHeight());
-		
-		//random color?
-		newStar.color = SKYBLUE;
-
-		newStar.size = GetRandomValue(1, 4) / 2;
-
-		Stars.push_back(newStar);
-
-	}
-}
-
-void Background::Update(float offset)
-{
-	for (int i = 0; i < Stars.size(); i++)
-	{
-		Stars[i].Update(offset);
-	}
-	
-}
-
-void Background::Render()
-{
-	for (int i = 0; i < Stars.size(); i++)
-	{
-		Stars[i].Render();
-	}
-}
-
-
-
-
-/*LEGACY CODE
-	// our objective is to calculate the distance between the closest point of the line to the centre of the circle,
-	// and determine if it is shorter than the radius.
-
-	// we can imagine the edges of the line and circle centre to form a triangle. calculating the height of the
-	// triangle will give us the distance, if the line serves as the base
-
-	// simplify variables
-	Vector2 A = lineStart;
-	Vector2 B = lineEnd;
-	Vector2 C = circlePos;
-
-	// calculate area using determinant method
-
-	float triangle_area = fabsf(A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y)) / 2;
-
-
-	// Caculate vectors AB to calculate base length
-	Vector2 AB;
-	AB.x = B.x - A.x;
-	AB.y = B.y - A.y;
-
-	//get the base length
-	float trangle_base_length = (float)sqrt(pow(AB.x, 2) + pow(AB.y, 2));
-
-	// we double the area to turn in into a rectangle, and then divide the base length to get the height.
-	float triangle_height = (triangle_area * 2 ) / trangle_base_length;
-
-	std::cout << triangle_area << "\n";
-
-	if (triangle_height < circleRadius)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-
-
-	*/
+//
+//bool Game::CheckCollision(Vector2 circlePos, float circleRadius, Vector2 lineStart, Vector2 lineEnd)
+//{
+//	// our objective is to calculate the distance between the closest point on the line to the centre of the circle, 
+//	// and determine if it is shorter than the radius.
+//
+//	// check if either edge of line is within circle
+//	if (pointInCircle(circlePos, circleRadius, lineStart) || pointInCircle(circlePos, circleRadius, lineEnd))
+//	{
+//		return true;
+//	}
+//
+//	// simplify variables
+//	Vector2 A = lineStart;
+//	Vector2 B = lineEnd;
+//	Vector2 C = circlePos;
+//
+//	// calculate the length of the line
+//	float length = lineLength(A, B);
+//	
+//	// calculate the dot product
+//	float dotP = (((C.x - A.x) * (B.x - A.x)) + ((C.y - A.y) * (B.y - A.y))) / pow(length, 2);
+//
+//	// use dot product to find closest point
+//	float closestX = A.x + (dotP * (B.x - A.x));
+//	float closestY = A.y + (dotP * (B.y - A.y));
+//
+//	//find out if coordinates are on the line.
+//	// we do this by comparing the distance of the dot to the edges, with two vectors
+//	// if the distance of the vectors combined is the same as the length the point is on the line
+//
+//	//since we are using floating points, we will allow the distance to be slightly innaccurate to create a smoother collision
+//	float buffer = 0.1;
+//
+//	float closeToStart = lineLength(A, { closestX, closestY }); //closestX + Y compared to line Start
+//	float closeToEnd = lineLength(B, { closestX, closestY });	//closestX + Y compared to line End
+//
+//	float closestLength = closeToStart + closeToEnd;
+//
+//	if (closestLength >= length + buffer || closestLength <= length - buffer) {
+//		return false;
+//	}
+//		//Point is on the line!
+//		//Compare length between closest point and circle centre with circle radius
+//
+//	float closeToCentre = lineLength(A, { closestX, closestY }); //closestX + Y compared to circle centre
+//
+//	return (closeToCentre < circleRadius);
+//
+//}
+//
+//void Game::playSounds() {
+//	if (IsKeyPressed(KEY_SPACE)) {
+//		PlaySound(soundPack.getSound("hitHurt"));
+//	}
+//	if (IsKeyPressed(KEY_BACKSPACE)) {
+//		StopSound(soundPack.getSound("hitHurt"));
+//	}
+//}
+//
+//

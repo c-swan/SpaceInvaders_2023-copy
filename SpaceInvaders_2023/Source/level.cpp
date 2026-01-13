@@ -4,10 +4,11 @@
 #include <string>
 #include <print>
 #include <format>
-#include "level.h"
-#include "Math.hpp"
-#include "ErrorHandling.h"
 #include <optional>
+
+#include "level.h"
+#include "Math.h"
+#include "ErrorHandling.h"
 #include "FileHandle.h"
 
 std::optional<std::vector<Entity>> LoadEntityFromFile(const std::string& filename) {
