@@ -14,7 +14,6 @@
 #include "Constants.h"
 #include "TextUI.h"
 
-
 class Game;
 
 class GameScene {
