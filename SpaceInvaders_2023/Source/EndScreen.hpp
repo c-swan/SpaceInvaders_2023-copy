@@ -1,13 +1,50 @@
-//
-//  EndScreen.hpp
-//  SpaceInvaders_2023
-//
-//  Created by Carl Swanberg on 2026-01-14.
-//
+#pragma once
+#include "GameScene.hpp"
+//#include "StartScreen.hpp"
 
-#ifndef EndScreen_hpp
-#define EndScreen_hpp
+class StartScreen;
 
-#include <stdio.h>
+class EndScreen : public GameScene {
+public:
+	EndScreen(Game* game, int s);
+	~EndScreen() {
+		SaveLeaderboard();
+	}
 
-#endif /* EndScreen_hpp */
+	virtual std::optional<GameScene*> Update();
+	virtual void Render(Renderer& renderer);
+
+	StartScreen* EnterStartScreen() noexcept;
+
+	void RenderNewHighscore(Renderer& renderer);
+	void ShowScoreboard(Renderer& renderer);
+
+	void SaveLeaderboard();
+	std::nullopt_t EnterNewHighscore();
+	bool isValidName() const noexcept { return name.size() > 0 && name.size() <= MAX_LETTER_COUNT; }
+
+private:
+	void InitText();
+	void GetTypingInput();
+	void UpdateNameText();
+
+	bool enterNewHighscore = false;
+	int highscore = 0;
+
+//	char name[MAX_LETTER_COUNT + 1] = "\0";
+	std::string name = "";
+
+	Rectangle textBoxBounds = { 600, 450, 225, 50 };
+	bool mouseOnText = false;
+	int framesCounter = 0;
+
+	TextUI pressEnterText;
+	TextUI backspaceText;
+	TextUI inputCharText;
+	TextUI nameText;
+	TextUI mouseOverInputBoxText;
+	TextUI newHighscoreHeader;
+//	Vector2 namePositionOffset = Vector2(5, 8);
+	Vector2 cursorPositionOffset = Vector2(8, 12);
+
+};

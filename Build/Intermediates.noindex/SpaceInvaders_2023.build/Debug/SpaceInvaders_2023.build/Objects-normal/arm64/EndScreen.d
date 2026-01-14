@@ -1,5 +1,6 @@
 dependencies: \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/GameScene.cpp \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/EndScreen.cpp \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/EndScreen.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/GameScene.hpp \
   /opt/homebrew/Cellar/raylib/5.5/include/raylib.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Player.h \
@@ -15,8 +16,7 @@ dependencies: \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Alien.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Bunker.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Stars.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/EndScreen.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/StartScreen.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Gameplay.hpp \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/game.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Game.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Leaderboard.hpp

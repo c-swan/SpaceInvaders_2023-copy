@@ -29,6 +29,7 @@ static constexpr int SHIP_TEXTURE_COUNT = 3;
 static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
 
 static constexpr int TITLE_FONT_SIZE = 160;
+static constexpr int HEADER_FONT_SIZE = 60;
 static constexpr int DEFAULT_FONT_SIZE = 40;
 static constexpr int HALF_FONT_SIZE = DEFAULT_FONT_SIZE / 2;
 
@@ -42,10 +43,13 @@ static constexpr float ALIEN_RADIUS = 30;
 static constexpr int ALIEN_OFFSET_X = 450;
 static constexpr int ALIEN_HIT_SCORE = 100;
 static constexpr int ALIEN_SHOOT_TIME = 60;
+static constexpr int ALIEN_MOVE_DOWN_DISTANCE = 50;
 
 static constexpr int STAR_COUNT = 600;
 static constexpr int BACKGROUND_EDGE_X = 150;
 static constexpr Color STAR_COLOR = SKYBLUE;
+static constexpr int STAR_SIZE_MIN = 1;
+static constexpr int STAR_SIZE_MAX = 4;
 
 static constexpr int NO_ROTATION = 0;
 static constexpr Color NO_TINT = WHITE;

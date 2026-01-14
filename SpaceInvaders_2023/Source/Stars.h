@@ -1,18 +1,16 @@
 #pragma once
 #include <raylib.h>
 #include "Constants.h"
+#include "Math.h"
 
 struct Star {
 	explicit Star() {
-		position.x = GetRandomValue(-BACKGROUND_EDGE_X, GetScreenWidth() + BACKGROUND_EDGE_X);
-		position.y = GetRandomValue(0, GetScreenHeight());
-		circle = Circle(position, GetRandomValue(1, 4) / 2.0f);
+		circle.center.x = GetRandomValue(-BACKGROUND_EDGE_X, Window::Width + BACKGROUND_EDGE_X);
+		circle.center.y = GetRandomValue(0, Window::Height);
+		circle.radius = GetRandomValue(STAR_SIZE_MIN, STAR_SIZE_MAX) / 2;
 	}
-//	float getSize() { return circle.radius; }
-	Circle getRenderCircle() { return Circle(position + Vector2(offsetX, 0), circle.radius);}
-	void Render(Renderer& renderer) { renderer.Render(getRenderCircle(), STAR_COLOR); }
-	static float offsetX;
+	void Render(Renderer& renderer) { renderer.Render(circle + Vector2(offset_x, 0), STAR_COLOR); }
+	static float offset_x;
 private:
-	Vector2 position;
 	Circle circle;
 };

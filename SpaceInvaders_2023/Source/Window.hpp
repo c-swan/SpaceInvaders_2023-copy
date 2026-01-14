@@ -4,15 +4,22 @@
 
 class Window {
 public:
-	Window(int width = WINDOW_WIDTH, int height = WINDOW_HEIGHT, const std::string title = GAME_TITLE) {
+	Window(int width = WINDOW_WIDTH,
+		 int height = WINDOW_HEIGHT,
+		 const std::string title = GAME_TITLE) {
 		InitWindow(width, height, title.c_str());
+		Width = width;
+		Height = height;
 	}
 	~Window() { CloseWindow(); }
 
 	bool shouldClose() const noexcept { return WindowShouldClose(); } // Detect window close button or ESC key
-	int GetWidth() const noexcept { return GetScreenWidth(); }
-	int GetHeight() const noexcept { return GetScreenHeight(); }
+	int GetWidth() const noexcept { return Width = GetScreenWidth(); }
+	int GetHeight() const noexcept { return Height = GetScreenHeight(); }
 
+	static int Width;
+	static int Height;
+	
 	Window(const Window&) = delete;
 	Window(Window&&) = delete;
 	Window& operator=(const Window&) = delete;

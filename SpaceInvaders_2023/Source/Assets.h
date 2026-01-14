@@ -9,13 +9,13 @@
 #include "Constants.h"
 #include "Math.h"
 
-inline std::string getAssetPath(const std::string assetName) { return std::format("{}{}", ASSETS_DIRECTORY, assetName); }
-inline Texture2D LoadTextureAsset(const std::string assetName) { return ::LoadTexture( getAssetPath(assetName + ".png").c_str() ); }
+inline std::string getAssetPath(const std::string assetName) noexcept { return std::format("{}{}", ASSETS_DIRECTORY, assetName); }
+inline Texture2D LoadTextureAsset(const std::string& assetName) { return ::LoadTexture( getAssetPath(assetName + ".png").c_str() ); }
 
 class TexturePack {
 	public:
 	TexturePack() {
-		for(auto name : names) {
+		for(auto name : texture_names) {
 			textures.insert( { name, LoadTextureAsset(name) } );
 		}
 	}
@@ -23,11 +23,10 @@ class TexturePack {
 		for(auto texture : textures) {
 			UnloadTexture(texture.second);
 		}
-		textures.clear();
 	}
 
 	private:
-	std::vector<std::string> names = {"Alien", "Barrier", "Laser", "Ship1", "Ship2", "Ship3"};
+	std::vector<std::string> texture_names = {"Alien", "Barrier", "Laser", "Ship1", "Ship2", "Ship3"};
 	std::map<std::string, Texture2D> textures{};
 
 	public:
@@ -38,4 +37,9 @@ class TexturePack {
 		return &textures[textureName];//.getTexture();
 	}
 	Texture2D* getShipTexture(int n) { return getTexture(std::format("Ship{}", (n % SHIP_TEXTURE_COUNT) + 1)); }
+
+	TexturePack(const TexturePack&) = delete;
+	TexturePack(TexturePack&&) = delete;
+	TexturePack& operator=(const TexturePack&) = delete;
+	TexturePack& operator=(TexturePack&&) = delete;
 };

@@ -29,6 +29,9 @@ inline Vector2 operator/(const Vector2& lhs, float rhs) noexcept { return Vector
 inline Vector2 operator*(float lhs, const Vector2& rhs) noexcept { return Vector2{rhs.x * lhs, rhs.y * lhs}; }
 inline Vector2 operator/(float lhs, const Vector2& rhs) noexcept { return Vector2{rhs.x / lhs, rhs.y / lhs}; }
 
+/* ==== Circle Operations ==== */
+inline Circle operator+(const Circle& lhs, const Vector2& rhs) noexcept	{ return Circle({lhs.center.x + rhs.x, lhs.center.y + rhs.y}, lhs.radius); }
+
 /* ==== Rectangle Operations ==== */
 
 inline Rectangle operator+(const Rectangle& lhs, const Rectangle& rhs) noexcept { return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width + rhs.width, lhs.height + rhs.height}; }
@@ -38,8 +41,10 @@ inline Rectangle operator*(const Rectangle& lhs, float rhs) noexcept 		{ return 
 inline Rectangle operator/(const Rectangle& lhs, float rhs) noexcept 		{ return Rectangle{lhs.x, lhs.y, lhs.width / rhs, lhs.height / rhs}; }
 inline Rectangle operator+(const Rectangle& lhs, const Vector2& rhs) noexcept	{ return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width, lhs.height}; }
 
+
 inline Rectangle getRect(float width, float height) noexcept 			{ return Rectangle{0,0, width, height}; }
 inline Vector2 getCenter(const Rectangle& rect) noexcept 				{ return Vector2(rect.width, rect.height) / 2.0f; }
+inline Vector2 getPosition(const Rectangle& rect) noexcept 				{ return Vector2(rect.x, rect.y); }
 
 template <>
 struct std::formatter<Vector2> {

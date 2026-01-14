@@ -14,28 +14,34 @@
 #include "Stars.h"
 #include "Leaderboard.hpp"
 #include "GameScene.hpp"
+#include "StartScreen.hpp"
 
 class Game {
 	public:
-	
+
 	Game() : window(), renderer(window) {
 		SetTargetFPS(FPS);
 		_scene = std::make_unique<StartScreen>(this);
 	}
 	~Game() {}
 
+
+	private:
 	Window window;
 	Renderer renderer;
-	TexturePack texturePack;
+	Leaderboard leaderboard;
 
 	std::unique_ptr<GameScene> _scene;
 
-	void Run();
 	void Update();
 	void Render();
 
-	Leaderboard leaderboard;
+	public:
+	void Run();
+
 	Leaderboard& getLeaderboard() noexcept { return leaderboard; }
+
+	TexturePack texturePack;
 
 	Game(const Game&) = delete;
 	Game(Game&&) = delete;

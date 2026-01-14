@@ -33,7 +33,7 @@ std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 	file << "\t]\n}";
 
 	file.close();
-	return {};
+	return std::nullopt;
 }
 
 
@@ -41,25 +41,13 @@ std::optional<ErrorType> Leaderboard::LoadFromFile(const string &fileName) {
 
 	std::ifstream file;
 
-	// READ DATA
-
 	highscores.clear();
-	//Reverse-engineer this
-	/*
-	 file << "{\n" << "\t\"Leaderboard\" : [\n"; //Read from "[" after checking "{" and "Leaderboard"
-	 int i=0;
-	 for(auto& entry : highscores) { //read until reached "]"
-	 //{ "name":"Player 1", "score":2000 }, //read name after "name":" until ", truncate to 8 char, read number after , "score":, check for }, ... then next line
-	 file << "\t\t{ " << std::format("\"name\":\"{}\", \"score\":{}", entry.name, entry.score);
-	 file << ((i == highscores.size() - 1) ? " }\n" : " },\n");
-	 i++;
-	 }
-	 file << "\t]\n}";
-	 */
+
+	//Reverse-engineer saving
 
 	file.close();
 	LoadText();
-	return {};
+	return std::nullopt;
 }
 
 void Leaderboard::Render(Renderer& renderer) {

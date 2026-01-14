@@ -3,13 +3,13 @@
 #include "Renderer.h"
 #include "Constants.h"
 #include "Assets.h"
+#include "ErrorHandling.h"
 
 struct Projectile {
 	enum Type { Player, Alien } type = Type::Player;
 	Projectile(Type t, Vector2 pos, TexturePack* txtrPck) : type(t), position(pos), texturePack(txtrPck) {
-		if(texturePack == nullptr) { throw std::runtime_error("projectile TexturePack == nullptr"); }
-		if(isPlayerProjectile()) {
-			direction = -1;
+		if(texturePack == nullptr) {
+			throw ErrorType::NULLPTR_TEXTURE_PACK; //std::runtime_error("projectile TexturePack == nullptr");
 		}
 		if(isAlienProjectile()) {
 			direction = 1;
@@ -20,20 +20,15 @@ struct Projectile {
 	Vector2 position;
 	TexturePack *texturePack;
 
-	void Update() {
-		position.y += direction * PROJECTILE_SPEED;
-
-		if (isOutOfBounds()) {
-			active = false;
-		}
-	}
+	void Update() { move();	}
+	void move() { position.y += direction * PROJECTILE_SPEED; }
 
 	void Render(Renderer& renderer) { renderer.Render(texturePack->getTexture(PROJECTILE_TEXTURE_NAME), bounds, position); }
 
 	bool isActive() const noexcept { return active; }
 	bool isOutOfBounds() const noexcept { return position.y < 0 || position.y > 1500; }
-	bool isWithinBunkerRange() noexcept { return (position.y > GetScreenHeight() - BUNKER_POSITION_Y - BUNKER_RADIUS - PROJECTILE_HEIGHT / 2) && (position.y < GetScreenHeight() - BUNKER_POSITION_Y + BUNKER_RADIUS + PROJECTILE_HEIGHT / 2); }
-	bool isWithinPlayerRange() noexcept { return (position.y > GetScreenHeight() - PLAYER_BASE_HEIGHT - PLAYER_RADIUS - PROJECTILE_HEIGHT / 2); }
+	bool isWithinBunkerRange() const noexcept { return (position.y > Window::Height - BUNKER_POSITION_Y - BUNKER_RADIUS - PROJECTILE_HEIGHT / 2) && (position.y < Window::Height - BUNKER_POSITION_Y + BUNKER_RADIUS + PROJECTILE_HEIGHT / 2); }
+	bool isWithinPlayerRange() const noexcept { return (position.y > Window::Height - PLAYER_BASE_HEIGHT - PLAYER_RADIUS - PROJECTILE_HEIGHT / 2); }
 
 	const Vector2& getPosition() const noexcept { return position; }
 	Rectangle getCollider() const noexcept { return Rectangle(position.x - PROJECTILE_WIDTH / 2, position.y - PROJECTILE_HEIGHT / 2, PROJECTILE_WIDTH, PROJECTILE_HEIGHT); }
@@ -47,7 +42,7 @@ struct Projectile {
 
 	void hit() noexcept { active = false; }
 private:
-	int direction;
+	int direction = -1;
 	bool active = true;
 	Rectangle bounds {0, 0, 50, 50};
 
