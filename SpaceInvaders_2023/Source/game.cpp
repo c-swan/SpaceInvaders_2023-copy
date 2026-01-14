@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <ranges>
 
-
+#include "ErrorHandling.h"
 #include <cassert>
 #include <exception>
 
@@ -22,7 +22,7 @@ void Game::Run() {
 
 void Game::Update() {
 	if(_scene == nullptr) {
-		throw std::runtime_error("_scene == nullptr");
+		throw ErrorType::NULLPTR_SCENE; //"_scene == nullptr"
 	}
 	std::optional<GameScene*> status = _scene->Update();
 	if(!status.has_value()) return;
@@ -33,7 +33,7 @@ void Game::Update() {
 
 void Game::Render() {
 	if(_scene == nullptr) {
-		throw std::runtime_error("_scene == nullptr");
+		throw ErrorType::NULLPTR_SCENE; //"_scene == nullptr"
 	}
 	BeginDrawing();
 	ClearBackground(BACKGROUND_COLOR);

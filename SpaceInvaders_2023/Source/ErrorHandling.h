@@ -7,6 +7,7 @@
 enum struct ErrorType {
 	MISSING_TEXTURE,
 	MISSING_FILE,
+	NULLPTR_SCENE,
 	UNKNOWN
 };
 

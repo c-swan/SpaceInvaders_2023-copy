@@ -38,11 +38,10 @@ public:
 		LoadText();
 	}
 
-	TextUI titleText;
-	std::vector<TextUI> text;
-
 private:
 	std::vector<PlayerData> highscores;
 
+	TextUI titleText;
+	std::vector<TextUI> text;
 };
 
