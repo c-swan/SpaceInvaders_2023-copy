@@ -22,7 +22,7 @@ public:
 	std::optional<ErrorType> LoadFromFile(const std::string& pathName);
 	std::optional<ErrorType> SaveToFile(const std::string& pathName);
 
-	void Render();
+	void Render(Renderer& renderer);
 	bool CheckNewHighscore(int score) { return (score > highscores.back().score); }
 	void InsertNewHighscore(const std::string& name, int score);
 	void ClearHighscore() { highscores.clear(); }

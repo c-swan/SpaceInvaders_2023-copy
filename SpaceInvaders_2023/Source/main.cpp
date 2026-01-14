@@ -27,7 +27,7 @@
 int main() {
 	try {
 		Game game;
-		game.Launch();
+		game.Run();
 	}
 	catch(std::runtime_error e) {
 		log_error("Runtime error", e);

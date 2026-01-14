@@ -14,8 +14,8 @@ static constexpr int WINDOW_HEIGHT = 1080;
 
 static constexpr std::string ASSETS_DIRECTORY = "./Assets/";
 
-static constexpr int ALIEN_FORMATION_WIDTH = 8;
-static constexpr int ALIEN_FORMATION_HEIGHT = 5;
+static constexpr int ALIEN_FORMATION_COLUMNS = 11; //8
+static constexpr int ALIEN_FORMATION_ROWS = 5;
 static constexpr float ALIEN_SPACING = 80;
 static constexpr Vector2 ALIEN_FORMATION_POS = {100, 50};
 

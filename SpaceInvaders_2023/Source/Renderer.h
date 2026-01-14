@@ -18,8 +18,13 @@ public:
 
 	void DrawText(std::string text, Vector2 pos, int fontSize = DEFAULT_FONT_SIZE, Color fontColor = DEFAULT_FONT_COLOR) { ::DrawText(text.c_str(), pos.x, pos.y, fontSize, fontColor); }
 
-	float GetWidth() const noexcept { return bounds.width; }
-	float GetHeight() const noexcept { return bounds.height; }
+	void DrawText(TextUI& text) {
+		DrawText(text.text, text.position, text.fontSize, text.fontColor);
+	}
+
+	const Rectangle& getBounds() const noexcept { return bounds; }
+	float getWidth() const noexcept { return bounds.width; }
+	float getHeight() const noexcept { return bounds.height; }
 private:
 	Rectangle bounds;
 };
