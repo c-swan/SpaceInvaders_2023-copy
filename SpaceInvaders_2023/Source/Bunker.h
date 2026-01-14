@@ -7,9 +7,9 @@
 #include "TextUI.h"
 
 struct Bunker {
-	Bunker(float x, float y, TexturePack* txtrPck) : texturePack(txtrPck) {
-		position = Vector2(x, y);
-		healthText.position = textPosition + position;
+	Bunker(float x, float y, TexturePack* txtrPck) : texturePack(txtrPck), position{x, y} {
+
+		healthText.position = textPosition + getPosition();
 		healthText.text = std::to_string(health);
 		healthText.fontColor = BUNKER_TEXT_COLOR;
 	}
@@ -25,9 +25,9 @@ struct Bunker {
 		healthText.text = std::to_string(health);
 	}
 
-	Vector2 getPosition() { return position; }
-	Circle getCollider() { return Circle(position, radius); }
-	float getRadius() { return radius; }
+	const Vector2& getPosition() const noexcept { return position; }
+	Circle getCollider()  const noexcept { return Circle(position, radius); }
+	float getRadius()  const noexcept { return radius; }
 
 	bool isDead() const noexcept { return health < 1; }
 	void hit() noexcept { setHealth(health - 1); }

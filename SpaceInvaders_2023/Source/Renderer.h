@@ -20,7 +20,7 @@ public:
 
 	void DrawText(TextUI& text) { DrawText(text.text, text.position, text.fontSize, text.fontColor); }
 
-	//planned scaling...
+	//scaling purposes...
 	const Rectangle& getBounds() const noexcept { return bounds; }
 	float getWidth() const noexcept { return bounds.width; }
 	float getHeight() const noexcept { return bounds.height; }

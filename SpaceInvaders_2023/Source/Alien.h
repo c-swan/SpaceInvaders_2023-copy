@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Assets.h"
 #include <algorithm>
+#include "ErrorHandling.h"
 
 struct Alien {
 	Alien(float x, float y) : position{x, y} { }
@@ -12,33 +13,34 @@ struct Alien {
 
 	void setPosition(Vector2 pos) noexcept { position = pos; }
 	Vector2 getPosition() const noexcept { return swarm_position + position; }
-	bool isDead() const noexcept { return !active; }
+	bool isDead() const noexcept { return !alive; }
 	bool isBehindPlayer() const noexcept { return getPosition().y > Window::Height - PLAYER_BASE_HEIGHT; }
-	void hit() noexcept { active = false; }
+	void hit() noexcept { alive = false; }
 
 	static Vector2 swarm_position;
 private:
 	Vector2 position;
 	Rectangle bounds {0, 0, 100, 100};
-	bool active = true;
+	bool alive = true;
 	float radius = ALIEN_RADIUS;
 };
 
 class AlienSwarm {
 public:
 	AlienSwarm(TexturePack* texturePack, int r = ALIEN_FORMATION_ROWS, int c = ALIEN_FORMATION_COLUMNS) : texture_pack(texturePack), rows(r), cols(c) {
+		if(texturePack == nullptr) {
+			throw ErrorType::NULLPTR_TEXTURE_PACK;
+		}
 		SpawnAliens();
 	}
-	~AlienSwarm() {
-		Aliens.clear();
-	}
+	~AlienSwarm() { }
 	void SpawnAliens() {
-		Alien::swarm_position = {0, 0};
+		Alien::swarm_position = ALIEN_FORMATION_POS;
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
 				Aliens.emplace_back(Alien(
-								  ALIEN_FORMATION_POS.x + ALIEN_OFFSET_X + (col * ALIEN_SPACING),
-								  ALIEN_FORMATION_POS.y + (row * ALIEN_SPACING)
+								  ALIEN_OFFSET_X + (col * ALIEN_SPACING),
+								  (row * ALIEN_SPACING)
 								  )
 							  );
 			}
@@ -47,8 +49,7 @@ public:
 	std::vector<Alien>& getAliens() noexcept { return Aliens; }
 private:
 	std::vector<Alien> Aliens;
-	int rows = ALIEN_FORMATION_ROWS;
-	int cols = ALIEN_FORMATION_COLUMNS;
+	int rows, cols;
 	bool move_right = true;
 	TexturePack* texture_pack;
 
@@ -79,7 +80,6 @@ public:
 
 	bool isAnyAlienOutOfBounds() {
 		auto out_of_bounds_alien = std::ranges::find_if(Aliens, [](auto& alien) { return alien.isOutOfBounds(); });
-		return out_of_bounds_alien != Aliens.end();
 		return out_of_bounds_alien != Aliens.end();
 	}
 	void RemoveInactiveAliens() { std::erase_if(Aliens, [](auto& alien) { return alien.isDead(); }); }

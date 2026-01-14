@@ -17,10 +17,10 @@ std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 	file.open(pathName); //use relative path and txt extension, why not
 
 	if (!file) {
-		throw std::runtime_error("Could not create file: " + pathName);
+		throw ErrorType::FILE_COULD_NOT_OPEN;
 	}
 	if (!file.is_open()) {
-		throw std::runtime_error("Could not open file: " + pathName);
+		throw ErrorType::FILE_COULD_NOT_OPEN; //std::runtime_error("Could not open file: " + pathName);
 	}
 
 	file << "{\n" << "\t\"Leaderboard\" : [\n";
@@ -35,7 +35,6 @@ std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 	file.close();
 	return std::nullopt;
 }
-
 
 std::optional<ErrorType> Leaderboard::LoadFromFile(const string &fileName) {
 
@@ -73,7 +72,7 @@ void Leaderboard::InsertNewHighscore(const string& name, int score) {
 	if(insert_pos == highscores.end()) {
 		return;
 	}
-	highscores.insert(insert_pos, PlayerData(name, score));
+	highscores.insert(insert_pos, {name, score});
 	highscores.pop_back();
 	LoadText();
 }

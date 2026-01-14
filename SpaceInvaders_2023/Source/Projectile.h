@@ -24,7 +24,7 @@ struct Projectile {
 	void Render(Renderer& renderer) { renderer.Render(texturePack->getTexture(PROJECTILE_TEXTURE_NAME), bounds, position); }
 
 	bool isActive() const noexcept { return active; }
-	bool isOutOfBounds() const noexcept { return position.y < 0 || position.y > 1500; }
+	bool isOutOfBounds() const noexcept { return position.y < -PROJECTILE_HEIGHT / 2 || position.y > Window::Height + PROJECTILE_HEIGHT / 2; }
 	bool isWithinBunkerRange() const noexcept { return (position.y > Window::Height - BUNKER_POSITION_Y - BUNKER_RADIUS - PROJECTILE_HEIGHT / 2) && (position.y < Window::Height - BUNKER_POSITION_Y + BUNKER_RADIUS + PROJECTILE_HEIGHT / 2); }
 	bool isWithinPlayerRange() const noexcept { return (position.y > Window::Height - PLAYER_BASE_HEIGHT - PLAYER_RADIUS - PROJECTILE_HEIGHT / 2); }
 
