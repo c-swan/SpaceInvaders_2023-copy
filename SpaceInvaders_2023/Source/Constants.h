@@ -25,7 +25,7 @@ static constexpr Color BUNKER_TEXT_COLOR = RED;
 static constexpr float BUNKER_RADIUS = 60;
 static constexpr int BUNKER_POSITION_Y = 250;
 static constexpr int SHIP_TEXTURE_COUNT = 3;
-
+static constexpr int BUNKER_SIZE = 200;
 static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
 
 static constexpr int TITLE_FONT_SIZE = 160;

@@ -14,7 +14,7 @@ public:
 	~Window() { CloseWindow(); }
 
 	bool shouldClose() const noexcept { return WindowShouldClose(); } // Detect window close button or ESC key
-	int GetWidth() const noexcept { return Width = GetScreenWidth(); }
+	int GetWidth() const noexcept { return Width = GetScreenWidth(); } //calculate window width / height if necessary
 	int GetHeight() const noexcept { return Height = GetScreenHeight(); }
 
 	static int Width;

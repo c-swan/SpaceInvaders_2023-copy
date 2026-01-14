@@ -4,31 +4,42 @@
 #include "Renderer.h"
 #include "Assets.h"
 #include "Math.h"
+#include "TextUI.h"
+
 struct Bunker {
-	Bunker(float x, float y, TexturePack* txtrPck) : texturePack(txtrPck) { position.x = x; position.y = y; }
-	void Render(Renderer& renderer) {
-		renderer.Render(texturePack->getTexture(BUNKER_TEXTURE_NAME), bounds, position);
-		renderer.DrawText(std::to_string(health), position + textPosition, DEFAULT_FONT_SIZE, BUNKER_TEXT_COLOR);
+	Bunker(float x, float y, TexturePack* txtrPck) : texturePack(txtrPck) {
+		position = Vector2(x, y);
+		healthText.position = textPosition + position;
+		healthText.text = std::to_string(health);
+		healthText.fontColor = BUNKER_TEXT_COLOR;
 	}
-	Vector2 getPosition() { return position; }
+	void Render(Renderer& renderer) {
+		if(isDead()) {
+			return;
+		}
+		renderer.Render(texturePack->getTexture(BUNKER_TEXTURE_NAME), bounds, position);
+		renderer.DrawText(healthText);
+	}
 	void setHealth(int h) noexcept {
 		health = std::clamp(h, 0, maxHealth);
-		if(active && isDead()) active = false;
+		healthText.text = std::to_string(health);
 	}
-	TexturePack* texturePack;
+
+	Vector2 getPosition() { return position; }
+	Circle getCollider() { return Circle(position, radius); }
+	float getRadius() { return radius; }
 
 	bool isDead() const noexcept { return health < 1; }
 	void hit() noexcept { setHealth(health - 1); }
-	Circle getCollider() { return Circle(position, radius); }
-	float getRadius() { return radius; }
-	bool active = true;
+
 private:
+	TexturePack* texturePack;
 	Vector2 position;
-	Rectangle bounds{0, 0, 200, 200}; //size
+	Rectangle bounds{0, 0, BUNKER_SIZE, BUNKER_SIZE}; //size
 
 	int radius = BUNKER_RADIUS;
 	int maxHealth = BUNKER_MAX_HEALTH;
 	int health = maxHealth;
-
-	Vector2 textPosition {-21, 10};
+	Vector2 textPosition{-21, 10};
+	TextUI healthText;
 };
