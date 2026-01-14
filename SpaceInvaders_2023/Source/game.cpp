@@ -3,6 +3,9 @@
 #include <cassert>
 #include <exception>
 
+int Window::Width = WINDOW_WIDTH;
+int Window::Height = WINDOW_HEIGHT;
+
 void Game::Run() {
 	while (!window.shouldClose()) { //Detect window close button or ESC key
 		if(_scene == nullptr) {  //"_scene == nullptr"

@@ -20,9 +20,7 @@ struct Projectile {
 	Vector2 position;
 	TexturePack *texturePack;
 
-	void Update() { move();	}
 	void move() { position.y += direction * PROJECTILE_SPEED; }
-
 	void Render(Renderer& renderer) { renderer.Render(texturePack->getTexture(PROJECTILE_TEXTURE_NAME), bounds, position); }
 
 	bool isActive() const noexcept { return active; }

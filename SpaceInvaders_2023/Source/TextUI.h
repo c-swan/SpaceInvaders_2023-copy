@@ -14,4 +14,5 @@ struct TextUI {
 	Vector2 position = {0,0};
 	int fontSize = DEFAULT_FONT_SIZE;
 	Color fontColor = DEFAULT_FONT_COLOR;
+
 };

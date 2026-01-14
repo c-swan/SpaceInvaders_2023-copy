@@ -11,7 +11,6 @@ public:
 		position.x = Window::Width / 2;
 	}
 	Rectangle bounds {0, 0, 100, 100};
-	int lives = PLAYER_MAX_LIVES;
 
 	int animation_frame = 0;
 	float animation_timer = 0;
@@ -25,7 +24,6 @@ public:
 		move();
 		animate();
 	}
-
 	void move() {
 		if (IsKeyDown(KEY_LEFT)) { position.x -= PLAYER_SPEED; }
 		if (IsKeyDown(KEY_RIGHT)) { position.x += PLAYER_SPEED; }
@@ -41,9 +39,12 @@ public:
 
 	Texture2D* getTexture() { return texturePack->getShipTexture(animation_frame); }
 	bool isDead() const noexcept { return lives < 1; }
-	void hit() noexcept { lives -= 1; if(isDead()) { lives = 0; }}
+	int getLives() const noexcept { return lives; }
+	void hit() noexcept { lives--; lives = std::clamp(lives, 0, PLAYER_MAX_LIVES); }
 private:
 	Vector2 position;
 	TexturePack* texturePack;
 	float radius = PLAYER_RADIUS;
+	int lives = PLAYER_MAX_LIVES;
+
 };

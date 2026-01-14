@@ -23,9 +23,3 @@ inline void log_error(const std::string msg, const std::exception& e) {
 inline std::runtime_error file_error(std::string msg, std::string filepath) {
 	return std::runtime_error("Could not open file: " + filepath);
 }
-
-inline void debug_log(const std::string &msg) {
-#ifdef DEBUG
-	std::println("{}", msg);
-#endif
-}

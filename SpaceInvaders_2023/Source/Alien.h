@@ -9,7 +9,6 @@ struct Alien {
 	const Rectangle& getBounds() const noexcept { return bounds; }
 	Circle getCollider() const noexcept { return Circle(getPosition(), radius); }
 	bool isOutOfBounds() const noexcept { return getPosition().x < 0 || getPosition().x > Window::Width; }
-//	void Render(Renderer& renderer) { if(active) { renderer.Render(texturePack->getTexture(ALIEN_TEXTURE_NAME), bounds, getPosition()); } }
 
 	void setPosition(Vector2 pos) noexcept { position = pos; }
 	Vector2 getPosition() const noexcept { return swarm_position + position; }
@@ -23,12 +22,11 @@ private:
 	Rectangle bounds {0, 0, 100, 100};
 	bool active = true;
 	float radius = ALIEN_RADIUS;
-
 };
 
 class AlienSwarm {
 public:
-	AlienSwarm(int r, int c, TexturePack* txtrPck) : texturePack(txtrPck), rows(r), cols(c) {
+	AlienSwarm(TexturePack* texturePack, int r = ALIEN_FORMATION_ROWS, int c = ALIEN_FORMATION_COLUMNS) : texture_pack(texturePack), rows(r), cols(c) {
 		SpawnAliens();
 	}
 	~AlienSwarm() {
@@ -49,9 +47,10 @@ public:
 	std::vector<Alien>& getAliens() noexcept { return Aliens; }
 private:
 	std::vector<Alien> Aliens;
-	int rows, cols;
+	int rows = ALIEN_FORMATION_ROWS;
+	int cols = ALIEN_FORMATION_COLUMNS;
 	bool move_right = true;
-	TexturePack* texturePack;
+	TexturePack* texture_pack;
 
 public:
 	bool isBehindPlayer() {
@@ -65,7 +64,7 @@ public:
 	}
 	void Render(Renderer& renderer) {
 		for(auto& alien : Aliens) {
-			renderer.Render(texturePack->getTexture(ALIEN_TEXTURE_NAME), alien.getBounds(), alien.getPosition());
+			renderer.Render(texture_pack->getTexture(ALIEN_TEXTURE_NAME), alien.getBounds(), alien.getPosition());
 		}
 	}
 	void Update() {
@@ -88,7 +87,4 @@ public:
 
 	bool empty() const noexcept { return Aliens.empty(); }
 	int size() const noexcept { return static_cast<int>(Aliens.size()); }
-
-
 };
-

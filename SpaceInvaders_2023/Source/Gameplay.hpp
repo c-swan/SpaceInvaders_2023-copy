@@ -1,5 +1,10 @@
 #pragma once
 #include "GameScene.hpp"
+#include "Alien.h"
+#include "Player.h"
+#include "Stars.h"
+#include "Bunker.h"
+#include "Projectile.h"
 
 class EndScreen;
 
@@ -12,13 +17,11 @@ public:
 	virtual void Render(Renderer& renderer);
 
 	EndScreen* GameOver() noexcept;
-	std::nullopt_t Continue() const noexcept { return std::nullopt; }
 
 	void AliensShooting();
 	void SpawnBunkers();
 	void MakePlayerProjectile();
 	void RemoveInactiveEntities();
-	void UpdateStarPositions() { Star::offset_x = player.getPosition().x / -PARALLAX_FACTOR; }
 
 	void CheckAllCollisions();
 	bool DrawColliders(const Circle &circle, const Rectangle &rect, bool collision) {
@@ -32,8 +35,9 @@ public:
 	void CheckCollision(Alien& alien, Projectile& projectile);
 	void CheckCollision(Player& alien, Projectile& projectile);
 	void CheckCollision(Bunker& alien, Projectile& projectile);
-	void setScore(int s);
-	void setLivesText(int l);
+
+	void setScore(int s) noexcept;
+//	void setLivesText(int l) noexcept;
 private:
 	int score = 0;
 	float alienShootTimer = 0;
@@ -43,6 +47,6 @@ private:
 	std::vector<Projectile> Projectiles;
 	std::vector<Bunker> Bunkers;
 	std::vector<Star> Stars;
-	TextUI scoreText;
-	TextUI livesText;
+	TextUI scoreText{"Score: 0", {50, 20}};
+	TextUI livesText{"Lives: 3", {50, 70}};
 };

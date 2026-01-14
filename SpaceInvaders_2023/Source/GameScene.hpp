@@ -1,18 +1,8 @@
 #pragma once
 #include <raylib.h>
-
-#include "Player.h"
-#include "Projectile.h"
-#include "Alien.h"
-#include "Bunker.h"
-#include "Stars.h"
-
 #include <optional>
-#include <vector>
 #include <string>
-
-#include "Constants.h"
-#include "TextUI.h"
+#include "Renderer.h"
 
 class Game;
 

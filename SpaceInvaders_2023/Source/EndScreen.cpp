@@ -1,6 +1,6 @@
 #include "EndScreen.hpp"
 #include "StartScreen.hpp"
-#include "Game.h"
+#include "game.h"
 #include <cassert>
 
 EndScreen::EndScreen(Game* game, int s) : GameScene(game), highscore(s) {
@@ -27,9 +27,7 @@ void EndScreen::Render(Renderer& renderer) {
 }
 
 void EndScreen::RenderNewHighscore(Renderer& renderer) {
-	renderer.DrawText(newHighscoreHeader);//, DEFAULT_FONT_COLOR);
-
-
+	renderer.DrawText(newHighscoreHeader);
 	renderer.DrawText(mouseOverInputBoxText);
 	DrawRectangleRec(textBoxBounds, LIGHTGRAY);
 	DrawRectangleLinesEx(textBoxBounds, 2, mouseOnText ? RED : DARKGRAY);
@@ -49,15 +47,12 @@ void EndScreen::RenderNewHighscore(Renderer& renderer) {
 		renderer.DrawText(backspaceText);
 		return;
 	}
-	// Draw blinking underscore char
-	if (((framesCounter / 20) % 2) == 0) {
-		renderer.DrawText("_", getPosition(textBoxBounds) + cursorPositionOffset + Vector2(MeasureText(name.c_str(), DEFAULT_FONT_SIZE), 0));/*, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);*/
+	if (((framesCounter / CURSOR_FRAMES) % 2) == 0) {
+		renderer.DrawText("_", getCursorPosition());
 	}
 }
 void EndScreen::ShowScoreboard(Renderer& renderer) {
-	// If no highscore or name is entered, show scoreboard and call it a day
 	renderer.DrawText(pressEnterText);
-	//	renderer.DrawText("PRESS ENTER TO CONTINUE", {600, 200});//, DEFAULT_FONT_SIZE, DEFAULT_FONT_COLOR);
 	_game->getLeaderboard().Render(renderer);
 }
 
@@ -69,7 +64,7 @@ std::optional<GameScene*> EndScreen::Update() {
 		return Continue();
 	}
 
-	framesCounter++;
+	(++framesCounter) %= CURSOR_FRAMES * 2;
 	mouseOnText = CheckCollisionPointRec(GetMousePosition(), textBoxBounds);
 	SetMouseCursor(mouseOnText ? MOUSE_CURSOR_IBEAM : MOUSE_CURSOR_DEFAULT);
 
@@ -86,6 +81,9 @@ std::optional<GameScene*> EndScreen::Update() {
 	return Continue();
 }
 
+Vector2 EndScreen::getCursorPosition() const noexcept {
+	return getPosition(textBoxBounds) + cursorPositionOffset + Vector2(MeasureText(name.c_str(), nameText.fontSize), 0);
+}
 void EndScreen::GetTypingInput() {
 	char key = GetCharPressed();
 	while (key > 0) {
@@ -110,12 +108,12 @@ void EndScreen::UpdateNameText() {
 }
 
 void EndScreen::InitText() {
-	pressEnterText = TextUI("PRESS ENTER TO CONTINUE", {600, 800});
-	backspaceText = TextUI("Press BACKSPACE to delete chars...", {600, 650}, HALF_FONT_SIZE);
-	inputCharText = TextUI("INPUT CHARS: 0/8", {600, 600}, HALF_FONT_SIZE);
+	pressEnterText = 		TextUI("PRESS ENTER TO CONTINUE", {600, 800});
+	backspaceText = 		TextUI("Press BACKSPACE to delete chars...", {600, 650}, HALF_FONT_SIZE);
+	inputCharText = 		TextUI("INPUT CHARS: 0/8", {600, 600}, HALF_FONT_SIZE);
 	mouseOverInputBoxText = TextUI("PLACE MOUSE OVER INPUT BOX!", {600, 400}, HALF_FONT_SIZE);
-	nameText = TextUI("", getPosition(textBoxBounds) + Vector2(5, 8), MAROON);
-	newHighscoreHeader = TextUI("NEW HIGHSCORE!", {600, 300}, HEADER_FONT_SIZE);
+	nameText = 			TextUI("", getPosition(textBoxBounds) + Vector2(5, 8), MAROON);
+	newHighscoreHeader = 	TextUI("NEW HIGHSCORE!", {600, 300}, HEADER_FONT_SIZE);
 
 	pressEnterText.position.y = enterNewHighscore ? 800 : 200;
 }

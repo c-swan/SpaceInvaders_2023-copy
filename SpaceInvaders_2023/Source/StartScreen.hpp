@@ -4,13 +4,13 @@
 
 class StartScreen : public GameScene {
 public:
-	StartScreen(Game* game) : GameScene(game) {
-		text.emplace_back(TextUI("SPACE INVADERS", {200, 100}, TITLE_FONT_SIZE));
-		text.emplace_back(TextUI("PRESS SPACE TO BEGIN", {200, 350}));
-	}
+	StartScreen(Game* game) : GameScene(game) { }
 	~StartScreen() { }
 
-	std::vector<TextUI> text;
+	std::vector<TextUI> text {
+		{"SPACE INVADERS", {200, 100}, TITLE_FONT_SIZE},
+		{"PRESS SPACE TO BEGIN", {200, 350}}
+	};
 
 	virtual std::optional<GameScene*> Update() {
 		if (IsKeyReleased(KEY_SPACE)) {

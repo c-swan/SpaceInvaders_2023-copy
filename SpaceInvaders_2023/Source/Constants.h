@@ -71,10 +71,9 @@ static constexpr std::string SHIP_TEXTURE_NAME = "Ship";
 static constexpr int LEFT_MARGIN = 50;
 static constexpr int LEADERBOARD_SIZE = 5;
 static constexpr Vector2 LEADERBOARD_POSITION {50, 100};
-//static constexpr int LEADERBOARD_POSITION_X = 50;
-//static constexpr int LEADERBOARD_POSITION_Y = 100;
 static constexpr int LEADERBOARD_SCORE_COLUMN = 300;
 
 static constexpr int ASCII_SPACE = 32;
 static constexpr int ASCII_RIGHT_BRACKET = 125;
 static constexpr int MAX_LETTER_COUNT = 8;
+static constexpr int CURSOR_FRAMES = 20;

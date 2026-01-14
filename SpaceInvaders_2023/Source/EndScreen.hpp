@@ -1,6 +1,5 @@
 #pragma once
 #include "GameScene.hpp"
-//#include "StartScreen.hpp"
 
 class StartScreen;
 
@@ -22,16 +21,15 @@ public:
 	void SaveLeaderboard();
 	std::nullopt_t EnterNewHighscore();
 	bool isValidName() const noexcept { return name.size() > 0 && name.size() <= MAX_LETTER_COUNT; }
-
 private:
 	void InitText();
 	void GetTypingInput();
 	void UpdateNameText();
+	Vector2 getCursorPosition() const noexcept;
 
 	bool enterNewHighscore = false;
 	int highscore = 0;
 
-//	char name[MAX_LETTER_COUNT + 1] = "\0";
 	std::string name = "";
 
 	Rectangle textBoxBounds = { 600, 450, 225, 50 };
