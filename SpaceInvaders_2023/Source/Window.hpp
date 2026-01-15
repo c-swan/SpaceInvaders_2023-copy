@@ -1,6 +1,8 @@
 #pragma once
-#include "Constants.h"
+#include "Constants.hpp"
 #include <raylib.h>
+#include <string>
+#include "ErrorHandling.hpp"
 
 class Window {
 public:
@@ -8,12 +10,17 @@ public:
 		 int height = WINDOW_HEIGHT,
 		 const std::string title = GAME_TITLE) {
 		InitWindow(width, height, title.c_str());
+		if(!IsWindowReady()) {
+			throw std::runtime_error("Window failed to load.");
+		}
+		SetTargetFPS(TARGET_FPS);
 		Width = width;
 		Height = height;
 	}
 	~Window() { CloseWindow(); }
 
 	bool shouldClose() const noexcept { return WindowShouldClose(); } // Detect window close button or ESC key
+	Rectangle GetBounds() const noexcept { return Rectangle(0, 0, Width, Height); }
 	int GetWidth() const noexcept { return Width = GetScreenWidth(); } //calculate window width / height if necessary
 	int GetHeight() const noexcept { return Height = GetScreenHeight(); }
 

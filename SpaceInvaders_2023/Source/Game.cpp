@@ -1,7 +1,5 @@
-#include "game.h"
-#include "ErrorHandling.h"
-#include <cassert>
-#include <exception>
+#include "Game.hpp"
+#include "ErrorHandling.hpp"
 
 int Window::Width = WINDOW_WIDTH;
 int Window::Height = WINDOW_HEIGHT;

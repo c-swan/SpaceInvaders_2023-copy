@@ -1,8 +1,8 @@
 #pragma once
-#include "Renderer.h"
-#include "TexturePack.hpp"
 #include <algorithm>
-#include "ErrorHandling.h"
+#include "Renderer.hpp"
+#include "TexturePack.hpp"
+#include "ErrorHandling.hpp"
 
 struct Alien {
 	Alien(float x, float y) : position{x, y} { }

@@ -1,17 +1,17 @@
 #pragma once
 #include "GameScene.hpp"
-#include "Alien.h"
-#include "Player.h"
-#include "Stars.h"
-#include "Bunker.h"
-#include "Projectile.h"
+#include "Alien.hpp"
+#include "Player.hpp"
+#include "Stars.hpp"
+#include "Bunker.hpp"
+#include "Projectile.hpp"
 
 class EndScreen;
 
 class Gameplay : public GameScene {
 public:
 	Gameplay(Game* game);
-	~Gameplay() {}
+	~Gameplay() = default;
 
 	virtual std::optional<GameScene*> Update();
 	virtual void Render(Renderer& renderer);
@@ -20,15 +20,17 @@ public:
 
 private:
 	int score = 0;
-	float alienShootTimer = 0;
+	float alien_shoot_timer = 0;
 
 	Player player;
 	AlienSwarm alienSwarm;
+
 	std::vector<Projectile> Projectiles;
 	std::vector<Bunker> Bunkers;
 	std::vector<Star> Stars;
-	TextUI scoreText{"Score: 0", {50, 20}};
-	TextUI livesText{"Lives: 3", {50, 70}};
+
+	TextUI scoreText{"Score: 0", {LEFT_MARGIN, 20}};
+	TextUI livesText{"Lives: 3", {LEFT_MARGIN, 70}};
 
 	void AliensShooting();
 	void SpawnBunkers();
@@ -41,9 +43,9 @@ private:
 	void CheckCollision(Bunker& alien, Projectile& projectile);
 
 	bool DrawColliders(const Circle &circle, const Rectangle &rect, bool collision);
-	bool CheckCollision(Rectangle rect1, Rectangle rect2) { return CheckCollisionRecs(rect1, rect2); }
-	bool CheckCollision(Circle circle, Rectangle rect) { return CheckCollisionCircleRec(circle.center, circle.radius, rect); }
-	bool CheckCollisionDebug(Circle circle, Rectangle rect) { return DrawColliders(circle, rect, CheckCollision(circle, rect)); }
+	bool CheckCollision(Rectangle rect1, Rectangle rect2);
+	bool CheckCollision(Circle circle, Rectangle rect);
+	bool CheckCollisionDebug(Circle circle, Rectangle rect);
 
 
 	void setScore(int s) noexcept;

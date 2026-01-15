@@ -21,8 +21,8 @@
  *
  ********************************************************************************************/
 
-#include "game.h"
-#include "ErrorHandling.h"
+#include "Game.hpp"
+#include "ErrorHandling.hpp"
 
 int main() {
 	try {
@@ -31,12 +31,14 @@ int main() {
 	}
 	catch(std::runtime_error e) {
 		log_error("Runtime error", e);
+		return EXIT_FAILURE;
 	}
 	catch(std::exception e) {
 		log_error("Exception", e);
+		return EXIT_FAILURE;
 	}
 	catch(ErrorType e) {
-		HandleError(e);
+		return HandleError(e);
 	}
-	return APP_QUIT_CODE;
+	return EXIT_SUCCESS;
 }

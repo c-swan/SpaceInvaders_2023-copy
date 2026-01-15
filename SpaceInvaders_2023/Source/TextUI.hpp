@@ -1,10 +1,10 @@
 #pragma once
 #include <raylib.h>
 #include <string>
-#include "Constants.h"
+#include "Constants.hpp"
 
 struct TextUI {
-	TextUI() {}
+	TextUI() = default;
 	TextUI(std::string str, Vector2 pos) : text(str), position(pos) {}
 	TextUI(std::string str, Vector2 pos, int size) : text(str), position(pos), fontSize(size) {}
 	TextUI(std::string str, Vector2 pos, int size, Color color) : text(str), position(pos), fontSize(size), fontColor(color) {}

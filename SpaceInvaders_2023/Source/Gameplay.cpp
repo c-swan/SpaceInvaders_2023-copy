@@ -1,6 +1,6 @@
 #include "Gameplay.hpp"
 #include "EndScreen.hpp"
-#include "game.h"
+#include "Game.hpp"
 
 float Star::offset_x = 0;
 Vector2 Alien::swarm_position = {0,0};
@@ -23,8 +23,9 @@ std::optional<GameScene*> Gameplay::Update() {
 
 	Star::offset_x = player.getX() / -PARALLAX_FACTOR;
 
-	std::ranges::for_each(Projectiles, [](auto& projectile) { projectile.move(); } );
-
+	for(auto& projectile : Projectiles) {
+		projectile.move();
+	}
 	if (IsKeyPressed(KEY_SPACE)) {
 		MakePlayerProjectile();
 	}
@@ -55,6 +56,42 @@ void Gameplay::Render(Renderer& renderer) {
 	renderer.DrawText(livesText);
 }
 
+void Gameplay::RemoveInactiveEntities() {
+	std::erase_if(Projectiles, [](auto& projectile) { return !projectile.isActive() || projectile.isOutOfBounds(); });
+	std::erase_if(Bunkers, [](auto& bunker) { return bunker.isDead(); });
+	alienSwarm.RemoveInactiveAliens();
+}
+
+void Gameplay::SpawnBunkers() {
+	for (int i = 0; i < BUNKER_COUNT; i++) {
+		Bunkers.emplace_back( Bunker(
+						     Window::Width * (i + 1) / (BUNKER_COUNT + 1),
+						     Window::Height - BUNKER_POSITION_Y,
+						     &_game->texture_pack ) );
+	}
+}
+
+void Gameplay::MakePlayerProjectile() {
+	Projectiles.emplace_back( Projectile(
+							 Projectile::Type::Player,
+							 { player.getX(), Window::Height - PROJECTILE_BASE_POS_Y },
+							 &_game->texture_pack ) );
+}
+void Gameplay::AliensShooting() {
+	if (alienSwarm.empty()) {
+		return;
+	}
+	alien_shoot_timer++;
+	if (alien_shoot_timer < ALIEN_SHOOT_TIME) {
+		return;
+	}
+
+	Projectiles.emplace_back(Projectile(
+						   Projectile::Type::Alien,
+						   alienSwarm.getRandomAlienPosition(),
+						   &_game->texture_pack ) );
+	alien_shoot_timer = 0;
+}
 void Gameplay::CheckAllCollisions() {
 	for(auto &projectile : Projectiles) {
 		if (projectile.isActive()) {
@@ -63,7 +100,8 @@ void Gameplay::CheckAllCollisions() {
 					CheckCollision(alien, projectile);
 				}
 			}
-			else if(projectile.isAlienProjectile() && projectile.isWithinPlayerRange()) {
+			else if(projectile.isAlienProjectile()
+				  && projectile.isWithinPlayerRange()) {
 				CheckCollision(player, projectile);
 			}
 			if(projectile.isWithinBunkerRange()) {
@@ -99,46 +137,17 @@ bool Gameplay::DrawColliders(const Circle &circle, const Rectangle &rect, bool c
 	DrawCircleV(circle.center, circle.radius, collision ? GREEN : RED);
 	return collision;
 }
-
-void Gameplay::RemoveInactiveEntities() {
-	std::erase_if(Projectiles, [](auto& projectile) { return !projectile.isActive() || projectile.isOutOfBounds(); });
-	std::erase_if(Bunkers, [](auto& bunker) { return bunker.isDead(); });
-	alienSwarm.RemoveInactiveAliens();
-}
-
-void Gameplay::SpawnBunkers() {
-	for (int i = 0; i < BUNKER_COUNT; i++) {
-		Bunkers.emplace_back( Bunker(
-						     Window::Width * (i + 1) / (BUNKER_COUNT + 1),
-						     Window::Height - BUNKER_POSITION_Y,
-						     &_game->texture_pack ) );
-	}
-}
-
-void Gameplay::MakePlayerProjectile() {
-	Projectiles.emplace_back( Projectile(
-							 Projectile::Type::Player,
-							 { player.getX(), Window::Height - PROJECTILE_BASE_POS_Y },
-							 &_game->texture_pack ) );
-}
-void Gameplay::AliensShooting() {
-	if (alienSwarm.empty()) {
-		return;
-	}
-	alienShootTimer++;
-	if (alienShootTimer < ALIEN_SHOOT_TIME) {
-		return;
-	}
-
-	Projectiles.push_back(Projectile(
-						   Projectile::Type::Alien,
-						   alienSwarm.getRandomAlienPosition(),
-						   &_game->texture_pack ) );
-	alienShootTimer = 0;
-}
-
 void Gameplay::setScore(int s) noexcept {
 	scoreText.text = std::format("Score: {}", score = s);
+}
+bool Gameplay::CheckCollision(Rectangle rect1, Rectangle rect2) {
+	return CheckCollisionRecs(rect1, rect2);
+}
+bool Gameplay::CheckCollision(Circle circle, Rectangle rect) {
+	return CheckCollisionCircleRec(circle.center, circle.radius, rect);
+}
+bool Gameplay::CheckCollisionDebug(Circle circle, Rectangle rect) {
+	return DrawColliders(circle, rect, CheckCollision(circle, rect));
 }
 
 EndScreen* Gameplay::GameOver() noexcept {

@@ -13,9 +13,6 @@ public:
 
 	StartScreen* EnterStartScreen() noexcept;
 
-	void RenderNewHighscore(Renderer& renderer);
-	void ShowScoreboard(Renderer& renderer);
-
 	void SaveLeaderboard();
 	void EnterNewHighscore();
 	bool isValidName() const noexcept { return name.size() > 0 && name.size() <= MAX_LETTER_COUNT; }
@@ -34,12 +31,11 @@ private:
 	bool mouse_on_text = false;
 	int frames_counter = 0;
 
-	TextUI pressEnterText;
-	TextUI backspaceText;
-	TextUI inputCharText;
-	TextUI nameText;
-	TextUI mouseOverInputBoxText;
-	TextUI newHighscoreHeader;
-	TextUI cursorText;
-
+	TextUI press_enter_text{"PRESS ENTER TO CONTINUE", {600, 800}};
+	TextUI backspace_text{"Press BACKSPACE to delete chars...", {600, 650}, HALF_FONT_SIZE};
+	TextUI mouse_over_input_box_text{"PLACE MOUSE OVER INPUT BOX!", {600, 400}, HALF_FONT_SIZE};
+	TextUI new_highscore_header_text{"NEW HIGHSCORE!", {600, 300}, HEADER_FONT_SIZE};
+	TextUI name_text;
+	TextUI input_char_text;
+	TextUI cursor_text;
 };

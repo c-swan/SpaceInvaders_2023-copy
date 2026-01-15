@@ -1,7 +1,6 @@
 #pragma once
-#include <raylib.h>
 #include <optional>
-#include "Renderer.h"
+#include "Renderer.hpp"
 
 class Game;
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <raylib.h>
-#include "Constants.h"
-#include "Math.h"
+#include "Constants.hpp"
+#include "Math.hpp"
 
 struct Star {
 	explicit Star() {

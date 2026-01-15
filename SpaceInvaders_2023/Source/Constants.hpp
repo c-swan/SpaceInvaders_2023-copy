@@ -1,29 +1,27 @@
 #pragma once
+#include <raylib.h> //for Vector2
 #include <string>
-#include <raylib.h>
-#include "Math.h"
 
-static constexpr int FPS = 60;
+static constexpr int TARGET_FPS = 60;
 static constexpr std::string GAME_TITLE = "SPACE INVADERS";
 
 static constexpr std::string LEADERBOARD_PATH = "./leaderboard.json";
+static constexpr std::string ASSETS_DIRECTORY = "./Assets/";
 
 static constexpr int WINDOW_WIDTH = 1920;
 static constexpr int WINDOW_HEIGHT = 1080;
 
-static constexpr std::string ASSETS_DIRECTORY = "./Assets/";
 
+static constexpr Vector2 ALIEN_FORMATION_POS = {100, 50};
 static constexpr int ALIEN_FORMATION_COLUMNS = 11; //8
 static constexpr int ALIEN_FORMATION_ROWS = 5;
 static constexpr float ALIEN_SPACING = 80;
-static constexpr Vector2 ALIEN_FORMATION_POS = {100, 50};
 
 static constexpr Color BUNKER_TEXT_COLOR = RED;
 static constexpr int BUNKER_COUNT = 5;
 static constexpr int BUNKER_MAX_HEALTH = 50;
 static constexpr float BUNKER_RADIUS = 60;
 static constexpr int BUNKER_POSITION_Y = 250;
-static constexpr int SHIP_TEXTURE_COUNT = 3;
 static constexpr int BUNKER_SIZE = 200;
 
 static constexpr Color DEFAULT_FONT_COLOR = YELLOW;
@@ -67,11 +65,12 @@ static constexpr std::string ALIEN_TEXTURE_NAME = "Alien";
 static constexpr std::string BUNKER_TEXTURE_NAME = "Barrier";
 static constexpr std::string PROJECTILE_TEXTURE_NAME = "Laser";
 static constexpr std::string SHIP_TEXTURE_NAME = "Ship";
+static constexpr int SHIP_TEXTURE_COUNT = 3;
 
 /*========    LEADERBOARD    ========*/
 static constexpr int LEFT_MARGIN = 50;
+static constexpr Vector2 LEADERBOARD_POSITION {LEFT_MARGIN, 100};
 static constexpr int LEADERBOARD_SIZE = 5;
-static constexpr Vector2 LEADERBOARD_POSITION {50, 100};
 static constexpr int LEADERBOARD_SCORE_COLUMN = 300;
 
 static constexpr int ASCII_SPACE = 32;

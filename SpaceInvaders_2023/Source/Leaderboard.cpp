@@ -1,13 +1,9 @@
 #include "Leaderboard.hpp"
 
-#include "Constants.h"
-#include "ErrorHandling.h"
-
 #include <fstream>
-#include <print>
 #include <format>
 #include <string>
-#include <expected>
+#include <ranges>
 #include <exception>
 
 using std::string;
@@ -39,7 +35,6 @@ std::optional<ErrorType> Leaderboard::SaveToFile(const string& pathName) {
 std::optional<ErrorType> Leaderboard::LoadFromFile(const string &fileName) {
 
 	std::ifstream file;
-
 	highscores.clear();
 
 	//Reverse-engineer saving
@@ -60,15 +55,15 @@ void Leaderboard::LoadText() {
 	text.clear();
 	int i=1;
 	for(auto &entry : highscores) {
-		text.push_back(TextUI(entry.name, LEADERBOARD_POSITION + Vector2(0, i * DEFAULT_FONT_SIZE)));
-		text.push_back(TextUI(std::to_string(entry.score), LEADERBOARD_POSITION + Vector2(LEADERBOARD_SCORE_COLUMN, i * DEFAULT_FONT_SIZE)));
+		text.emplace_back(TextUI(entry.name, LEADERBOARD_POSITION + Vector2(0, i * DEFAULT_FONT_SIZE)));
+		text.emplace_back(TextUI(std::to_string(entry.score), LEADERBOARD_POSITION + Vector2(LEADERBOARD_SCORE_COLUMN, i * DEFAULT_FONT_SIZE)));
 		i++;
 	}
 }
 
 void Leaderboard::InsertNewHighscore(const string& name, int score) {
 	auto checkNewHighscore = [score](PlayerData& entry) { return score > entry.score; };
-	auto insert_pos = std::find_if(highscores.begin(), highscores.end(), checkNewHighscore);
+	auto insert_pos = std::ranges::find_if(highscores, checkNewHighscore);
 	if(insert_pos == highscores.end()) {
 		return;
 	}

@@ -1,10 +1,10 @@
 #pragma once
 #include <raylib.h>
-#include "Constants.h"
-#include "Renderer.h"
+#include "Constants.hpp"
+#include "Renderer.hpp"
 #include "TexturePack.hpp"
-#include "Math.h"
-#include "TextUI.h"
+#include "Math.hpp"
+#include "TextUI.hpp"
 
 struct Bunker {
 	Bunker(float x, float y, TexturePack* txtrPck) : texture_pack(txtrPck), position{x, y} {

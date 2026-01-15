@@ -1,13 +1,15 @@
 #pragma once
 #include <raylib.h>
-#include "Constants.h"
-#include "TexturePack.hpp"
-#include "Window.hpp"
+
 #include <string>
 #include <vector>
 
+#include "Constants.hpp"
+#include "Window.hpp"
+#include "Renderer.hpp"
+#include "TexturePack.hpp"
 #include "Leaderboard.hpp"
-#include "GameScene.hpp"
+
 #include "StartScreen.hpp"
 
 class Game {

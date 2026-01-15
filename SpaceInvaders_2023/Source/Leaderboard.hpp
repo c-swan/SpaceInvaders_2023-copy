@@ -1,11 +1,10 @@
 #pragma once
-
 #include <string>
 #include <vector>
-#include "Constants.h"
-#include "Math.h"
-#include "ErrorHandling.h"
-#include "Renderer.h"
+
+#include "Constants.hpp"
+#include "ErrorHandling.hpp"
+#include "Renderer.hpp"
 
 struct PlayerData {
 	std::string name;
@@ -26,7 +25,6 @@ public:
 	void Render(Renderer& renderer);
 	bool CheckNewHighscore(int score) { return (score > highscores.back().score); }
 	void InsertNewHighscore(const std::string& name, int score);
-	void ClearHighscore() { highscores.clear(); LoadText(); }
 	void LoadDummyScores() noexcept {
 		highscores = {
 			{"Player 1", 500},

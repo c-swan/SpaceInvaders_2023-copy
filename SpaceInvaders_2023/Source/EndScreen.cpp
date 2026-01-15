@@ -1,6 +1,6 @@
 #include "EndScreen.hpp"
 #include "StartScreen.hpp"
-#include "game.h"
+#include "Game.hpp"
 #include <cassert>
 
 EndScreen::EndScreen(Game* game, int s) : GameScene(game), highscore(s) {
@@ -8,7 +8,10 @@ EndScreen::EndScreen(Game* game, int s) : GameScene(game), highscore(s) {
 		throw ErrorMessage{ErrorType::NULLPTR_GAME, "EndScreen"};
 	}
 	enter_new_highscore = _game->GetLeaderboard().CheckNewHighscore(highscore);
-	InitText();
+	input_char_text = 		TextUI(std::format("INPUT CHARS: 0/{}", MAX_LETTER_COUNT), {600, 600}, HALF_FONT_SIZE);
+	name_text = 			TextUI("", getPosition(text_box_bounds) + NAME_POSITION_OFFSET, MAROON);
+	cursor_text = 		TextUI("_", getPosition(text_box_bounds) + CURSOR_POSITION_OFFSET, MAROON);
+	press_enter_text.position.y = enter_new_highscore ? 800 : 200;
 }
 
 void EndScreen::SaveLeaderboard() {
@@ -20,32 +23,31 @@ void EndScreen::SaveLeaderboard() {
 
 void EndScreen::Render(Renderer& renderer) {
 	if (!enter_new_highscore) {
-		renderer.DrawText(pressEnterText);
+		renderer.DrawText(press_enter_text);
 		_game->GetLeaderboard().Render(renderer);
 		return;
 	}
 
-	renderer.DrawText(newHighscoreHeader);
-	renderer.DrawText(mouseOverInputBoxText);
+	renderer.DrawText(new_highscore_header_text);
+	renderer.DrawText(mouse_over_input_box_text);
 	DrawRectangleRec(text_box_bounds, LIGHTGRAY);
 	DrawRectangleLinesEx(text_box_bounds, 1, mouse_on_text ? RED : DARKGRAY);
-	renderer.DrawText(nameText);
-	renderer.DrawText(inputCharText);
+	renderer.DrawText(name_text);
+	renderer.DrawText(input_char_text);
 
 	if (isValidName()) {
-		renderer.DrawText(pressEnterText);
+		renderer.DrawText(press_enter_text);
 	}
-
 	if (!mouse_on_text) {
 		return;
 	}
 	if (name.size() > MAX_LETTER_COUNT) {
-		renderer.DrawText(backspaceText);
+		renderer.DrawText(backspace_text);
 		return;
 	}
 	bool show_cursor = ((frames_counter / CURSOR_FRAMES) % 2) == 0;
 	if (show_cursor) {
-		renderer.DrawText(cursorText);
+		renderer.DrawText(cursor_text);
 	}
 }
 
@@ -91,26 +93,19 @@ void EndScreen::GetTypingInput() {
 }
 
 void EndScreen::UpdateNameText() {
-	nameText.text = name;
-	inputCharText.text = std::format("INPUT CHARS: {}/{}", name.size(), MAX_LETTER_COUNT);
-	cursorText.offset.x = nameText.GetWidth();
+	name_text.text = name;
+	input_char_text.text = std::format("INPUT CHARS: {}/{}", name.size(), MAX_LETTER_COUNT);
+	cursor_text.offset.x = name_text.GetWidth();
 }
 
 void EndScreen::EnterNewHighscore() {
 	_game->GetLeaderboard().InsertNewHighscore(name, highscore);
-	pressEnterText.position.y = 200;
+	press_enter_text.position.y = 200;
 	enter_new_highscore = false;
 }
 
 void EndScreen::InitText() {
-	pressEnterText = 		TextUI("PRESS ENTER TO CONTINUE", {600, 800});
-	backspaceText = 		TextUI("Press BACKSPACE to delete chars...", {600, 650}, HALF_FONT_SIZE);
-	inputCharText = 		TextUI(std::format("INPUT CHARS: 0/{}", MAX_LETTER_COUNT), {600, 600}, HALF_FONT_SIZE);
-	mouseOverInputBoxText = TextUI("PLACE MOUSE OVER INPUT BOX!", {600, 400}, HALF_FONT_SIZE);
-	nameText = 			TextUI("", getPosition(text_box_bounds) + NAME_POSITION_OFFSET, MAROON);
-	newHighscoreHeader = 	TextUI("NEW HIGHSCORE!", {600, 300}, HEADER_FONT_SIZE);
-	cursorText = 		TextUI("_", getPosition(text_box_bounds) + CURSOR_POSITION_OFFSET, MAROON);
-	pressEnterText.position.y = enter_new_highscore ? 800 : 200;
+
 }
 
 StartScreen* EndScreen::EnterStartScreen() noexcept { return new StartScreen(_game); }

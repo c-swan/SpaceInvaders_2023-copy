@@ -1,7 +1,7 @@
 #pragma once
 #include <raylib.h>
-#include "Math.h"
-#include "Renderer.h"
+#include "Math.hpp"
+#include "Renderer.hpp"
 #include "TexturePack.hpp"
 
 class Player {

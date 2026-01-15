@@ -1,9 +1,9 @@
 #pragma once
 #include <raylib.h>
-#include "Renderer.h"
-#include "Constants.h"
+#include "Renderer.hpp"
+#include "Constants.hpp"
 #include "TexturePack.hpp"
-#include "ErrorHandling.h"
+#include "ErrorHandling.hpp"
 
 struct Projectile {
 	enum Type { Player, Alien } type = Type::Player;

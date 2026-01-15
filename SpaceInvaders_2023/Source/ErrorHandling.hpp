@@ -2,7 +2,10 @@
 #include <iostream>
 #include <string>
 #include <format>
-#include <print>
+#include <cassert>
+#include <exception>
+
+//incomplete
 
 enum struct ErrorType {
 	MISSING_TEXTURE,
