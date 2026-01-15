@@ -163,15 +163,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="level.cpp" />
-    <ClCompile Include="Source\game.cpp" />
-    <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Resources.cpp" />
+	  <ClCompile Include="Source\main.cpp" />
+	  <ClCompile Include="Source\Game.cpp" />
+	  <ClCompile Include="Source\Gameplay.cpp" />
+	  <ClCompile Include="Source\EndScreen.cpp" />
+	  <ClCompile Include="Source\Leaderboard.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="level.h" />
-    <ClInclude Include="Source\game.h" />
-    <ClInclude Include="Source\Resources.h" />
+    <ClInclude Include="Source\Alien.hpp" />
+    <ClInclude Include="Source\Bunker.hpp" />
+    <ClInclude Include="Source\Constants.hpp" />
+    <ClInclude Include="Source\EndScreen.hpp" />
+    <ClInclude Include="Source\ErrorHandling.hpp" />
+    <ClInclude Include="Source\Game.hpp" />
+    <ClInclude Include="Source\Gameplay.hpp" />
+    <ClInclude Include="Source\GameScene.hpp" />
+    <ClInclude Include="Source\Leaderboard.hpp" />
+    <ClInclude Include="Source\Math.hpp" />
+    <ClInclude Include="Source\Player.hpp" />
+    <ClInclude Include="Source\Projectile.hpp" />
+    <ClInclude Include="Source\Renderer.hpp" />
+    <ClInclude Include="Source\Stars.hpp" />
+    <ClInclude Include="Source\StartScreen.hpp" />
+    <ClInclude Include="Source\TextUI.hpp" />
+    <ClInclude Include="Source\TexturePack.hpp" />
+    <ClInclude Include="Source\Window.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
