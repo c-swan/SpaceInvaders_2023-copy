@@ -1,0 +1,1 @@
+The original VS project is encapsulated in an Xcode project but should be intact and run normally when opened. The Xcode project accesses the same source files inside the VS project to compile and uses raylib installed on my Mac.
