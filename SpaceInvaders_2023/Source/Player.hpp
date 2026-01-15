@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include "Math.h"
 #include "Renderer.h"
-#include "Assets.h"
+#include "TexturePack.hpp"
 
 class Player {
 public:
@@ -10,6 +10,7 @@ public:
 		position.y = Window::Height - PLAYER_BASE_HEIGHT;
 		position.x = Window::Width / 2;
 	}
+	~Player() = default;
 
 	int animation_frame = 0;
 	float animation_timer = 0;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Renderer.h"
-#include "Assets.h"
+#include "TexturePack.hpp"
 #include <algorithm>
 #include "ErrorHandling.h"
 

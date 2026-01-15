@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include "Constants.h"
 #include "Renderer.h"
-#include "Assets.h"
+#include "TexturePack.hpp"
 #include "Math.h"
 #include "TextUI.h"
 

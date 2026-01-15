@@ -5,7 +5,6 @@
 
 static constexpr int FPS = 60;
 static constexpr std::string GAME_TITLE = "SPACE INVADERS";
-static constexpr int APP_QUIT_CODE = 0;
 
 static constexpr std::string LEADERBOARD_PATH = "./leaderboard.json";
 

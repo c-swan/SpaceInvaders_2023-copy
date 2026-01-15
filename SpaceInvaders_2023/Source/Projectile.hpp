@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include "Renderer.h"
 #include "Constants.h"
-#include "Assets.h"
+#include "TexturePack.hpp"
 #include "ErrorHandling.h"
 
 struct Projectile {

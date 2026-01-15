@@ -1,7 +1,7 @@
 #pragma once
 #include <raylib.h>
 #include "Constants.h"
-#include "Assets.h"
+#include "TexturePack.hpp"
 #include "Window.hpp"
 #include <string>
 #include <vector>
@@ -13,11 +13,8 @@
 class Game {
 	public:
 
-	Game() : window(), renderer(window), _scene(std::make_unique<StartScreen>(this)) {
-		SetTargetFPS(FPS);
-	}
-	~Game() {}
-
+	Game() : window(), renderer(window), _scene(std::make_unique<StartScreen>(this)) {}
+	~Game() = default;
 
 	private:
 	Window window;

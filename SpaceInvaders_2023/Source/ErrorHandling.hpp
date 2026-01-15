@@ -6,6 +6,7 @@
 
 enum struct ErrorType {
 	MISSING_TEXTURE,
+	TEXTURE_INVALID,
 	MISSING_FILE,
 	FILE_COULD_NOT_OPEN,
 	FILE_COULD_NOT_WRITE,
@@ -30,8 +31,7 @@ inline void log_error(std::string msg, const std::exception& e) {
 inline void log_error(const std::exception& e) {
 	std::cerr << std::format("Exception: {}\n", e.what() );
 }
-
-inline void HandleError(ErrorMessage error) {
+inline int HandleError(ErrorMessage error) {
 	switch(error._type ) {
 	case ErrorType::MISSING_TEXTURE:
 		log_error("Missing texture: ", error._msg); break;
@@ -42,14 +42,17 @@ inline void HandleError(ErrorMessage error) {
 	case ErrorType::NULLPTR_SCENE:
 		log_error("No scene! _scene == nullptr"); break;
 	case ErrorType::NULLPTR_TEXTURE_PACK:
-		log_error("null texture", error._msg); break;
+		log_error("Null texture: ", error._msg); break;
+	case ErrorType::TEXTURE_INVALID:
+		log_error("Invalid texture: ", error._msg); break;
 	case ErrorType::NULLPTR_GAME:
 		log_error("_game == nullptr. ", error._msg); break;
 	default:
 		log_error("Unknown error"); break;
 	}
+	return EXIT_FAILURE;
 }
 
-inline void HandleError(ErrorType error) {
-	HandleError(ErrorMessage{error, ""});
+inline int HandleError(ErrorType error) {
+	return HandleError(ErrorMessage{error, ""});
 }
