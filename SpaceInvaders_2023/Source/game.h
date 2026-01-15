@@ -5,13 +5,7 @@
 #include "Window.hpp"
 #include <string>
 #include <vector>
-#include <print>
 
-#include "Player.h"
-#include "Alien.h"
-#include "Projectile.h"
-#include "Bunker.h"
-#include "Stars.h"
 #include "Leaderboard.hpp"
 #include "GameScene.hpp"
 #include "StartScreen.hpp"
@@ -19,9 +13,8 @@
 class Game {
 	public:
 
-	Game() : window(), renderer(window) {
+	Game() : window(), renderer(window), _scene(std::make_unique<StartScreen>(this)) {
 		SetTargetFPS(FPS);
-		_scene = std::make_unique<StartScreen>(this);
 	}
 	~Game() {}
 
@@ -39,9 +32,8 @@ class Game {
 	public:
 	void Run();
 
-	Leaderboard& getLeaderboard() noexcept { return leaderboard; }
-
-	TexturePack texturePack;
+	Leaderboard& GetLeaderboard() noexcept { return leaderboard; }
+	TexturePack texture_pack;
 
 	Game(const Game&) = delete;
 	Game(Game&&) = delete;

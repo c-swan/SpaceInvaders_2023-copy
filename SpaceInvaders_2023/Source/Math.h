@@ -33,5 +33,6 @@ inline Rectangle operator/(const Rectangle& lhs, float rhs) noexcept 		{ return 
 inline Rectangle operator+(const Rectangle& lhs, const Vector2& rhs) noexcept	{ return Rectangle{lhs.x + rhs.x, lhs.y + rhs.y, lhs.width, lhs.height}; }
 
 inline Rectangle getRect(float width, float height) noexcept 			{ return Rectangle{0,0, width, height}; }
+inline Rectangle getRect(float size) noexcept			 			{ return Rectangle{0,0, size, size}; }
 inline Vector2 getCenter(const Rectangle& rect) noexcept 				{ return Vector2(rect.width, rect.height) / 2.0f; }
 inline Vector2 getPosition(const Rectangle& rect) noexcept 				{ return Vector2(rect.x, rect.y); }

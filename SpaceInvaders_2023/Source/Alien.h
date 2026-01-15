@@ -6,21 +6,20 @@
 
 struct Alien {
 	Alien(float x, float y) : position{x, y} { }
+	static Vector2 swarm_position;
 
-	const Rectangle& getBounds() const noexcept { return bounds; }
+	Rectangle getBounds() const noexcept { return getRect(ALIEN_SIZE); }
 	Circle getCollider() const noexcept { return Circle(getPosition(), radius); }
 	bool isOutOfBounds() const noexcept { return getPosition().x < 0 || getPosition().x > Window::Width; }
-
-	void setPosition(Vector2 pos) noexcept { position = pos; }
-	Vector2 getPosition() const noexcept { return swarm_position + position; }
-	bool isDead() const noexcept { return !alive; }
 	bool isBehindPlayer() const noexcept { return getPosition().y > Window::Height - PLAYER_BASE_HEIGHT; }
+
+	Vector2 getPosition() const noexcept { return swarm_position + position; }
+
+	bool isDead() const noexcept { return !alive; }
 	void hit() noexcept { alive = false; }
 
-	static Vector2 swarm_position;
 private:
 	Vector2 position;
-	Rectangle bounds {0, 0, 100, 100};
 	bool alive = true;
 	float radius = ALIEN_RADIUS;
 };
@@ -28,8 +27,8 @@ private:
 class AlienSwarm {
 public:
 	AlienSwarm(TexturePack* texturePack, int r = ALIEN_FORMATION_ROWS, int c = ALIEN_FORMATION_COLUMNS) : texture_pack(texturePack), rows(r), cols(c) {
-		if(texturePack == nullptr) {
-			throw ErrorType::NULLPTR_TEXTURE_PACK;
+		if(!texture_pack) {
+			throw ErrorMessage{ErrorType::NULLPTR_TEXTURE_PACK, "Alien"};
 		}
 		SpawnAliens();
 	}
@@ -38,11 +37,7 @@ public:
 		Alien::swarm_position = ALIEN_FORMATION_POS;
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
-				Aliens.emplace_back(Alien(
-								  ALIEN_OFFSET_X + (col * ALIEN_SPACING),
-								  (row * ALIEN_SPACING)
-								  )
-							  );
+				Aliens.emplace_back( Alien( ALIEN_OFFSET_X + (col * ALIEN_SPACING), (row * ALIEN_SPACING) ) );
 			}
 		}
 	}
@@ -83,7 +78,7 @@ public:
 		return out_of_bounds_alien != Aliens.end();
 	}
 	void RemoveInactiveAliens() { std::erase_if(Aliens, [](auto& alien) { return alien.isDead(); }); }
-	Vector2 getRandomAlienPosition() const noexcept { return Aliens[GetRandomValue(0, size() - 1) % Aliens.size()].getPosition(); }
+	Vector2 getRandomAlienPosition() const noexcept { return Aliens[GetRandomValue(0, size() - 1) % size()].getPosition(); }
 
 	bool empty() const noexcept { return Aliens.empty(); }
 	int size() const noexcept { return static_cast<int>(Aliens.size()); }

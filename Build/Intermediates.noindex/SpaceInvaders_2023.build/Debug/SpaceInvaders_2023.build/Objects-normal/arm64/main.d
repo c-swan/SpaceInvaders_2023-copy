@@ -7,15 +7,15 @@ dependencies: \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/External/raylib/include/raylib.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Assets.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Window.hpp \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Player.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Leaderboard.hpp \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/ErrorHandling.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Renderer.h \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/TextUI.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Alien.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/ErrorHandling.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Projectile.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Bunker.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Stars.h \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Leaderboard.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/GameScene.hpp \
   /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/StartScreen.hpp \
-  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Gameplay.hpp
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Gameplay.hpp \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Alien.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Player.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Stars.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Bunker.h \
+  /Users/carlswanberg/Documents/Uppsala\ University/Modern\ C++/SpaceInvaders_2023\ copy/SpaceInvaders_2023/Source/Projectile.h

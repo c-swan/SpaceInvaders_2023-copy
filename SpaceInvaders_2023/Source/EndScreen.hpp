@@ -6,9 +6,7 @@ class StartScreen;
 class EndScreen : public GameScene {
 public:
 	EndScreen(Game* game, int s);
-	~EndScreen() {
-		SaveLeaderboard();
-	}
+	~EndScreen() { SaveLeaderboard(); }
 
 	virtual std::optional<GameScene*> Update();
 	virtual void Render(Renderer& renderer);
@@ -19,22 +17,22 @@ public:
 	void ShowScoreboard(Renderer& renderer);
 
 	void SaveLeaderboard();
-	std::nullopt_t EnterNewHighscore();
+	void EnterNewHighscore();
 	bool isValidName() const noexcept { return name.size() > 0 && name.size() <= MAX_LETTER_COUNT; }
+	bool isKeyValid(char& key) const noexcept { return (key >= ASCII_SPACE) && (key <= ASCII_RIGHT_BRACKET); }
 private:
 	void InitText();
 	void GetTypingInput();
 	void UpdateNameText();
-	Vector2 getCursorPosition() const noexcept;
 
-	bool enterNewHighscore = false;
+	bool enter_new_highscore = false;
 	int highscore = 0;
 
 	std::string name = "";
 
-	Rectangle textBoxBounds = { 600, 450, 225, 50 };
-	bool mouseOnText = false;
-	int framesCounter = 0;
+	Rectangle text_box_bounds{ 600, 450, 225, 50 };
+	bool mouse_on_text = false;
+	int frames_counter = 0;
 
 	TextUI pressEnterText;
 	TextUI backspaceText;
@@ -42,7 +40,6 @@ private:
 	TextUI nameText;
 	TextUI mouseOverInputBoxText;
 	TextUI newHighscoreHeader;
-//	Vector2 namePositionOffset = Vector2(5, 8);
-	Vector2 cursorPositionOffset = Vector2(8, 12);
+	TextUI cursorText;
 
 };

@@ -35,5 +35,8 @@ int main() {
 	catch(std::exception e) {
 		log_error("Exception", e);
 	}
+	catch(ErrorType e) {
+		HandleError(e);
+	}
 	return APP_QUIT_CODE;
 }

@@ -5,7 +5,7 @@
 float Star::offset_x = 0;
 Vector2 Alien::swarm_position = {0,0};
 
-Gameplay::Gameplay(Game* game) : GameScene(game), player(&game->texturePack), alienSwarm(&game->texturePack) {
+Gameplay::Gameplay(Game* game) : GameScene(game), player(&game->texture_pack), alienSwarm(&game->texture_pack) {
 	if(_game == nullptr) {
 		throw ErrorType::NULLPTR_GAME;
 	}
@@ -24,9 +24,7 @@ std::optional<GameScene*> Gameplay::Update() {
 
 	Star::offset_x = player.getX() / -PARALLAX_FACTOR;
 
-	for(auto& projectile : Projectiles) {
-		projectile.move();
-	}
+	std::ranges::for_each(Projectiles, [](auto& projectile) { projectile.move(); } );
 
 	if (IsKeyPressed(KEY_SPACE)) {
 		MakePlayerProjectile();
@@ -45,8 +43,6 @@ void Gameplay::Render(Renderer& renderer) {
 	for(auto& star : Stars) {
 		star.Render(renderer);
 	}
-	renderer.DrawText(scoreText);
-	renderer.DrawText(livesText);
 	player.Render(renderer);
 	alienSwarm.Render(renderer);
 	for(auto& bunker : Bunkers) {
@@ -55,6 +51,8 @@ void Gameplay::Render(Renderer& renderer) {
 	for(auto& projectile : Projectiles) {
 		projectile.Render(renderer);
 	}
+	renderer.DrawText(scoreText);
+	renderer.DrawText(livesText);
 }
 
 void Gameplay::CheckAllCollisions() {
@@ -108,8 +106,7 @@ void Gameplay::SpawnBunkers() {
 		Bunkers.emplace_back( Bunker(
 						     Window::Width * (i + 1) / (BUNKER_COUNT + 1),
 						     Window::Height - BUNKER_POSITION_Y,
-						     &_game->texturePack)
-					   );
+						     &_game->texture_pack ) );
 	}
 }
 
@@ -117,8 +114,7 @@ void Gameplay::MakePlayerProjectile() {
 	Projectiles.emplace_back( Projectile(
 							 Projectile::Type::Player,
 							 { player.getX(), Window::Height - PROJECTILE_BASE_POS_Y },
-							 &_game->texturePack )
-					 );
+							 &_game->texture_pack ) );
 }
 void Gameplay::AliensShooting() {
 	if (alienSwarm.empty()) {
@@ -132,9 +128,7 @@ void Gameplay::AliensShooting() {
 	Projectiles.push_back(Projectile(
 						   Projectile::Type::Alien,
 						   alienSwarm.getRandomAlienPosition(),
-						   &_game->texturePack
-						   )
-				    );
+						   &_game->texture_pack ) );
 	alienShootTimer = 0;
 }
 

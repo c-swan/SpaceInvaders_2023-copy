@@ -7,17 +7,19 @@
 #include "TextUI.h"
 
 struct Bunker {
-	Bunker(float x, float y, TexturePack* txtrPck) : texturePack(txtrPck), position{x, y} {
+	Bunker(float x, float y, TexturePack* txtrPck) : texture_pack(txtrPck), position{x, y} {
 
-		healthText.position = textPosition + getPosition();
+		healthText.position = getPosition();
 		healthText.text = std::to_string(health);
+		healthText.offset.y = 10;
+		healthText.CenterAlign();
 		healthText.fontColor = BUNKER_TEXT_COLOR;
 	}
 	void Render(Renderer& renderer) {
 		if(isDead()) {
 			return;
 		}
-		renderer.Render(texturePack->getTexture(BUNKER_TEXTURE_NAME), bounds, position);
+		renderer.Render(texture_pack->getTexture(BUNKER_TEXTURE_NAME), getRect(BUNKER_SIZE), position);
 		renderer.DrawText(healthText);
 	}
 	void setHealth(int h) noexcept {
@@ -33,13 +35,12 @@ struct Bunker {
 	void hit() noexcept { setHealth(health - 1); }
 
 private:
-	TexturePack* texturePack;
+	TexturePack* texture_pack;
 	Vector2 position;
-	Rectangle bounds{0, 0, BUNKER_SIZE, BUNKER_SIZE}; //size
 
 	int radius = BUNKER_RADIUS;
 	int maxHealth = BUNKER_MAX_HEALTH;
 	int health = maxHealth;
-	Vector2 textPosition{-21, 10};
+//	Vector2 textPosition{0, 10}; //-21
 	TextUI healthText;
 };

@@ -14,5 +14,12 @@ struct TextUI {
 	Vector2 position = {0,0};
 	int fontSize = DEFAULT_FONT_SIZE;
 	Color fontColor = DEFAULT_FONT_COLOR;
+	Vector2 offset = {0,0};
 
+	int GetWidth() const noexcept { return MeasureText(text.c_str(), fontSize); }
+
+	void CenterAlign() { offset.x = -GetWidth() / 2; }
+	void LeftAlign() { offset.x = 0; }
+	void RightAlign() { offset.x = - GetWidth(); }
+	void VerticalAlign() { offset.y = - fontSize / 2; }
 };

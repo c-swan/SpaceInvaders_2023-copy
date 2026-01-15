@@ -18,7 +18,7 @@ public:
 
 	void DrawText(std::string text, Vector2 pos, int fontSize = DEFAULT_FONT_SIZE, Color fontColor = DEFAULT_FONT_COLOR) { ::DrawText(text.c_str(), pos.x, pos.y, fontSize, fontColor); }
 
-	void DrawText(TextUI& text) { DrawText(text.text, text.position, text.fontSize, text.fontColor); }
+	void DrawText(TextUI& text) { DrawText(text.text, text.position + text.offset, text.fontSize, text.fontColor); }
 
 	//scaling purposes...
 	const Rectangle& getBounds() const noexcept { return bounds; }

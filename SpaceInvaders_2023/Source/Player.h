@@ -10,7 +10,6 @@ public:
 		position.y = Window::Height - PLAYER_BASE_HEIGHT;
 		position.x = Window::Width / 2;
 	}
-	Rectangle bounds {0, 0, 100, 100};
 
 	int animation_frame = 0;
 	float animation_timer = 0;
@@ -19,7 +18,7 @@ public:
 	const Vector2& getPosition() const noexcept { return position; }
 	Circle getCollider() const noexcept { return Circle(position, radius);}
 
-	void Render(Renderer& renderer) { renderer.Render(getTexture(), bounds, position); }
+	void Render(Renderer& renderer) { renderer.Render(getTexture(), getRect(PLAYER_SIZE), position); }
 	void Update() {
 		move();
 		animate();
@@ -40,7 +39,7 @@ public:
 	Texture2D* getTexture() { return texturePack->getShipTexture(animation_frame); }
 	bool isDead() const noexcept { return lives < 1; }
 	int getLives() const noexcept { return lives; }
-	void hit() noexcept { lives--; lives = std::clamp(lives, 0, PLAYER_MAX_LIVES); }
+	void hit() noexcept { lives = std::clamp(--lives, 0, PLAYER_MAX_LIVES); }
 private:
 	Vector2 position;
 	TexturePack* texturePack;

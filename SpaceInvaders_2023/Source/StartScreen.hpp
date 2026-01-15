@@ -4,12 +4,16 @@
 
 class StartScreen : public GameScene {
 public:
-	StartScreen(Game* game) : GameScene(game) { }
+	StartScreen(Game* game) : GameScene(game) {
+		for(auto& t: text) {
+			t.CenterAlign();
+		}
+	}
 	~StartScreen() { }
 
 	std::vector<TextUI> text {
-		{"SPACE INVADERS", {200, 100}, TITLE_FONT_SIZE},
-		{"PRESS SPACE TO BEGIN", {200, 350}}
+		{"SPACE INVADERS", {Window::Width / 2.0f, 100}, TITLE_FONT_SIZE}, //x = 200
+		{"PRESS SPACE TO BEGIN", {Window::Width / 2.0f, 350}} //x = 200
 	};
 
 	virtual std::optional<GameScene*> Update() {
