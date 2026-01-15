@@ -9,7 +9,6 @@ Gameplay::Gameplay(Game* game) : GameScene(game), player(&game->texture_pack), a
 	if(_game == nullptr) {
 		throw ErrorType::NULLPTR_GAME;
 	}
-
 	Stars.resize(STAR_COUNT);
 	SpawnBunkers();
 }
@@ -29,6 +28,7 @@ std::optional<GameScene*> Gameplay::Update() {
 	if (IsKeyPressed(KEY_SPACE)) {
 		MakePlayerProjectile();
 	}
+
 	AliensShooting();
 	CheckAllCollisions();
 	RemoveInactiveEntities();
@@ -93,6 +93,11 @@ void Gameplay::CheckCollision(Bunker& bunker, Projectile& projectile) {
 		projectile.hit();
 		bunker.hit();
 	}
+}
+bool Gameplay::DrawColliders(const Circle &circle, const Rectangle &rect, bool collision) {
+	DrawRectangleLinesEx(rect, 5, collision ? GREEN : RED);
+	DrawCircleV(circle.center, circle.radius, collision ? GREEN : RED);
+	return collision;
 }
 
 void Gameplay::RemoveInactiveEntities() {
